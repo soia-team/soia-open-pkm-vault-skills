@@ -1,0 +1,27 @@
+name: Audit Skills
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.11"
+      - name: Install audit dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Run tooling unit tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - name: Audit skills
+        run: python3 scripts/audit_skills.py --strict
+      - name: Check skill catalog freshness
+        run: python3 scripts/generate_skill_catalog.py --check
