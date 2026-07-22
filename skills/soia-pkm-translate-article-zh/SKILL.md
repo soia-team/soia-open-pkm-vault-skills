@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-translate-article-zh
-description: 三模式翻译技能——quick 直译、normal（默认）先分析文体术语受众再译、refined 在此基础上加审校+润色出版级流程。长文用机械分块脚本按标题/段落切块保术语一致，产出独立的“原文件名-中文版.md”落原文件同目录，绝不覆盖原文。典型用于翻译 clip-x/clip-web 归档的英文文章。Triggers：「翻译这篇」「translate this」「精翻」「快翻」「把这篇文章翻成中文」「校对翻译」「继续润色」
-version: 2.0.0
+description: 将外文文章按 quick、normal 或 refined 模式翻译成独立中文稿，保持术语一致且不覆盖原文。触发：「翻译这篇」「精翻」「继续润色」
+version: 2.0.1
 created_at: 2026-07-09 20:56:44
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-23 07:17:12
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 ---

@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-interpret-article-analysis
-description: 对 vault 里 clip 进来的长文/论文，AI 给出解读：内容总览/核心要点/关键启发/批判视角/延伸阅读五段式，产出独立的“原文件名-AI解读.md”，不碰原文的“我的看法”段。distill 苏格拉底提问炼用户观点，interpret 是 AI 解读，帮你判断值不值得深挖。默认快读，说「精读」升级逐节展开。Triggers：「解读这篇」「这篇讲了什么」「帮我快速理解」「AI 解读」「值得细读吗」
-version: 2.0.0
+description: 为 vault 长文或论文生成独立 AI 解读，帮助判断是否值得深挖，且不改原文或代写用户观点。触发：「解读这篇」「精读这篇」「值得细读吗」
+version: 2.0.1
 created_at: 2026-07-10 09:10:23
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-23 07:17:12
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 ---

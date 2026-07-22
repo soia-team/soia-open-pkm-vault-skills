@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-transform-article-ppt
-description: 把文章、Markdown、URL、提纲、数据表或主题转换为以可编辑 PPTX 为核心的演示媒体包，可同时生成封面/插画素材、信息图、逐页预览和 NotebookLM 视觉对照版。适用于「做PPT」「生成PPTX」「转成课件」「做演示文稿」「生成图片素材」「NotebookLM做PPT」「两版PPT对比」「article to deck」「make slides」。
-version: 2.1.0
+description: 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包。触发：「做 PPT」「生成 PPTX」「转成课件」
+version: 2.1.1
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-23 07:17:12
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 dependencies:

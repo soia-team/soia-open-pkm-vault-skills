@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-distill-article-opinion
-description: 把 Obsidian vault 里收藏的文章「炼」成你自己的观点。读原文 → 苏格拉底式一次抛一个问题 → 你口述回答 → AI 把你的回答整理成「我的看法」段（内容是你的，AI 只帮落文字，绝不替你想、替你写），写完给你回执。也支持主题聚合：把一个 MOC 下多篇文章的观点提炼成一篇综述。Triggers：「给这篇补我的看法」「提炼这篇的观点」「把 X 主题炼成观点」「这篇我怎么看」「帮我想想这篇」「distill 这篇」
-version: 2.0.0
+description: 通过苏格拉底式逐问，把用户对 vault 文章的回答整理成其本人观点，并写入「我的看法」或主题综述。触发：「补我的看法」「炼成观点」「主题观点综述」
+version: 2.0.1
 created_at: 2026-07-02 16:41:13
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-23 07:17:12
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 ---

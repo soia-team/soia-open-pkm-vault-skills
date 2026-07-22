@@ -1,6 +1,6 @@
 ---
 name: soia-pkm-bootstrap-vault-base
-description: 初始化知识库通用结构：创建 PARA 目录、AGENTS 规则、Markdown 模板和多 AI 入口，并接入 soia-pkm-* 闭环技能。知识库中立，适用于任意本地 Markdown 知识库；Obsidian 或腾讯 ima 特化配置请使用对应 skill。Triggers：「初始化知识库」「从零建 Markdown 知识库」「搭通用 vault 骨架」「新建 PKM 库」
+description: 初始化知识库中立的 Markdown vault 骨架、多 AI 入口与 PKM 闭环，不包含平台特化配置。触发：「初始化知识库」「从零建 Markdown 知识库」「搭通用 vault 骨架」
 dependencies:
   external:
     - name: weread-skills
@@ -9,9 +9,9 @@ dependencies:
     - name: huashu-weread-advisor
       required: false
       install: "npx skills add alchaincyf/huashu-weread -g -y"
-version: 2.0.0
+version: 2.0.1
 created_at: 2026-07-02 16:45:19
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-23 07:17:12
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 ---
