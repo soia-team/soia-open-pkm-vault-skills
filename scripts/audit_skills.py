@@ -132,6 +132,7 @@ SRC_TARGET_RE = re.compile(r'src\s*=\s*"([^"]+)"')
 # Explicit repo-root docs that skills are allowed to link out to (established usage:
 # skills/soia-pkm-clip-wechat-account/SKILL.md links to ../../SKILL_SPEC.md).
 ALLOWED_ROOT_DOC_LINKS = {"README.md", "SKILL_SPEC.md", "CONTRIBUTING.md", "LICENSE", "AGENTS.md"}
+SHARED_TRANSFORM_REFERENCES = Path("shared/transform/references")
 CUSTOMER_READABLE_RULES = (
     ("customer-readable introduction", ("客户可读说明", "客户可见介绍")),
     ("capability section", ("这个技能可以做什么", "能做什么")),
@@ -443,6 +444,14 @@ def check_link_target(root: Path, skill_dir: Path, source_file: Path, target: st
         resolved.relative_to(skill_root)
     except ValueError:
         root_resolved = root.resolve()
+        shared_transform_root = (root / SHARED_TRANSFORM_REFERENCES).resolve()
+        try:
+            resolved.relative_to(shared_transform_root)
+        except ValueError:
+            pass
+        else:
+            if skill_dir.name.startswith("soia-pkm-transform-") and resolved.exists():
+                return None
         if resolved.parent == root_resolved and resolved.name in ALLOWED_ROOT_DOC_LINKS:
             if not resolved.exists():
                 return f"relative link target not found: {target}"
@@ -470,7 +479,7 @@ def audit_skill_links(root: Path, skill_dir: Path, findings: list[Finding]) -> N
     md_files = [skill_dir / "SKILL.md"]
     references_dir = skill_dir / "references"
     if references_dir.is_dir():
-        md_files.extend(sorted(references_dir.rglob("*.md")))
+        md_files.extend(sorted(references_dir.resolve().rglob("*.md")))
 
     for md_file in md_files:
         if not md_file.is_file():
@@ -546,6 +555,7 @@ def collect_findings(root: Path) -> list[Finding]:
         root / "README.en.md",
         root / "CONTRIBUTING.md",
         skills_root,
+        root / "shared",
     ]
     for scan_root in scan_roots:
         if scan_root.is_file():
