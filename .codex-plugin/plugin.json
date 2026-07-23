@@ -1,0 +1,23 @@
+{
+  "name": "soia-pkm-vault",
+  "version": "1.0.0",
+  "description": "知识库技能：初始化、整理、提炼、翻译、转换与书库",
+  "author": {
+    "name": "soia-team"
+  },
+  "interface": {
+    "displayName": "知识库技能库",
+    "shortDescription": "知识库初始化、整理、提炼、翻译与转换",
+    "longDescription": "用于初始化和维护知识库，并完成内容整理、观点提炼、翻译、格式转换与书库管理的技能。",
+    "developerName": "soia-team",
+    "category": "Productivity",
+    "capabilities": [
+      "知识库维护",
+      "内容提炼",
+      "格式转换"
+    ],
+    "defaultPrompt": [
+      "请整理这批知识库内容并生成可导航的结构。"
+    ]
+  }
+}
