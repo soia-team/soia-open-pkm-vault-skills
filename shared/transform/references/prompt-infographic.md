@@ -11,7 +11,7 @@ params:
   canvas: "1080x1920"             # 900x1600 | 1080x1920 | 1440x2560 | auto
   density: high                   # dense | high
   audience: auto
-  style: research_poster          # research_poster | magazine | xhs | course | technical
+  style: research_poster          # research_poster | editorial_map | magazine | xhs | course | technical
   content_mode: visual_dense
 ```
 
@@ -49,6 +49,31 @@ params:
 - 先给信息架构 YAML。
 - 再给完整 HTML/CSS。
 - 渲染成 PNG 后检查：尺寸、可读性、重叠、截断。
+```
+
+## 编辑型地图变体
+
+当 `style: editorial_map` 或用户提供了类似术语地图的参考图时，使用下面的额外约束：
+
+```text
+视觉方向：编辑型知识地图，不是摘要卡片墙。
+
+构图：
+1. 顶部是一个有明确主判断的标题区，标题不超过两行。
+2. 左侧约占 35%，用 5-8 个编号节点形成纵向认知路径；每个节点只写短标题、一个问题句和 2-4 个关键词。
+3. 右侧约占 65%，用 3-6 个无字视觉素材组成一条连续的视觉隐喻链；素材之间用路径、箭头或形态变化连接。
+4. 底部用 2-3 个深色结论区收束：先记什么、如何使用、需要警惕什么。
+
+文字预算：
+- 节点正文 ≤ 35 个中文字符。
+- 右侧素材不承载事实文字。
+- 底部每块 ≤ 55 个中文字符。
+- 不得为了容纳全文而把正文缩小到海报阅读距离不可读。
+
+负向约束：
+- 不要统计面板、三列数字卡、连续同尺寸卡片或重复摘录。
+- 不要把 10 个条目简单排成 10 张同模板卡片。
+- 不要让 imagegen 生成中文标题、表格、数字或来源说明。
 ```
 
 ## QA Gate

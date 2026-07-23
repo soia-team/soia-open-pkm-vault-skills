@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-transform-obsidian-pdf
 description: 用 Obsidian 原生导出把 vault 内 Markdown 笔记导出为 PDF。vault 外文章降级 pandoc/weasyprint。Triggers：「转成PDF」「导出PDF」「归档并转PDF」「生成PDF」「export PDF」
-version: 1.1.0
+version: 1.1.1
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-23 17:38:00
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 ---
@@ -78,7 +78,7 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 2. URL → `soia-pkm-clip-*` → 得到 vault Markdown 路径。
 3. vault 内文章 → Obsidian URI 打开 → `File > 导出 PDF`（osascript 自动化，参照 `references/provider-soia-local.md`）。
 4. 确认保存路径，移到目标目录。
-5. 验收：`pdfinfo` 确认页数 > 0、Creator/Producer、文件非空；必要时渲染首页目视中文。
+5. 验收：`pdfinfo` 确认页数 > 0、Creator/Producer、文件非空；必要时渲染首页目视中文。vault 内文章的正式 PDF 必须满足 `Creator: Chromium` 或 `Producer: Skia/PDF`；`wkhtmltopdf`、Qt、pandoc 等只算降级产物。
 6. 回执。
 
 ## 验收门（摘自 quality-gates.md）
@@ -88,5 +88,5 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 - Creator: Chromium 或 Producer: Skia/PDF（Obsidian 导出标志）
 - 首页目视：中文正常、无乱码、无全黑页
 
-详见 [references/quality-gates.md](references/quality-gates.md)。
+详见 [PDF-QUALITY-GATES.md](PDF-QUALITY-GATES.md)。
 [references/provider-soia-local.md](references/provider-soia-local.md)。

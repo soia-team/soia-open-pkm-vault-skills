@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-transform-article-visual
 description: 把文章转换为长图、信息图、海报、封面、插画等视觉产物。HTML/CSS 截图为本地默认方案，可选 Open Design 或 Codex 图生成。Triggers：「生成长图」「做成信息图」「转成海报」「生成封面」「做成图片」「export visual」「make infographic」
-version: 1.2.0
+version: 1.2.2
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-23 17:46:00
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 dependencies:
@@ -22,6 +22,7 @@ dependencies:
 
 - **长图**：完整文章内容纵向展开为单张 PNG/JPEG
 - **信息图**：核心概念可视化，节点 + 连接 + 标注
+- **术语地图 / 路线图**：左侧认知路径 + 右侧视觉隐喻 + 底部结论
 - **海报 / 封面**：单张设计稿，强排版重视觉
 - **插画 / 封面图**：可选 Codex imagegen 生成配图
 
@@ -43,7 +44,7 @@ dependencies:
 npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transform-article-visual -y
 ```
 
-- 本地截图方案：`pip install playwright && playwright install chromium`
+- 本地截图方案：优先使用当前 agent 的浏览器截图能力；命令行 smoke 可注入 Playwright，也可在缺少 Playwright 时使用系统浏览器/PDF-图片工具 fallback。
 - Open Design（可选强化依赖）：安装 `soia-dev-open-design-ops` 后才可使用 `provider=open-design`；见 [references/provider-open-design.md](references/provider-open-design.md)
 - Codex image / imagegen（可选）：见 [references/prompt-codex-image.md](references/prompt-codex-image.md)
 
@@ -91,11 +92,12 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 ## 工作流
 
 1. 确认来源 → URL 先 clip。
-2. 确定 `visual_type`：`long_image`（默认）/ `infographic` / `poster` / `cover` / `illustration`。
+2. 确定 `visual_type`：`long_image`（默认）/ `infographic` / `concept_map` / `poster` / `cover` / `illustration`。
 3. 选 provider：用户指定 > 配置 > 本地 HTML/CSS 截图。
-4. 读 [references/prompt-infographic.md](references/prompt-infographic.md) 或 [references/prompt-codex-image.md](references/prompt-codex-image.md)（封面/插画时）生成 prompt，落盘。
+4. 读 [references/prompt-infographic.md](references/prompt-infographic.md) 或 [references/prompt-codex-image.md](references/prompt-codex-image.md)（封面/插画时）生成 prompt，落盘。用户提供参考图时，先提取其版式语法，不直接复制内容。
 5. 生成产物到 `outputs/transform/<YYYY>/<stem>/`。
-6. 验收：文件存在、尺寸合理、目视中文无乱码、无截断。
-7. 回执。
+6. 先跑机械质量门，再实际渲染 PNG；最后用 `view_image` 或等价视觉检查确认中文可读、无重叠、无截断。
+7. 任何 fallback 必须在 manifest 和回执中写明真实 provider，不得把浏览器工具 fallback 写成 Open Design 或 imagegen。
+8. 回执。
 
 详见 [references/prompt-infographic.md](references/prompt-infographic.md)、[references/design-prompts.md](references/design-prompts.md)、[references/quality-gates.md](references/quality-gates.md)、[references/provider-open-design.md](references/provider-open-design.md)。Open Design 的环境、daemon、目录与导出原子操作以 `soia-dev-open-design-ops/SKILL.md` 为单一真源。

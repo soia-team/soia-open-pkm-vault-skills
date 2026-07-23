@@ -10,6 +10,7 @@
 |----------|-------------|---------------|----------|
 | PPT / 课件 | [prompt-ppt.md](prompt-ppt.md) | 当前 agent presentations / HTML deck | 8-12 页、叙事结构、版式轮廓变化、可渲染检查 |
 | 高密度长图 / 信息图 / 海报 | [prompt-infographic.md](prompt-infographic.md) | local_visual HTML/CSS screenshot | 中文密集文字必须排版在 HTML/CSS，不优先生图 |
+| 术语地图 / 概念路线图 | [prompt-infographic.md](prompt-infographic.md) §编辑型地图 | local_visual + Codex imagegen 素材 | 左侧路径、右侧视觉链、底部结论；禁止退化为卡片墙 |
 | 封面图 / 头图 / 背景图 | [prompt-codex-image.md](prompt-codex-image.md) | Codex imagegen / gpt-image-2 / image provider | 少字或无字；最终标题建议后期叠加 |
 | 插画 / 图标 / 视觉隐喻 | [prompt-codex-image.md](prompt-codex-image.md) | Codex imagegen / gpt-image-2 / image provider | 生成视觉资产，不承载事实密集信息 |
 | 视觉报告 / PDF report | [prompt-report.md](prompt-report.md) | Markdown/HTML/PDF provider | 结构化综合，不冒充全文 PDF |
@@ -52,6 +53,19 @@ qa:
   overlap_check: true
   readability_check: true
 ```
+
+## 编辑型术语地图参考语法
+
+当用户给出类似「AI TERMINOLOGY MAP」的参考图，或目标是入门导航、术语地图、政策路线图，默认提取以下设计合同：
+
+- **构图**：顶部标题与一句主判断；主体采用约 35% / 65% 的左右分栏；左侧是 5-8 个带编号的纵向认知路径，右侧是一条连续的视觉隐喻链；底部是 2-3 个结论/行动区。
+- **视觉层级**：标题 > 路径节点 > 右侧主视觉 > 底部结论；每个节点只保留短标题、一个问题句和 2-4 个关键词。
+- **色彩**：白或暖白底、深海军蓝文字；蓝/青/橙/紫/绿只作为语义强调色，不用渐变铺满页面。
+- **素材**：右侧视觉链可以调用 Codex imagegen / `gpt-image-2` 生成无字视觉素材；中文、数字、标签和连线必须由 HTML/CSS 或 PPT 排版。
+- **文字预算**：单个路径节点正文不超过 35 个中文字符；底部结论每块不超过 55 个中文字符；超过预算就拆节点或移到 PDF/正文，不缩小字体硬塞。
+- **禁止项**：不要用三列统计面板、连续同尺寸卡片、重复 source 摘录、满屏边框和“每段一张卡”的自动摘要风格。
+
+参考图只提供视觉语法，不提供事实内容；所有节点名称、数字和结论仍必须回指 source。
 
 负向约束默认包含：
 
