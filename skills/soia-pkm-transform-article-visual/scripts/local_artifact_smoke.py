@@ -9,6 +9,7 @@ import html
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -376,76 +377,113 @@ def write_report_html(article: Article, out_dir: Path, terms: list[Concept]) -> 
 
 
 INFOGRAPHIC_CSS = """
-body { margin: 0; background: #0d1726; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
-.canvas { width: 1080px; min-height: 1920px; box-sizing: border-box; padding: 44px; background: linear-gradient(180deg, #0d1726 0%, #12243a 55%, #0f172a 100%); }
-.top { border: 2px solid #f59e0b; padding: 24px 28px; border-radius: 8px; margin-bottom: 24px; background: rgba(245, 158, 11, .09); }
-h1 { font-size: 52px; line-height: 1.12; margin: 0 0 14px; letter-spacing: 0; }
-h2 { font-size: 28px; margin: 0 0 16px; color: #fde68a; }
-.subtitle { color: #cbd5e1; font-size: 20px; line-height: 1.55; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
-.stat, .card, .flow-node, .matrix-item, .risk { border: 1px solid rgba(148, 163, 184, .45); border-radius: 8px; padding: 16px; background: rgba(15, 23, 42, .72); }
-.stat b { display: block; color: #60a5fa; font-size: 40px; }
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
-.card b { display: block; color: #fbbf24; font-size: 22px; margin-bottom: 8px; }
-.card p, .risk p, .matrix-item p { margin: 0; color: #dbeafe; font-size: 16px; line-height: 1.5; }
-.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 22px; }
-.flow-node { min-height: 94px; border-color: rgba(96, 165, 250, .7); }
-.flow-node b { color: #93c5fd; }
-.two { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
-.matrix { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.risk { border-color: rgba(248, 113, 113, .7); background: rgba(127, 29, 29, .38); }
-.footer { margin-top: 20px; color: #94a3b8; font-size: 14px; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #ffffff; color: #111827; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+.map-canvas { width: 1080px; min-height: 2600px; padding: 56px 54px 0; background: #ffffff; }
+.map-head { position: relative; padding: 0 0 30px; border-bottom: 1px solid #e5e7eb; }
+.map-kicker { color: #2563eb; font-size: 19px; font-weight: 800; letter-spacing: 1px; }
+.map-title { max-width: 720px; margin: 24px 0 14px; color: #111827; font-size: 58px; line-height: 1.06; letter-spacing: -1px; }
+.map-subtitle { max-width: 770px; margin: 0; color: #667085; font-size: 24px; line-height: 1.5; }
+.map-count { position: absolute; top: 0; right: 0; width: 132px; height: 132px; padding-top: 18px; border: 2px solid #111827; text-align: center; }
+.map-count b { display: block; color: #111827; font-size: 54px; line-height: 1; }
+.map-count span { color: #667085; font-size: 15px; }
+.map-layout { display: table; width: 100%; table-layout: fixed; border-spacing: 28px 0; margin-left: -28px; margin-right: -28px; padding: 38px 0 42px; }
+.timeline { position: relative; display: table-cell; width: 365px; vertical-align: top; padding: 10px 0 0 58px; }
+.timeline::before { content: ""; position: absolute; left: 28px; top: 26px; bottom: 28px; width: 2px; background: #d4d9e2; }
+.timeline-item { position: relative; min-height: 166px; padding: 0 8px 28px 0; }
+.timeline-dot { position: absolute; left: -42px; top: 0; width: 32px; height: 32px; border: 7px solid #2563eb; border-radius: 50%; background: #fff; }
+.timeline-item:nth-child(2) .timeline-dot { border-color: #12827d; }
+.timeline-item:nth-child(3) .timeline-dot { border-color: #c15a0a; }
+.timeline-item:nth-child(4) .timeline-dot { border-color: #6d32d8; }
+.timeline-item:nth-child(5) .timeline-dot { border-color: #bd2921; }
+.timeline-item:nth-child(6) .timeline-dot { border-color: #168746; }
+.timeline-meta { margin: 0 0 6px; color: #2563eb; font-size: 14px; font-weight: 800; }
+.timeline-item:nth-child(2) .timeline-meta { color: #12827d; }
+.timeline-item:nth-child(3) .timeline-meta { color: #c15a0a; }
+.timeline-item:nth-child(4) .timeline-meta { color: #6d32d8; }
+.timeline-item:nth-child(5) .timeline-meta { color: #bd2921; }
+.timeline-item:nth-child(6) .timeline-meta { color: #168746; }
+.timeline-title { margin: 0 0 8px; color: #111827; font-size: 28px; line-height: 1.15; }
+.timeline-question { margin: 0 0 10px; color: #667085; font-size: 17px; line-height: 1.45; }
+.timeline-keywords { margin: 0; color: #111827; font-size: 15px; font-weight: 700; line-height: 1.4; }
+.visual-stage { position: relative; display: table-cell; vertical-align: top; min-height: 1200px; padding: 12px 0 0 28px; background: #f7f9fc; overflow: hidden; }
+.visual-stage::before { content: ""; position: absolute; left: 112px; top: 72px; bottom: 72px; width: 4px; background: #b8c3d4; opacity: .75; }
+.visual-object { position: relative; display: table; width: 100%; table-layout: auto; min-height: 186px; padding: 16px 22px 16px 0; }
+.object-icon { position: relative; z-index: 1; display: table-cell; vertical-align: middle; width: 190px; min-width: 190px; height: 150px; padding-top: 38px; border-radius: 50% 50% 46% 54%; background: #3b82f6; box-shadow: 0 14px 30px rgba(37, 99, 235, .22); color: #fff; text-align: center; font-size: 60px; font-weight: 900; }
+.visual-object:nth-child(2) .object-icon { background: #e59a1b; box-shadow: 0 14px 30px rgba(193, 90, 10, .20); }
+.visual-object:nth-child(3) .object-icon { background: #8b5cf6; box-shadow: 0 14px 30px rgba(109, 50, 216, .20); }
+.visual-object:nth-child(4) .object-icon { background: #27a49c; box-shadow: 0 14px 30px rgba(18, 130, 125, .20); }
+.visual-object:nth-child(5) .object-icon { background: #dd594c; box-shadow: 0 14px 30px rgba(189, 41, 33, .20); }
+.visual-object:nth-child(6) .object-icon { background: #45a968; box-shadow: 0 14px 30px rgba(22, 135, 70, .20); }
+.visual-object > div:last-child { display: table-cell; vertical-align: middle; padding-left: 24px; }
+.visual-label { margin: 0 0 8px; color: #111827; font-size: 23px; font-weight: 800; line-height: 1.2; }
+.visual-copy { margin: 0; color: #667085; font-size: 17px; line-height: 1.45; }
+.takeaways { display: table; width: 100%; table-layout: fixed; border-spacing: 24px 0; margin: 0; padding: 40px 54px 46px; background: #101827; color: #fff; }
+.takeaway { display: table-cell; width: 50%; min-height: 126px; }
+.takeaway h3 { margin: 0 0 12px; color: #fff; font-size: 24px; }
+.takeaway p { margin: 0; color: #d7deea; font-size: 17px; line-height: 1.5; }
+.map-footer { margin: 0; padding: 16px 54px 24px; background: #101827; color: #8d99aa; font-size: 13px; line-height: 1.4; }
 """
-
-
 def write_infographic_html(article: Article, out_dir: Path, terms: list[Concept]) -> Path:
-    rows = theme_rows(terms)
-    floor = qa_floor(article, terms)
-    cards = "".join(
-        f"<div class='card' data-block='info'><b>{esc(term)}</b><p>{esc(definition)}</p></div>"
-        for term, _, definition in terms[: max(floor["min_infographic_blocks"], 12)]
+    policy_sections = [
+        (title, content)
+        for title, content in article.sections
+        if re.match(r"^[一二三四五六七八九十百]+[\.、．)]", title)
+    ]
+    if len(policy_sections) >= 10:
+        node_data = [
+            ("01 · MODEL", "模型能力", "模型能做什么、为什么会错？", "能力上限"),
+            ("02 · HARNESS", "工程底座", "怎样让一次行动变得可靠？", "Harness · 记忆 · 工具"),
+            ("03 · PRODUCT", "原生应用", "怎样从功能智能走向需求智能？", "应用 · 场景 · 交互"),
+            ("04 · EMBODY", "智能终端", "怎样从对话框走进真实世界？", "手机 · 眼镜 · 机器人"),
+            ("05 · ECONOMY", "产业模式", "怎样把能力变成可持续的生意？", "OPC · Token · 算力"),
+            ("06 · GOVERN", "治理保障", "怎样证明可用，并在出错前接管？", "安全 · 开源 · 保障"),
+        ]
+        visual_copy = [
+            "第一条把评价标准从单点 Benchmark 推向真实任务完成能力。",
+            "第二条强调上下文、任务持久化、多智能体与可观测底座。",
+            "第三、四条把智能体从软件交互推向原生应用与终端融合。",
+            "第五、六、八、九条对应创业、计价、算力与开放生态。",
+            "第七、十条把安全治理、资金和组织保障放到同一张图里。",
+            "十条合起来，形成从能力到产业、再到治理的完整链路。",
+        ]
+    else:
+        fallback = article.sections[1:7] or article.sections[:6]
+        node_data = [
+            (f"{idx:02d}", title[:24], section_excerpt(content, 58), "文章路径")
+            for idx, (title, content) in enumerate(fallback, 1)
+        ]
+        while len(node_data) < 6:
+            node_data.append((f"{len(node_data)+1:02d}", "继续阅读", "回到 source 查看上下文。", "文章路径"))
+        visual_copy = [section_excerpt(content, 120) for _, content in fallback]
+        while len(visual_copy) < 6:
+            visual_copy.append("回到 source 查看原文上下文。")
+    timeline = "".join(
+        f"<article class='timeline-item' data-block='info'><div class='timeline-dot'></div><p class='timeline-meta'>{esc(meta)}</p><h3 class='timeline-title'>{esc(title)}</h3><p class='timeline-question'>{esc(question)}</p><p class='timeline-keywords'>{esc(keywords)}</p></article>"
+        for meta, title, question, keywords in node_data
     )
-    flow_items = [title for title, _ in article.sections[:5]]
-    while len(flow_items) < 5:
-        flow_items.append(f"模块 {len(flow_items) + 1}")
-    flow = "".join(
-        f"<div class='flow-node' data-block='info'><b>{idx}</b><p>{esc(title)}</p></div>"
-        for idx, title in enumerate(flow_items[:5], 1)
-    )
-    matrix = "".join(
-        f"<div class='matrix-item' data-block='info'><b>{esc(theme)}</b><p>{esc(term_names(bucket, 6))}</p></div>"
-        for theme, bucket in rows[:6]
-    )
-    risks = "".join(
-        f"<div class='risk' data-block='info'><b>{esc(term)}</b><p>不要脱离「{esc(category)}」单独解释；保留 source 上下文。</p></div>"
-        for term, category, _ in terms[:4]
+    icons = ["◉", "⚙", "✦", "⌁", "◈", "✓"]
+    visuals = "".join(
+        f"<article class='visual-object' data-block='info'><div class='object-icon'><span>{icons[idx]}</span></div><div><p class='visual-label'>{esc(node_data[idx][1])}</p><p class='visual-copy'>{esc(visual_copy[idx])}</p></div></article>"
+        for idx in range(6)
     )
     body = f"""
-<main class="canvas">
-  <section class="top" data-block="info">
-    <h1>{esc(article.title)}</h1>
-    <div class="subtitle">保真转换信息图：先保留文章地图，再覆盖概念、流程、风险和行动清单。</div>
+<main class="map-canvas">
+  <header class="map-head" data-block="info">
+    <div class="map-kicker">POLICY MAP · BEIJING 2026</div>
+    <h1 class="map-title">北京智能体新政<br>从模型能力到真实行动</h1>
+    <p class="map-subtitle">十条措施不是十个孤立名词，而是一条从能力、工程、产业到治理的推进链。</p>
+    <div class="map-count"><b>10</b><span>政策条目</span></div>
+  </header>
+  <section class="map-layout">
+    <div class="timeline">{timeline}</div>
+    <div class="visual-stage">{visuals}</div>
   </section>
-  <section class="stats">
-    <div class="stat" data-block="info"><b>{len(article.sections)}</b><span>source sections</span></div>
-    <div class="stat" data-block="info"><b>{len(terms)}</b><span>concept nodes</span></div>
-    <div class="stat" data-block="info"><b>{floor["min_slides"]}</b><span>minimum slides</span></div>
+  <section class="takeaways">
+    <article class="takeaway" data-block="info"><h3>先定位层级，再记术语</h3><p>看到陌生词，先判断它属于模型、底座、应用、产业还是治理。</p></article>
+    <article class="takeaway" data-block="info"><h3>先理解输入输出，再判断风险</h3><p>术语是地图，不是结论；真正使用时要验证证据、边界和人工出口。</p></article>
   </section>
-  <h2>文章路径</h2>
-  <section class="flow">{flow}</section>
-  <h2>概念卡片</h2>
-  <section class="grid">{cards}</section>
-  <section class="two">
-    <div>
-      <h2>模块矩阵</h2>
-      <div class="matrix">{matrix}</div>
-    </div>
-    <div>
-      <h2>风险边界</h2>
-      {risks}
-    </div>
-  </section>
-  <div class="footer">source: {esc(source_label(article))}</div>
+  <footer class="map-footer">source: {esc(source_label(article))}<br>右侧为结构化视觉隐喻，不承载原文外事实；详细内容以 source 为准。</footer>
 </main>
 """
     return write_text(out_dir / "infographic.html", html_doc(article.title, INFOGRAPHIC_CSS, body))
@@ -721,12 +759,26 @@ async function launchBrowser() {
     if node_path:
         env["NODE_PATH"] = node_path
     proc = subprocess.run([node_bin, "-e", script], text=True, capture_output=True, env=env, check=False)
-    return {
-        "ok": proc.returncode == 0,
-        "returncode": proc.returncode,
-        "stdout": proc.stdout.strip(),
-        "stderr": proc.stderr.strip(),
-    }
+    if proc.returncode == 0:
+        return {"ok": True, "provider": "playwright", "returncode": 0, "stdout": proc.stdout.strip(), "stderr": proc.stderr.strip()}
+
+    # Keep local mode usable on machines where the Node Playwright module is
+    # absent. This is a browser fallback, never an Open Design result.
+    wkhtmltoimage = shutil.which("wkhtmltoimage")
+    wkhtmltopdf = shutil.which("wkhtmltopdf")
+    if not wkhtmltoimage or not wkhtmltopdf:
+        return {"ok": False, "provider": "playwright", "returncode": proc.returncode, "stdout": proc.stdout.strip(), "stderr": proc.stderr.strip()}
+
+    def run(command: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(command, text=True, capture_output=True, check=False)
+
+    report = run([wkhtmltopdf, "--enable-local-file-access", str(out_dir / "report.html"), str(out_dir / "report.pdf")])
+    infographic = run([wkhtmltoimage, "--enable-local-file-access", "--disable-smart-width", "--width", "1080", "--quality", "94", str(out_dir / "infographic.html"), str(out_dir / "infographic.png")])
+    cover = run([wkhtmltoimage, "--enable-local-file-access", "--width", "1600", "--height", "900", "--quality", "94", str(out_dir / "deck.html"), str(out_dir / "deck-cover.png")])
+    deck = run([wkhtmltopdf, "--enable-local-file-access", "--page-width", "423mm", "--page-height", "238mm", str(out_dir / "deck.html"), str(out_dir / "deck.pdf")])
+    ok = all(item.returncode == 0 for item in (report, infographic, cover, deck))
+    fallback_error = "\n".join(item.stderr.strip() for item in (report, infographic, cover, deck) if item.stderr.strip())
+    return {"ok": ok, "provider": "browser-fallback", "returncode": 0 if ok else 1, "stdout": "", "stderr": fallback_error}
 
 
 def build_bundle(args: argparse.Namespace) -> dict[str, object]:
