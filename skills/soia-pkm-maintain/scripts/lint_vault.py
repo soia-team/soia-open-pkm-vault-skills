@@ -178,7 +178,17 @@ def parse_scalar_field(fm_text, field_name):
 
 def clean_wikilink_target(raw):
     """[[target#anchor|alias]] → target（去掉 |别名 和 #锚点）。"""
-    target = raw.split("|", 1)[0]
+    alias_separator = raw.find("|")
+    if alias_separator == -1:
+        target = raw
+    else:
+        target = raw[:alias_separator]
+        # Markdown tables escape the wikilink alias separator as ``\|``.
+        # Remove only that escaping backslash, leaving other backslashes
+        # (including Windows-style path separators) for downstream
+        # normalization.
+        if target.endswith("\\"):
+            target = target[:-1]
     target = target.split("#", 1)[0]
     return target.strip()
 
