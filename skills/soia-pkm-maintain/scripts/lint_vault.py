@@ -16,9 +16,10 @@ lint_vault.py — Obsidian vault 只读体检脚本（soia-pkm-maintain skill �
   python3 lint_vault.py --vault /path/to/vault --json
   python3 lint_vault.py --vault /path/to/vault --exclude "20_资料库/OB知识库地图.md,某目录/某文件.md"
   python3 lint_vault.py --vault /path/to/vault --tags "书库,童书,日记,调研,文章摘抄,阅读记录,阅读计划,重读,周报"
+  python3 lint_vault.py --vault /path/to/vault --tags-add "我的主标签"
 
-注意：--exclude / --tags 传参会整体覆盖内置默认值（不是追加），需要保留默认排除项时
-记得把它一起写进去。
+配置优先级：命令行 > 私有 config.yml 的 env: > 内置默认值。--exclude / --tags 是整体
+覆盖；--exclude-add / --tags-add 追加到选中的基础值。
 
 设计说明：
   - 链接目标若带常见附件扩展名（图片/PDF/office 文档等）视为附件引用，不纳入死链检查
@@ -57,6 +58,30 @@ ATTACHMENT_EXTS = {
 }
 
 
+def parse_csv(value):
+    """将逗号分隔的配置或命令行值转换成非空条目。"""
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def configured_list(cli_value, cli_add_value, env_name, env_add_name, default):
+    """Resolve a list as CLI > private config > default, then apply additions."""
+    if cli_value is not None:
+        base = parse_csv(cli_value)
+    elif env_name in os.environ:
+        base = parse_csv(os.environ[env_name])
+    else:
+        base = list(default)
+
+    if cli_add_value is not None:
+        additions = parse_csv(cli_add_value)
+    elif env_add_name in os.environ:
+        additions = parse_csv(os.environ[env_add_name])
+    else:
+        additions = []
+
+    return base + [item for item in additions if item not in base]
+
+
 def parse_args():
     ap = argparse.ArgumentParser(
         description="Obsidian vault 只读体检：死链 / 重复文件名 / 主标签漂移 / 过期文章",
@@ -71,13 +96,24 @@ def parse_args():
         help="输出 JSON 而非默认的 markdown 报告",
     )
     ap.add_argument(
-        "--exclude", default=",".join(DEFAULT_EXCLUDE),
-        help="逗号分隔的相对路径，跳过扫描（整体覆盖默认值，默认：%s；"
-             "支持文件路径或目录前缀）" % ",".join(DEFAULT_EXCLUDE),
+        "--exclude",
+        help="逗号分隔的相对路径，跳过扫描（整体覆盖；命令行 > "
+             "SOIA_LINT_EXCLUDE > 内置默认；支持文件路径或目录前缀）",
     )
     ap.add_argument(
-        "--tags", default=",".join(DEFAULT_TAGS),
-        help="主标签白名单，逗号分隔（整体覆盖默认值，默认：%s）" % ",".join(DEFAULT_TAGS),
+        "--exclude-add",
+        help="逗号分隔的相对路径，追加到选中的排除项（命令行 > "
+             "SOIA_LINT_EXCLUDE_ADD > 无追加）",
+    )
+    ap.add_argument(
+        "--tags",
+        help="主标签白名单，逗号分隔（整体覆盖；命令行 > "
+             "SOIA_LINT_TAGS > 内置默认）",
+    )
+    ap.add_argument(
+        "--tags-add",
+        help="主标签白名单，逗号分隔，追加到选中的白名单（命令行 > "
+             "SOIA_LINT_TAGS_ADD > 无追加）",
     )
     return ap.parse_args()
 
@@ -354,8 +390,14 @@ def main():
         print(f"错误：vault 路径不存在：{vault}", file=sys.stderr)
         sys.exit(1)
 
-    exclude_set = {x.strip() for x in args.exclude.split(",") if x.strip()}
-    whitelist = [t.strip() for t in args.tags.split(",") if t.strip()]
+    exclude_set = set(configured_list(
+        args.exclude, args.exclude_add,
+        "SOIA_LINT_EXCLUDE", "SOIA_LINT_EXCLUDE_ADD", DEFAULT_EXCLUDE,
+    ))
+    whitelist = configured_list(
+        args.tags, args.tags_add,
+        "SOIA_LINT_TAGS", "SOIA_LINT_TAGS_ADD", DEFAULT_TAGS,
+    )
 
     UNREADABLE_FILES.clear()
 

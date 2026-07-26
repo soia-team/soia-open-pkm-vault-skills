@@ -3,9 +3,9 @@ name: soia-pkm-maintain
 description: 维护 Obsidian vault 的健康状态、全库地图与 AI 会话日志。触发：「vault 周维护」「重建全库地图」「接入会话日志」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.0.3
+version: 1.0.4
 created_at: 2026-07-07 13:32:04
-updated_at: 2026-07-25 22:44:54
+updated_at: 2026-07-26 00:00:00
 created_by: claude opus 4.6
 updated_by: gpt-5-codex
 ---
@@ -160,6 +160,8 @@ python3 scripts/lint_vault.py --vault <path>
 python3 scripts/lint_vault.py --vault <path> --json
 python3 scripts/lint_vault.py --vault <path> --exclude "20_资料库/OB知识库地图.md,某目录/某文件.md"
 python3 scripts/lint_vault.py --vault <path> --tags "书库,童书,日记,调研,文章摘抄,阅读记录,阅读计划,重读,周报"
+python3 scripts/lint_vault.py --vault <path> --tags-add "<additional-primary-tag>"
+python3 scripts/lint_vault.py --vault <path> --exclude-add "<vault-relative-path-to-skip>"
 
 # 工作流② 地图重生成
 python3 scripts/gen_vault_map.py --vault <path>
@@ -171,6 +173,18 @@ bash scripts/session_end_log.sh --vault <path> --agent Codex
 ```
 
 所有脚本共享同一套参数化约定：`--vault <path>` 或私有 `config.yml` 的 `env.OBSIDIAN_VAULT`（二选一，`--vault` 优先），不硬编码任何具体 vault 路径。会话日志目录可用 `--log-dir <vault内相对目录>` 或私有配置的 `SOIA_SESSION_LOG_DIR` 覆盖；默认是 `30_日志与思考/20_Agent工作日志`。私有配置优先级：`$SOIA_PKM_MAINTAIN_CONFIG_FILE`（或兼容别名 `$SOIA_PKM_MAINTAIN_ENV_FILE`）> `~/.config/soia-skills/soia-pkm-maintain/config.yml`。
+
+`lint_vault.py` 的主标签白名单和扫描排除项也可放在同一份私有配置的 `env:` 段：
+
+```yaml
+env:
+  SOIA_LINT_TAGS: "<comma-separated-primary-tags>"          # 整体覆盖内置主标签
+  SOIA_LINT_TAGS_ADD: "<additional-primary-tag>"            # 追加到选中的白名单
+  SOIA_LINT_EXCLUDE: "<comma-separated-vault-relative-paths>" # 整体覆盖内置排除项
+  SOIA_LINT_EXCLUDE_ADD: "<vault-relative-path-to-skip>"    # 追加到选中的排除项
+```
+
+对每个基础值，优先级为命令行 `--tags` / `--exclude` > 私有配置对应的 `SOIA_LINT_*` > 内置默认；追加值则是命令行 `--tags-add` / `--exclude-add` > 私有配置对应的 `SOIA_LINT_*_ADD`。因此只需扩展默认值时，优先填写 `*_ADD`，无需复制整套默认列表。
 
 ## 边界与异常
 
