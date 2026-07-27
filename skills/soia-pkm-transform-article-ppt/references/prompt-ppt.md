@@ -15,13 +15,17 @@ slide_count: auto
 aspect_ratio: "16:9"
 visual_assets: 0..4
 infographic: true | false
+purpose: inform | teach | decide | act
+delivery_context: live | self_read | hybrid
+language: zh-Hans | en | bilingual | <other>
+review_mode: standard | thorough
 ```
 
 用户未指定时，必须把 `auto` 解析成具体值再进入生成。概念教程默认 `course_module`；技术工具默认 `technical_sharing`；系统/知识地图默认 `knowledge_blueprint`；观点文章默认 `editorial`。
 
 ## 内容合同
 
-先输出以下结构并保存到 prompt 或 manifest：
+先填写 `planning/content-plan.json`，并把以下内容保存为可追踪字段：
 
 ```yaml
 main_verdict: ""
@@ -36,6 +40,8 @@ audience_questions: []
 ```
 
 source 中看到的、从 source 推出的、尚未验证的内容必须分开。来源时间、作者、链接、性能数字和企业案例逐项核对；不要从当前日期或模型记忆补齐。
+
+逐条 Claim Ledger、设计计划、Contract Card、Signature Proof 和审稿状态见 [planning-and-review-contracts.md](planning-and-review-contracts.md)。内容计划批准前不要开始视觉设计；设计计划批准后先证明 signature slide，再生成全套。
 
 ## Slide plan
 
@@ -90,6 +96,7 @@ source 中看到的、从 source 推出的、尚未验证的内容必须分开�
 3. 运行溢出/越界检查。
 4. 人工逐页检查焦点、层级、中文断行、素材方向、来源和事实。
 5. 修复后重新渲染，直到通过。
+6. 分别完成 content/design 两个 Lens 的审稿；最后用 PowerPoint/Keynote 或明确记录的宿主复验中文渲染。
 ```
 
 ## 设计攻击清单

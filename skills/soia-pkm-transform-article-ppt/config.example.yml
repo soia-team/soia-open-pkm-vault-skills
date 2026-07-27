@@ -7,6 +7,11 @@ defaults:
   slide_count: auto
   image_count: 3
   infographic: false
+  purpose: auto
+  delivery_context: auto
+  language: auto
+  review_mode: standard      # standard | thorough
+  final_host: auto           # auto | microsoft_powerpoint | apple_keynote | libreoffice
   qa_mode: strict             # strict | normal
   output_root: outputs/transform
 

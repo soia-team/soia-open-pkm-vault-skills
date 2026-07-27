@@ -13,12 +13,20 @@
 │   ├── ppt-local.txt
 │   ├── image-01.txt
 │   └── ppt-notebooklm.txt          # 使用 NotebookLM 时
+├── planning/
+│   ├── content-plan.json           # 内容主线与 Claim Ledger
+│   ├── design-plan.json            # 设计语言、节奏与 Signature Move
+│   └── contract-card.json          # 生成与审稿共享合同
 ├── previews/
 │   ├── editable/slide-*.png
 │   └── notebooklm/slide-*.png      # 使用 NotebookLM 时
 ├── qa/
 │   ├── editable-montage.png
-│   └── notebooklm-montage.png      # 使用 NotebookLM 时
+│   ├── notebooklm-montage.png      # 使用 NotebookLM 时
+│   ├── signature-proof.json
+│   ├── critic-content.json
+│   ├── critic-design.json
+│   └── host-validation.json
 ├── media-manifest.json
 └── media-validation.json
 ```
@@ -29,6 +37,9 @@
 - `main_verdict`、受众、provider、页数和图片数量。
 - 每个预期产物的路径、是否必需、编辑性语义。
 - 规划时间。时间由运行环境实际读取，不手写未来时间。
+- 内容/设计计划、Contract Card、Signature Proof、双 Lens 审稿和宿主验收的预期路径。
+
+新规划写入 schema v2，并要求非空 `request.main_verdict`。验证器保留 schema v1 的只读兼容：非严格校验可读取并标记为 `legacy`；严格交付校验会拒绝 v1，必须重新 `plan` 升级，因此旧包不能通过修改版本号绕过规划、双 Lens 与宿主质量合同。
 
 manifest 不存账号、cookie、token、NotebookLM 下载 URL、用户邮箱或模型身份。Notebook/source/artifact id 仅在确有调试需要时写入用户私有运行日志，不进入幻灯片。
 
@@ -42,3 +53,7 @@ manifest 不存账号、cookie、token、NotebookLM 下载 URL、用户邮箱或
 ## Prompt 落盘
 
 每个真正调用的生成路径都要保存 prompt。未调用的 provider 不创建空 prompt。prompt 中不得放登录凭据；包含敏感 source 时由用户决定输出目录是否进入版本控制。
+
+## 规划与 QA 产物
+
+`plan` 会创建七份 JSON 模板，但不覆盖已有文件。它们是可审计中间产物和验收证据，不应出现在幻灯片正文中。字段、状态流和严格验证规则见 [planning-and-review-contracts.md](planning-and-review-contracts.md)。
