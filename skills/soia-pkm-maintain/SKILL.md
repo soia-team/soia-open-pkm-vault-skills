@@ -3,11 +3,11 @@ name: soia-pkm-maintain
 description: 维护 Obsidian vault 的健康状态、全库地图与 AI 会话日志。触发：「vault 周维护」「重建全库地图」「接入会话日志」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.0.4
+version: 1.0.5
 created_at: 2026-07-07 13:32:04
-updated_at: 2026-07-26 00:00:00
+updated_at: 2026-07-27 00:00:00
 created_by: claude opus 4.6
-updated_by: gpt-5-codex
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-maintain

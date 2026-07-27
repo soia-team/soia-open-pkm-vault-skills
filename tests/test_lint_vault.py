@@ -157,5 +157,45 @@ class LintConfigurationTests(unittest.TestCase):
             self.assertEqual([item["file"] for item in payload["dead_links"]], ["config-add.md"])
 
 
+    def test_relative_wikilinks_resolve_against_source_directory(self):
+        """Obsidian 的 newLinkFormat 可设为 relative，[[../foo]] 是合法写法。"""
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            self.write_note(vault, "AGENTS.md", DEFAULT_TAGS[0])
+            self.write_note(vault, "articles/2026/05/post.md", DEFAULT_TAGS[0])
+            self.write_note(
+                vault,
+                "system/manual.md",
+                DEFAULT_TAGS[0],
+                "见 [[../AGENTS|根 AGENTS.md]] 与 [[../articles/2026/05/post]]",
+            )
+            # 同一目录深度但月份层写错 → 仍应判为死链
+            self.write_note(
+                vault, "system/broken.md", DEFAULT_TAGS[0], "[[../articles/2026/post]]"
+            )
+
+            payload = self.run_lint(vault)
+            dead = {(item["file"], item["target"]) for item in payload["dead_links"]}
+            self.assertNotIn(("system/manual.md", "../AGENTS"), dead)
+            self.assertNotIn(("system/manual.md", "../articles/2026/05/post"), dead)
+            self.assertIn(("system/broken.md", "../articles/2026/post"), dead)
+
+    def test_wikilinks_inside_code_spans_are_ignored(self):
+        """文档讲语法时写的 `[[作者]]` 是示例，不是链接。"""
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            body = (
+                "行内示例：`[[作者]]` 和 `[[10_文章摘抄/_MOC/<topic>]]`\n\n"
+                "```yaml\n"
+                "people: [\"[[某人]]\"]\n"
+                "```\n\n"
+                "正文里这个是真链接：[[really-missing]]\n"
+            )
+            self.write_note(vault, "doc.md", DEFAULT_TAGS[0], body)
+
+            payload = self.run_lint(vault)
+            targets = [item["target"] for item in payload["dead_links"]]
+            self.assertEqual(targets, ["really-missing"])
+
 if __name__ == "__main__":
     unittest.main()

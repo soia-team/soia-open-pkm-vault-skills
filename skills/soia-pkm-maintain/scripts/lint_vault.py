@@ -47,6 +47,19 @@ DEFAULT_TAGS = [
 ]
 
 WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
+FENCED_CODE_RE = re.compile(r"^[ \t]*(?:```|~~~).*?^[ \t]*(?:```|~~~)[ \t]*$", re.MULTILINE | re.DOTALL)
+INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
+
+
+def strip_code_spans(text):
+    """去掉围栏代码块与行内代码。
+
+    文档正文里讲语法时会写 ``[[作者]]``、``[[xxx]]`` 这类占位符示例；
+    Obsidian 不会把代码里的内容渲染成链接，死链检查同样不该把它们算进来。
+    围栏块用等量换行替换，保持行号不漂移。
+    """
+    text = FENCED_CODE_RE.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+    return INLINE_CODE_RE.sub("", text)
 
 ATTACHMENT_EXTS = {
     ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".bmp",
@@ -239,7 +252,7 @@ def check_dead_links(vault, scan_files, index_files):
         text = read_text(vault, rel)
         if text is None:
             continue
-        for raw in WIKILINK_RE.findall(text):
+        for raw in WIKILINK_RE.findall(strip_code_spans(text)):
             target = clean_wikilink_target(raw)
             if not target:
                 continue  # 纯锚点/同文件标题链接（如 [[#某标题]]），不检查
@@ -250,6 +263,13 @@ def check_dead_links(vault, scan_files, index_files):
             if "/" in normalized:
                 cand = normalized if normalized.lower().endswith(".md") else normalized + ".md"
                 hit = cand in all_set or any(p.endswith("/" + cand) for p in all_set)
+                if not hit:
+                    # Obsidian 的 newLinkFormat 可设为 relative，此时 [[../foo]]
+                    # 是合法写法，必须按源文件所在目录解析后再判定。
+                    resolved = os.path.normpath(
+                        os.path.join(os.path.dirname(rel), cand)
+                    ).replace(os.sep, "/")
+                    hit = resolved in all_set
             else:
                 stem = normalized[:-3] if normalized.lower().endswith(".md") else normalized
                 hit = stem in name_index
