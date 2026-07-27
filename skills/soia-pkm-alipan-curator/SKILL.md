@@ -1,13 +1,13 @@
 ---
 name: soia-pkm-alipan-curator
-description: 阿里云盘资源顾问：提供 inventory/organize/catalog/plan 四类工作流，盘点和整理资源、生成 Obsidian 馆藏与增量 Excel/家庭导航，并按用户提供的学情生成学习计划。Triggers：「整理云盘」「云盘盘点」「更新云盘索引」「更新Excel总索引」「生成家庭导航Excel」「给云盘建图书馆」「用网盘资源做学习计划」
+description: 阿里云盘资源顾问：盘点整理、生成 Obsidian 馆藏与 Excel 索引、按学情出学习计划。触发：「整理云盘」「云盘盘点」「更新云盘索引」
 dependencies:
   hard: [soia-pkm-alipan-drive-ops]
-version: 1.6.1
+version: 1.6.2
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-07-24 08:40:00
+updated_at: 2026-07-27 10:51:21
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude opus 5
 ---
 
 # soia-pkm-alipan-curator — 云盘资源顾问

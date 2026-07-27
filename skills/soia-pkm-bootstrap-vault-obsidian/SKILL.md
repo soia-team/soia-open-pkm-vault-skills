@@ -1,13 +1,13 @@
 ---
 name: soia-pkm-bootstrap-vault-obsidian
-description: 配置 Obsidian 作为本地 Markdown 知识库的消费端：安装 Obsidian、启用 Bases、检查 .obsidian 配置和 CSS snippets，并衔接通用 vault base。Triggers：「配置 Obsidian」「装 Obsidian 插件」「Obsidian 特化配置」「启用 Bases」
+description: 配置 Obsidian 作为本地 Markdown 知识库消费端：安装、启用 Bases、检查配置与样式。触发：「配置 Obsidian」「启用 Bases」
 dependencies:
   hard: [soia-pkm-bootstrap-vault-base]
-version: 1.0.0
+version: 1.0.1
 created_at: 2026-07-16 16:00:31
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-07-27 10:51:21
 created_by: gpt-5.6-luna
-updated_by: gpt-5.6-luna
+updated_by: claude opus 5
 ---
 
 # soia-pkm-bootstrap-vault-obsidian

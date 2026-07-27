@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-alipan-drive-ops
-description: 阿里云盘原子操作层：安装/登录 aliyunpan、显式 driveId 双盘操作、目录浏览、移动/重命名/删除、下载上传、容量查询、全盘 JSONL 扫描。作为 curator 的底层依赖。Triggers：「看下云盘」「云盘里有什么」「登录阿里云盘」「下载云盘文件」「云盘登录过期了」「全盘扫描云盘」
-version: 2.2.3
+description: 阿里云盘原子操作：登录、双盘浏览、移动重命名删除、上传下载与全盘扫描。触发：「看下云盘」「登录阿里云盘」
+version: 2.2.4
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-07-24 10:57:04
+updated_at: 2026-07-27 10:51:21
 created_by: claude opus 4.6
-updated_by: gpt-5.6-terra
+updated_by: claude opus 5
 ---
 
 # soia-pkm-alipan-drive-ops — 阿里云盘原子操作层
