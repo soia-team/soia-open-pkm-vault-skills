@@ -79,7 +79,7 @@ that answers:
 - Hard dependencies, optional dependencies, third-party skill relationships, and
   installation/setup steps.
 - Where skill-specific private config belongs, using
-  `~/.config/soia-skills/<repo>/<skill-type>/<skill-name>/config.yml` and
+  `~/.config/soia-skills/<skill-name>/config.yml` and
   `SOIA_<TYPE>_<SHORT>_CONFIG_FILE` when relevant.
 - What logs, file changes, validation evidence, issues, and next steps the
   customer will see after every run.
@@ -274,7 +274,7 @@ Config templates must be generic and safe. They may show placeholders but not pe
 Default private config location:
 
 ```text
-~/.config/soia-skills/soia-open-pkm-vault-skills/<skill-type>/<skill-name>/config.yml
+~/.config/soia-skills/<skill-name>/config.yml
 ```
 
 The file uses YAML with an `env:` mapping. Example:
@@ -299,7 +299,7 @@ skill config may only hold override pointers such as `ALIYUNPAN_CONFIG_DIR`.
 flowchart LR
   A["CLI args"] --> B["process env"]
   B --> C["SOIA_<TYPE>_<SHORT>_CONFIG_FILE"]
-  C --> D["~/.config/soia-skills/<repo>/<type>/<skill>/config.yml"]
+  C --> D["~/.config/soia-skills/<skill>/config.yml"]
   D --> E["provider-owned home override"]
   E --> F["safe default / ask user"]
 ```

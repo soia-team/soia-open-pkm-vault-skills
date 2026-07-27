@@ -27,9 +27,9 @@ implementation.
 
 | Purpose | Linux / Unix default | macOS default | Windows default |
 |---|---|---|---|
-| Config | `${XDG_CONFIG_HOME:-~/.config}/soia-skills/soia-open-pkm-vault-skills/...` | same unless the host integration deliberately uses the native app-support directory | `%APPDATA%\soia-skills\soia-open-pkm-vault-skills\...` |
-| State | `${XDG_STATE_HOME:-~/.local/state}/soia-skills/soia-open-pkm-vault-skills/...` | same | `%LOCALAPPDATA%\soia-skills\soia-open-pkm-vault-skills\state\...` |
-| Cache | `${XDG_CACHE_HOME:-~/.cache}/soia-skills/soia-open-pkm-vault-skills/...` | `~/Library/Caches/soia-skills/soia-open-pkm-vault-skills/...` | `%LOCALAPPDATA%\soia-skills\soia-open-pkm-vault-skills\Cache\...` |
+| Config | `${XDG_CONFIG_HOME:-~/.config}/soia-skills/<skill-name>/` | same unless the host integration deliberately uses the native app-support directory | `%APPDATA%\soia-skills\<skill-name>\` |
+| State | `${XDG_STATE_HOME:-~/.local/state}/soia-skills/<skill-name>/` | same | `%LOCALAPPDATA%\soia-skills\state\<skill-name>\` |
+| Cache | `${XDG_CACHE_HOME:-~/.cache}/soia-skills/<skill-name>/` | `~/Library/Caches/soia-skills/<skill-name>/` | `%LOCALAPPDATA%\soia-skills\Cache\<skill-name>\` |
 | Temporary | OS temporary directory under a per-run subdirectory | OS temporary directory under a per-run subdirectory | OS temporary directory under a per-run subdirectory |
 
 The following environment variables may override the SOIA roots:
