@@ -4,5 +4,6 @@
   "description": "知识库技能：初始化、整理、提炼、翻译、转换与书库",
   "author": {
     "name": "soia-team"
-  }
+  },
+  "homepage": "https://github.com/soia-team/soia-open-pkm-vault-skills"
 }
