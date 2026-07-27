@@ -38,10 +38,20 @@ updated_by: gpt-5.6-luna
 | Obsidian vault | 强依赖 | 任意结构，需能被 `--vault` / `OBSIDIAN_VAULT` / cwd 自动发现三选一定位到 | 报错并说明如何指定路径 |
 | Python 3 stdlib（`urllib`） | 强依赖 | 随 Python 自带，无需安装 | — |
 
-安装本技能（单个技能）：
+安装（推荐：装整个领域插件，一次装好本仓全部技能）：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-clip-skills -g -a '*' -s soia-pkm-clip-douyin -y
+claude plugin marketplace add soia-team/soia-open-skills
+```
+
+```bash
+claude plugin install soia-pkm-vault@soia
+```
+
+只要这一个技能时，可用 npx 路线。注意技能会落进共享真源 `~/.agents/skills`；若同时装了插件，同一技能会出现两份索引且各自漂移，建议二选一：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-clip-douyin -y
 ```
 
 配置约定：
