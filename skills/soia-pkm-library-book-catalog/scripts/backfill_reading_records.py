@@ -27,8 +27,6 @@ from collections import defaultdict
 
 from library_env import env_source_hint, load_private_env
 
-load_private_env()
-
 DEFAULT_BASE = "40_图书视频馆/30_个人书库"
 
 DEFAULT_STATUS = "待读"
@@ -92,6 +90,7 @@ def wl(v):
 
 
 def main(argv):
+    load_private_env()
     args = parse_args(argv)
     vault = resolve_vault(args)
     base = vault / args.base

@@ -47,7 +47,6 @@ from pathlib import Path
 
 from library_env import env_source_hint, load_private_env, require_weread_skills, weread_api_key_hint
 
-load_private_env()
 require_weread_skills()
 
 # ---------- 常量 ----------
@@ -439,6 +438,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def main(argv: list[str]):
+    load_private_env()
     args = _parse_args(argv)
     vault = resolve_vault(args.vault)
     records_dir = vault / args.base / "阅读记录"

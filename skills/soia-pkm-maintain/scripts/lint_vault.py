@@ -37,8 +37,6 @@ import sys
 
 from maintain_env import env_source_hint, load_private_env
 
-load_private_env()
-
 SKIP_DIRS = {".git", ".obsidian", ".trash"}
 
 DEFAULT_EXCLUDE = ["20_资料库/OB知识库地图.md"]
@@ -381,6 +379,7 @@ def render_markdown(vault, dead_links, dup_names, tag_drift, untagged, stale, un
 
 
 def main():
+    load_private_env()
     args = parse_args()
     if not args.vault:
         print(f"错误：未指定 --vault 且未在私有 config.yml设置 OBSIDIAN_VAULT（{env_source_hint()}）", file=sys.stderr)
