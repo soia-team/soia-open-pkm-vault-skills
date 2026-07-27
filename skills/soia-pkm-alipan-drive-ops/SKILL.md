@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-alipan-drive-ops
-description: 阿里云盘原子操作层：安装/登录 aliyunpan、显式 driveId 双盘操作、目录浏览、移动/重命名/删除、下载上传、容量查询、全盘 JSONL 扫描。作为 curator 的底层依赖。Triggers：「看下云盘」「云盘里有什么」「登录阿里云盘」「下载云盘文件」「云盘登录过期了」「全盘扫描云盘」
-version: 2.2.3
+description: 执行阿里云盘登录、浏览与文件操作，并为资源整理提供底层能力。触发：「登录阿里云盘」「下载阿里云盘文件」「全盘扫描阿里云盘」
+version: 2.2.4
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-07-24 10:57:04
+updated_at: 2026-07-27 10:47:17
 created_by: claude opus 4.6
-updated_by: gpt-5.6-terra
+updated_by: gpt-5.6-sol
 ---
 
 # soia-pkm-alipan-drive-ops — 阿里云盘原子操作层
@@ -23,6 +23,8 @@ updated_by: gpt-5.6-terra
 | 执行完成 | 汇总成功、跳过、失败、文件变更和验证结果 | 一段可复制进工单/日志的完成回执 |
 
 ### 客户如何使用
+
+其他可识别说法包括「看下云盘」「云盘里有什么」「云盘登录过期了」；需要规划分类、索引或学习路径时转交 `soia-pkm-alipan-curator`。
 
 1. 用自然语言说明目标，并提供必要输入：文件、URL、repo、workspace、proposal、vault 或平台账号状态。
 2. Agent 先判断是否命中本技能，再检查依赖、配置、权限和风险动作。
