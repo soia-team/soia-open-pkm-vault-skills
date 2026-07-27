@@ -19,5 +19,6 @@
     "defaultPrompt": [
       "请整理这批知识库内容并生成可导航的结构。"
     ]
-  }
+  },
+  "homepage": "https://github.com/soia-team/soia-open-pkm-vault-skills"
 }
