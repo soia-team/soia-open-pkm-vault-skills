@@ -430,6 +430,96 @@ published_at: 2026-07-22 09:37
         self.assertIn("critic_content_not_independent", codes)
         self.assertIn("host_validation_cjk_failed", codes)
 
+    def test_empty_or_undersized_preview_png_blocks_delivery(self):
+        self.materialize_valid_bundle()
+        (self.out_dir / "previews/editable/slide-1.png").write_bytes(b"")
+        write_png_header(self.out_dir / "previews/notebooklm/slide-1.png", 1, 1)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("invalid_preview_editable_pptx", codes)
+        self.assertIn("invalid_preview_notebooklm_pptx", codes)
+        self.assertIn("host_validation_preview_invalid", codes)
+        self.assertIn("signature_proof_preview_invalid", codes)
+
+    def test_signature_proof_must_match_move_and_slide_preview(self):
+        self.materialize_valid_bundle()
+        path = self.out_dir / "qa/signature-proof.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["signature_move"] = "无关签名动作"
+        payload["preview_paths"] = ["previews/editable/slide-2.png"]
+        MODULE.write_json(path, payload)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("signature_proof_move_mismatch", codes)
+        self.assertIn("signature_proof_slide_preview_mismatch", codes)
+
+    def test_preview_and_asset_directories_cannot_escape_bundle(self):
+        self.materialize_valid_bundle()
+        manifest_path = self.out_dir / "media-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["expected"]["editable_pptx"]["preview_dir"] = "../outside-previews"
+        manifest["expected"]["visual_assets"]["directory"] = "../outside-assets"
+        MODULE.write_json(manifest_path, manifest)
+        write_png_header(self.root / "outside-previews/slide-1.png")
+        write_png_header(self.root / "outside-previews/slide-2.png")
+        write_png_header(self.root / "outside-assets/image-01.png", 1024, 1024)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("preview_dir_escape_editable_pptx", codes)
+        self.assertIn("visual_assets_directory_escape", codes)
+
+    def test_content_plan_verdict_must_match_nonempty_manifest_verdict(self):
+        self.materialize_valid_bundle()
+        manifest_path = self.out_dir / "media-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["request"]["main_verdict"] = "重跑后改变的判断"
+        MODULE.write_json(manifest_path, manifest)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        self.assertTrue(
+            any(item["code"] == "content_plan_verdict_mismatch" for item in report["errors"])
+        )
+
+    def test_v1_manifest_remains_valid_for_backward_compatibility(self):
+        self.materialize_valid_bundle()
+        manifest_path = self.out_dir / "media-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["schema_version"] = 1
+        manifest["expected"].pop("planning")
+        manifest["expected"].pop("qa")
+        for field in ("purpose", "delivery_context", "language", "review_mode"):
+            manifest["request"].pop(field)
+        MODULE.write_json(manifest_path, manifest)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 0)
+        self.assertFalse(any(item["code"] == "manifest_schema_invalid" for item in report["errors"]))
+
+    def test_libreoffice_validation_must_record_host_limit(self):
+        self.materialize_valid_bundle()
+        path = self.out_dir / "qa/host-validation.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["host"] = "libreoffice"
+        payload["notes"] = ""
+        MODULE.write_json(path, payload)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        self.assertTrue(
+            any(
+                item["code"] == "host_validation_libreoffice_limit_missing"
+                for item in report["errors"]
+            )
+        )
+
+    def test_config_uses_validator_host_enum(self):
+        config = (
+            ROOT / "skills" / "soia-pkm-transform-article-ppt" / "config.example.yml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("apple_keynote", config)
+        self.assertNotIn("| keynote |", config)
+
 
 if __name__ == "__main__":
     unittest.main()

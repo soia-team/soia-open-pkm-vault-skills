@@ -1,6 +1,6 @@
 # THIRD_PARTY_NOTICES
 
-> Last updated: 2026-07-22
+> Last updated: 2026-07-28
 > License values are metadata snapshots. Recheck the upstream source before reuse.
 
 ## Runtime tools and third-party skills

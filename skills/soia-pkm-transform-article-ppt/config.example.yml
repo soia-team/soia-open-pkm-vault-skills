@@ -11,7 +11,7 @@ defaults:
   delivery_context: auto
   language: auto
   review_mode: standard      # standard | thorough
-  final_host: auto           # auto | microsoft_powerpoint | keynote | libreoffice
+  final_host: auto           # auto | microsoft_powerpoint | apple_keynote | libreoffice
   qa_mode: strict             # strict | normal
   output_root: outputs/transform
 

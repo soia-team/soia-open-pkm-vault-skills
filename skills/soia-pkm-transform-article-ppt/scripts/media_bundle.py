@@ -20,6 +20,8 @@ REVIEW_MODES = {"standard", "thorough"}
 REQUIRED_PLANNING_ROLES = {"content_plan", "design_plan", "contract_card"}
 REQUIRED_QA_ROLES = {"signature_proof", "content_critic", "design_critic", "host_validation"}
 ALLOWED_HOSTS = {"microsoft_powerpoint", "apple_keynote", "libreoffice"}
+MIN_PREVIEW_WIDTH = 320
+MIN_PREVIEW_HEIGHT = 180
 NS = {
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
     "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
@@ -380,6 +382,11 @@ def png_dimensions(path: Path) -> tuple[int, int] | None:
     return struct.unpack(">II", header[16:24])
 
 
+def valid_preview_dimensions(path: Path) -> bool:
+    dims = png_dimensions(path)
+    return bool(dims and dims[0] >= MIN_PREVIEW_WIDTH and dims[1] >= MIN_PREVIEW_HEIGHT)
+
+
 def resolve_inside(out_dir: Path, raw_path: Any) -> Path | None:
     """Resolve a relative artifact path without allowing escape from the bundle."""
     candidate = Path(str(raw_path))
@@ -426,6 +433,13 @@ def validate_content_plan(
         add_problem(errors, "content_plan_not_approved", "Content plan status must be approved")
     if not str(payload.get("main_verdict", "")).strip():
         add_problem(errors, "content_plan_missing_verdict", "Content plan must declare main_verdict")
+    manifest_verdict = str(manifest.get("request", {}).get("main_verdict", "")).strip()
+    if manifest_verdict and str(payload.get("main_verdict", "")).strip() != manifest_verdict:
+        add_problem(
+            errors,
+            "content_plan_verdict_mismatch",
+            "Content plan main_verdict does not match the manifest request",
+        )
 
     claims = payload.get("claim_ledger")
     if not isinstance(claims, list) or not claims:
@@ -600,16 +614,59 @@ def validate_signature_proof(
         proven = {str(item) for item in slides}
         if declared and not declared.intersection(proven):
             add_problem(errors, "signature_proof_mismatch", "Proof does not include a declared signature slide")
-    missing_previews = [
-        path
-        for path in previews
-        if (resolved := resolve_inside(out_dir, path)) is None or not resolved.is_file()
-    ]
+        if str(payload.get("signature_move", "")).strip() != str(
+            design_plan.get("signature_move", "")
+        ).strip():
+            add_problem(
+                errors,
+                "signature_proof_move_mismatch",
+                "Signature proof signature_move does not match the design plan",
+            )
+    resolved_previews = [(path, resolve_inside(out_dir, path)) for path in previews]
+    missing_previews = [path for path, resolved in resolved_previews if resolved is None or not resolved.is_file()]
     if missing_previews:
         add_problem(
             errors,
             "signature_proof_preview_missing",
             f"Signature proof preview does not exist: {missing_previews}",
+        )
+        return
+    invalid_previews = [
+        path
+        for path, resolved in resolved_previews
+        if resolved is None or not valid_preview_dimensions(resolved)
+    ]
+    if invalid_previews:
+        add_problem(
+            errors,
+            "signature_proof_preview_invalid",
+            f"Signature proof preview is not a valid, reasonably sized PNG: {invalid_previews}",
+        )
+    proven_slides: set[str] = set()
+    invalid_slides: list[Any] = []
+    for item in slides:
+        try:
+            number = int(item)
+        except (TypeError, ValueError):
+            invalid_slides.append(item)
+            continue
+        if number < 1:
+            invalid_slides.append(item)
+        else:
+            proven_slides.add(str(number))
+    preview_slides: set[str] = set()
+    malformed_paths: list[str] = []
+    for path in previews:
+        match = re.fullmatch(r"slide-0*(\d+)\.png", Path(str(path)).name)
+        if not match:
+            malformed_paths.append(str(path))
+        else:
+            preview_slides.add(str(int(match.group(1))))
+    if invalid_slides or malformed_paths or preview_slides != proven_slides:
+        add_problem(
+            errors,
+            "signature_proof_slide_preview_mismatch",
+            "Signature proof slides must map exactly to slide-N.png preview paths",
         )
 
 
@@ -655,6 +712,12 @@ def validate_host(
             "host_validation_invalid_host",
             f"Host must be one of: {', '.join(sorted(ALLOWED_HOSTS))}",
         )
+    if host == "libreoffice" and not str(payload.get("notes", "")).strip():
+        add_problem(
+            errors,
+            "host_validation_libreoffice_limit_missing",
+            "LibreOffice validation must record the host limitation in notes",
+        )
     if int(payload.get("rendered_slide_count", 0) or 0) != slide_count:
         add_problem(
             errors,
@@ -665,12 +728,20 @@ def validate_host(
     if preview_dir is None or not preview_dir.is_dir():
         add_problem(errors, "host_validation_preview_missing", "Host validation must reference a preview_dir inside the bundle")
     else:
-        actual_count = len(list(preview_dir.glob("slide-*.png")))
+        preview_paths = sorted(preview_dir.glob("slide-*.png"))
+        actual_count = len(preview_paths)
         if actual_count != slide_count or actual_count != int(payload.get("rendered_slide_count", 0) or 0):
             add_problem(
                 errors,
                 "host_validation_preview_count",
                 f"Host preview_dir contains {actual_count} slide previews; expected {slide_count}",
+            )
+        invalid_previews = [path.name for path in preview_paths if not valid_preview_dimensions(path)]
+        if invalid_previews:
+            add_problem(
+                errors,
+                "host_validation_preview_invalid",
+                f"Host preview_dir contains invalid or undersized PNG files: {invalid_previews}",
             )
     if cjk_required and not (
         payload.get("cjk_checked") is True and payload.get("cjk_passed") is True
@@ -679,11 +750,14 @@ def validate_host(
 
 
 def validate_manifest_contract(manifest: dict[str, Any], errors: list[dict[str, str]]) -> None:
-    if manifest.get("schema_version") != 2:
-        add_problem(errors, "manifest_schema_invalid", "Manifest schema_version must be 2")
+    schema_version = manifest.get("schema_version")
+    if schema_version not in {1, 2}:
+        add_problem(errors, "manifest_schema_invalid", "Manifest schema_version must be 1 or 2")
     expected = manifest.get("expected")
     if not isinstance(expected, dict):
         add_problem(errors, "manifest_expected_missing", "Manifest must contain an expected object")
+        return
+    if schema_version == 1:
         return
     for field, required_roles in (
         ("planning", REQUIRED_PLANNING_ROLES),
@@ -754,14 +828,29 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 f"{path.name} appears image-only; report it as flattened/non-editable",
             )
 
-        preview_dir = out_dir / entry["preview_dir"]
-        previews = sorted(preview_dir.glob("slide-*.png")) if preview_dir.is_dir() else []
+        preview_dir = resolve_inside(out_dir, entry.get("preview_dir", ""))
+        if preview_dir is None:
+            add_problem(
+                errors,
+                f"preview_dir_escape_{key}",
+                f"{key} preview_dir must stay inside the media bundle",
+            )
+            previews = []
+        else:
+            previews = sorted(preview_dir.glob("slide-*.png")) if preview_dir.is_dir() else []
         artifacts[f"{key}_previews"] = len(previews)
         if len(previews) != inspection["slides"]:
             add_problem(
                 errors,
                 f"preview_count_{key}",
                 f"{path.name} has {inspection['slides']} slides but {len(previews)} rendered previews",
+            )
+        invalid_previews = [preview.name for preview in previews if not valid_preview_dimensions(preview)]
+        if invalid_previews:
+            add_problem(
+                errors,
+                f"invalid_preview_{key}",
+                f"{path.name} has invalid or undersized PNG previews: {invalid_previews}",
             )
 
     infographic = expected["infographic"]
@@ -775,14 +864,20 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             add_problem(errors, "small_infographic", f"Infographic is too small: {dims[0]}x{dims[1]}")
 
     assets = expected["visual_assets"]
-    asset_dir = out_dir / assets["directory"]
-    asset_paths = sorted(asset_dir.glob("*.png")) if asset_dir.is_dir() else []
+    asset_dir = resolve_inside(out_dir, assets.get("directory", ""))
+    if asset_dir is None:
+        add_problem(errors, "visual_assets_directory_escape", "Visual assets directory must stay inside the media bundle")
+        asset_paths = []
+        asset_dir_label = str(assets.get("directory", ""))
+    else:
+        asset_paths = sorted(asset_dir.glob("*.png")) if asset_dir.is_dir() else []
+        asset_dir_label = str(asset_dir)
     artifacts["visual_assets"] = []
     if assets["required"] and len(asset_paths) < assets["minimum_count"]:
         add_problem(
             errors,
             "missing_visual_assets",
-            f"Expected at least {assets['minimum_count']} PNG assets in {asset_dir}; found {len(asset_paths)}",
+            f"Expected at least {assets['minimum_count']} PNG assets in {asset_dir_label}; found {len(asset_paths)}",
         )
     for path in asset_paths:
         dims = png_dimensions(path)

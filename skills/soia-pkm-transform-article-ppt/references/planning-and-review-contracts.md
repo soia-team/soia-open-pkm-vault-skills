@@ -19,7 +19,7 @@ python3 scripts/media_bundle.py plan \
   --main-verdict "<一句主判断>"
 ```
 
-命令除 `media-manifest.json` 外，还会创建七份 JSON 模板。已存在的模板不会被覆盖，因而可以安全地重跑 `plan`。
+命令除 `media-manifest.json` 外，还会创建七份 JSON 模板。已存在的模板不会被覆盖；`media-manifest.json` 会按新参数重建。重跑后若 `main_verdict` 等合同已经变化，必须同步更新批准过的计划，严格验证会拒绝 manifest 与旧计划并存的分裂状态。
 
 ## 2. 内容计划与 Claim Ledger
 
@@ -72,7 +72,7 @@ Claim Ledger 每行使用：
 }
 ```
 
-只有 `boldness=conservative` 或 1–2 页极小任务可以 `status=skipped`，并写明 `reason`。
+`signature_move` 必须与 Design Plan 完全一致；`slides` 必须逐一对应 `preview_paths` 中的 `slide-N.png`，而且预览必须是有效且尺寸合理的 PNG。只有 `boldness=conservative` 或 1–2 页极小任务可以 `status=skipped`，并写明 `reason`。
 
 ## 4. Contract Card
 
@@ -120,7 +120,7 @@ LibreOffice 适合自动化预检，但不能作为中文 PPTX 的唯一视觉�
 }
 ```
 
-`host` 只能使用 `microsoft_powerpoint`、`apple_keynote` 或 `libreoffice`；`preview_dir` 必须指向输出目录内由该宿主实际渲染的 `slide-*.png`。预览数量、`rendered_slide_count` 与正式母版实际页数必须一致；source 或目标语言含 CJK 时，`cjk_checked` 和 `cjk_passed` 都必须为布尔值 `true`。只能使用 LibreOffice 时，在 `notes` 和交付回执中明确宿主限制。
+`host` 只能使用 `microsoft_powerpoint`、`apple_keynote` 或 `libreoffice`；`preview_dir` 必须指向输出目录内由该宿主实际渲染的 `slide-*.png`。预览必须能解析且至少为 320×180，数量、`rendered_slide_count` 与正式母版实际页数必须一致；source 或目标语言含 CJK 时，`cjk_checked` 和 `cjk_passed` 都必须为布尔值 `true`。只能使用 LibreOffice 时，`notes` 不得为空，并在交付回执中明确宿主限制。
 
 ## 7. 最终验证
 
@@ -133,4 +133,4 @@ python3 scripts/media_bundle.py validate \
   --json
 ```
 
-严格验证会同时检查 PPTX、预览、prompt、规划合同、Signature Proof、双 Lens 结论和宿主验收。修复后重新渲染全套页面并重跑验证，不得只修改 JSON 让门变绿。
+新建媒体包使用 manifest schema v2；验证器仍接受 v1 历史媒体包，但只有 v2 才要求规划、双 Lens 与宿主合同。严格验证会同时检查 PPTX、预览、prompt、规划合同、Signature Proof、双 Lens 结论和宿主验收。修复后重新渲染全套页面并重跑验证，不得只修改 JSON 让门变绿。
