@@ -25,6 +25,10 @@ python3 scripts/media_bundle.py validate \
 - OOXML 可提取文字中是否出现 placeholder、内部路径、NotebookLM 运行字段。
 - `hybrid` 是否同时拥有正式母版和 NotebookLM 版。
 - 是否显式完成视觉复核和 source 事实复核。
+- 内容计划、Claim Ledger、设计计划和 Contract Card 是否批准且字段完整。
+- Signature Proof 是否通过或有允许跳过的明确原因。
+- content/design 双 Lens 是否都 consent，且没有未解决 blocker/major。
+- 正式母版是否经过真实宿主全量渲染；含 CJK 时中文检查是否通过。
 
 脚本不能识别位图内所有错别字和占位符，所以即使通过也不能替代人工检查。
 
@@ -73,6 +77,15 @@ python3 scripts/media_bundle.py validate \
 - `officecli view <deck.pptx> issues --json` 的 error 已清零，warning 已处理或解释。
 - 修复使用生成文件的副本；不原地覆盖正式母版。
 - `validate` 通过只代表 OOXML 结构成立，不能替代编辑性检测、事实核对或人工逐页视觉检查。
+
+## 规划、审稿与宿主门
+
+具体 JSON 字段和工作方式见 [planning-and-review-contracts.md](planning-and-review-contracts.md)。尤其注意：
+
+- 不得在构建结束后反填一份与实际过程不符的 Claim Ledger 或审稿结论。
+- Signature Proof 必须指向真实存在并被查看过的预览页。
+- 优先使用 PowerPoint/Keynote；只能使用 LibreOffice 时，必须明确记录宿主限制并实际检查 CJK 字形、换行和全量宿主预览。
+- 验证脚本通过不等于内容和设计正确；它只证明要求的证据存在且结构自洽。
 
 ## 修复循环
 

@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-transform-article-ppt
 description: 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包。触发：「做 PPT」「生成 PPTX」「转成课件」
-version: 2.1.1
+version: 2.2.0
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-07-23 07:17:12
+updated_at: 2026-07-28 00:31:43
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: gpt-5.6-sol
 dependencies:
   optional: [soia-dev-open-design-ops, soia-dev-officecli-ops]
 ---
@@ -25,6 +25,7 @@ dependencies:
 | 信息图 / 长图 | 独立传播素材，可选 | 中文文字由 HTML/CSS 或 PPT 排版，图片模型只供视觉部件 |
 | NotebookLM PPTX | 视觉对照版，可选 | source-grounded；明确标注通常是一页一张图、不易编辑 |
 | 预览与 QA | 验收证据 | 全部页面渲染、montage、溢出检查、人工逐页复核 |
+| 规划与审稿合同 | 质量证据 | Claim Ledger、内容/设计计划、Contract Card、Signature Proof、双 Lens 审稿和宿主验收 |
 | `media-manifest.json` | 生成清单 | 记录 source、provider、预期文件和实际验证，不写登录凭据 |
 
 用户只说「PPT」时，默认交付 `.pptx`。只有用户明确要求兼容旧版 PowerPoint 时才额外转换 `.ppt`，并验证转换结果；不要把 `PPT` 口语请求误解为必须输出旧二进制格式。
@@ -37,6 +38,7 @@ dependencies:
 把 <article.md> 做成给小白讲的 16 页 PPT，生成 3 张无字插画素材
 把这个 URL 归档后做成可编辑 PPTX，并用 NotebookLM 再做一版对比
 把这篇技术文章做成分享课件，同时给一张 1080x1600 的重点简图
+把这篇复杂技术文章做成 16 页中文 PPTX，thorough 审稿，并用 PowerPoint 做最终中文验收
 ```
 
 provider 未指定且当前是交互会话时，只问一个选择题：
@@ -90,6 +92,10 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 - visual_assets: <数量与路径>
 - infographic: <路径与尺寸；未生成则省略>
 - manifest: <路径>
+- planning: <内容计划、设计计划和 Contract Card 路径>
+- review: <standard/thorough、content/design Lens 轮次与结论>
+- signature_proof: <页码与预览路径；明确跳过则写原因>
+- host_validation: <PowerPoint/Keynote/LibreOffice、渲染页数与 CJK 结果>
 
 验证：
 - PPTX 实际打开并渲染全部页面
@@ -97,6 +103,7 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 - 无空白页、越界、重叠、乱码和占位符
 - source 时间、作者、数字与声明已核对
 - 人工逐页检查已完成
+- Claim Ledger、双 Lens 审稿和宿主验收已完成
 
 限制：<未验证事实、provider 降级或编辑性限制>
 ```
@@ -110,6 +117,8 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 5. **外部事实与原文观点分开。** 时间敏感预测、性能数字和企业案例若未独立核实，必须标成「原文观点/未验证」。
 6. **文件存在不等于完成。** 没有全量渲染和人工视觉复核，不得交付为完成。
 7. prompt、素材和中间 manifest 只落到用户指定输出目录；登录态、cookie、账号信息永不进入输出或回执。
+8. **规划证据不能事后伪造。** Claim Ledger、设计计划、Signature Proof 和 critic 结果必须来自真实执行；不得只修改 JSON 让验证变绿。
+9. **中文 deck 不把 LibreOffice 当唯一真相。** 最终优先在 PowerPoint/Keynote 打开和渲染；只能用 LibreOffice 时必须实际检查并记录 CJK 字形与换行。
 
 ## 工作流
 
@@ -125,10 +134,15 @@ python3 scripts/media_bundle.py plan \
   --out-dir <output-dir> \
   --provider hybrid \
   --image-count 3 \
+  --purpose "<用途>" \
+  --delivery-context "<现场讲解、自读或混合>" \
+  --language "zh-Hans" \
+  --review-mode standard \
   --main-verdict "<一句主判断>"
 ```
 
 路径与 manifest 契约见 [references/media-bundle-contract.md](references/media-bundle-contract.md)。
+命令会同时创建不会覆盖已有内容的规划和 QA 模板；字段与状态流见 [references/planning-and-review-contracts.md](references/planning-and-review-contracts.md)。
 
 ### 2. 选择 provider 和交付范围
 
@@ -140,9 +154,11 @@ python3 scripts/media_bundle.py plan \
 - NotebookLM 版承担快速视觉叙事和对照实验。
 - imagegen 只承担有明确页面用途的视觉素材。
 
-### 3. 先做 slide plan，再做视觉
+### 3. 分离内容计划与设计计划
 
-读取 [references/prompt-ppt.md](references/prompt-ppt.md)。逐页计划至少包含：判断式标题、页面任务、source anchor、视觉形式、讲稿/备注、覆盖概念。先攻击计划：是否遗漏主线、是否连续多页同构、是否把结论埋掉。
+读取 [references/prompt-ppt.md](references/prompt-ppt.md) 和 [references/planning-and-review-contracts.md](references/planning-and-review-contracts.md)。先完成 `content-plan.json`：主判断、Claim Ledger、叙事弧和逐页内容；确认内容后再完成 `design-plan.json`：设计语言、语义色、页面轮廓、节奏和一个与内容结构绑定的 signature move。不要在内容计划阶段同时决定视觉，避免视觉偏好反向扭曲原意。
+
+用 `contract-card.json` 固化 source、受众、用途、使用场景、语言、编辑性、review mode 和交付范围。任务低风险时默认 `standard`；公开演讲、正式教学母版、投标或高风险事实使用 `thorough`。两档都要求独立的 content/design Lens，区别只在复审上限和事实抽查深度。
 
 ### 4. 生成有用途的图片素材
 
@@ -150,11 +166,13 @@ python3 scripts/media_bundle.py plan \
 
 图片生成后先查看原图，再放进 PPT。若方向、对象关系、文字或数字错误，修改 prompt 重新生成；不要用遮盖层掩饰语义错误。
 
-### 5. 生成正式可编辑 PPTX
+### 5. 先做 Signature Proof，再生成正式可编辑 PPTX
 
 使用宿主 presentations 能力或 Open Design 生成。遵循当前宿主的演示文稿技能与 runtime 说明。PPTX 中的中文文本、流程箭头、表格、页码、来源应保持可编辑；位图只用于照片、插画、纹理和必要的复杂视觉。
 
 OfficeCLI 不是默认创作 provider。已有母版、需要稳定元素路径精修、三项以上原子 batch、OpenXML schema 复验或内置截图时，可在生成后调用 `soia-dev-officecli-ops`。默认在副本上修改；不得用 OfficeCLI 绕过宿主 presentations 的硬性实现要求。
+
+设计计划批准后，先制作 signature move 指定的核心页并渲染查看；通过后记录到 `qa/signature-proof.json`，再扩展全套。只有保守设计或 1–2 页极小任务可以明确跳过并写原因。
 
 固定设计要求：
 
@@ -174,9 +192,13 @@ NotebookLM 失败、排队或登录缺失不影响本地正式母版；但回执
 
 需要「一张图讲清楚」时读取 [references/prompt-infographic.md](references/prompt-infographic.md)。先生成无字视觉部件，再用 HTML/CSS 或 PPT 排版中文，保持主判断、流程方向和术语层级一致。
 
-### 8. 双层验收
+### 8. 双 Lens 审稿与双层验收
 
-先跑机械检查，再做人工视觉检查：
+全量渲染后分别做两次复核：content Lens 对照完整 source 和 Claim Ledger；design Lens 对照设计计划、Signature Proof 和全量预览。宿主支持独立 agent 时交给不同 agent；不支持时仍分两次独立检查。只有两个 Lens 都 `consent` 且 blocker/major 清零，才进入最终宿主验收。
+
+最终优先用 PowerPoint 或 Keynote 打开和渲染正式母版，记录实际宿主、渲染页数和 CJK 检查结果。只能使用 LibreOffice 时，必须实际检查 CJK 字形与换行，并在宿主记录和交付回执中明确这一限制。
+
+然后跑机械检查和人工视觉检查：
 
 ```bash
 python3 scripts/media_bundle.py validate \
@@ -206,4 +228,13 @@ OfficeCLI 可用时，把它作为额外机械证据：运行 `validate`、`view
 - Open Design：[references/provider-open-design.md](references/provider-open-design.md)、[references/prompt-open-design.md](references/prompt-open-design.md)
 - OfficeCLI 操作与复验：[references/provider-officecli.md](references/provider-officecli.md)
 - 质量门：[references/quality-gates.md](references/quality-gates.md)
+- 规划、Signature Proof、双 Lens 审稿和宿主验收：[references/planning-and-review-contracts.md](references/planning-and-review-contracts.md)
 - 典型调用：[references/examples.md](references/examples.md)
+
+## 私密信息与中间数据
+
+- 私有配置只放 `~/.config/soia-skills/soia-pkm-transform-article-ppt/config.yml`，或使用 `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` 指向用户自有文件。
+- NotebookLM、Office 或其他 provider 的凭据留在 provider 官方登录存储或系统钥匙串；不得写入 config、prompt、manifest、PPTX、预览和回执。
+- prompt、规划 JSON、QA JSON、预览和临时素材只写到用户指定的媒体包目录；内容可能敏感时，由用户决定是否纳入版本控制。
+- 可重建的临时转换文件使用操作系统临时目录并在成功或失败后清理；不得把仓库 checkout 当运行缓存。
+- 正式 PPTX、PDF、图片与用户明确要求保留的媒体包由用户控制保留期；删除或覆盖前必须确认目标。

@@ -16,6 +16,10 @@ from xml.etree import ElementTree as ET
 
 
 PROVIDERS = {"auto", "local_editable", "notebooklm", "hybrid", "open_design"}
+REVIEW_MODES = {"standard", "thorough"}
+REQUIRED_PLANNING_ROLES = {"content_plan", "design_plan", "contract_card"}
+REQUIRED_QA_ROLES = {"signature_proof", "content_critic", "design_critic", "host_validation"}
+ALLOWED_HOSTS = {"microsoft_powerpoint", "apple_keynote", "libreoffice"}
 NS = {
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
     "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
@@ -93,6 +97,7 @@ def extract_source(article: Path) -> dict[str, Any]:
         "published_at": frontmatter.get("published_at", ""),
         "sections": headings[:40],
         "concepts": concepts[:200],
+        "contains_cjk": bool(re.search(r"[\u3400-\u9fff]", body)),
     }
 
 
@@ -116,6 +121,9 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         raise FileNotFoundError(f"Article does not exist: {article}")
     if args.provider not in PROVIDERS:
         raise ValueError(f"Unsupported provider: {args.provider}")
+    review_mode = getattr(args, "review_mode", "standard")
+    if review_mode not in REVIEW_MODES:
+        raise ValueError(f"Unsupported review mode: {review_mode}")
 
     source = extract_source(article)
     slide_count = infer_slide_count(source) if args.slide_count == "auto" else int(args.slide_count)
@@ -170,10 +178,21 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "min_height": 512,
         },
         "prompts": prompt_entries,
+        "planning": [
+            expected_entry("planning/content-plan.json", True, role="content_plan"),
+            expected_entry("planning/design-plan.json", True, role="design_plan"),
+            expected_entry("planning/contract-card.json", True, role="contract_card"),
+        ],
+        "qa": [
+            expected_entry("qa/signature-proof.json", True, role="signature_proof"),
+            expected_entry("qa/critic-content.json", True, role="content_critic"),
+            expected_entry("qa/critic-design.json", True, role="design_critic"),
+            expected_entry("qa/host-validation.json", True, role="host_validation"),
+        ],
     }
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "planned_at": now_iso(),
         "source": source,
         "request": {
@@ -184,9 +203,114 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "image_count": args.image_count,
             "infographic": bool(args.infographic),
             "main_verdict": args.main_verdict,
+            "purpose": getattr(args, "purpose", "auto"),
+            "delivery_context": getattr(args, "delivery_context", "auto"),
+            "language": getattr(args, "language", "auto"),
+            "review_mode": review_mode,
         },
         "expected": expected,
     }
+
+
+def write_planning_templates(out_dir: Path, manifest: dict[str, Any]) -> None:
+    """Create non-destructive planning and QA templates for the agent to complete."""
+    request = manifest["request"]
+    source = manifest["source"]
+    expected = manifest["expected"]
+    output_scope = [
+        role
+        for role in ("editable_pptx", "notebooklm_pptx", "infographic")
+        if expected[role]["required"]
+    ]
+    if expected["visual_assets"]["required"]:
+        output_scope.append("visual_assets")
+    primary_preview_dir = (
+        expected["editable_pptx"]["preview_dir"]
+        if expected["editable_pptx"]["required"]
+        else expected["notebooklm_pptx"]["preview_dir"]
+    )
+    templates = {
+        "planning/content-plan.json": {
+            "schema_version": 1,
+            "status": "draft",
+            "main_verdict": request["main_verdict"],
+            "claim_ledger": [],
+            "narrative_arc": [],
+            "slide_plan": [],
+            "open_questions": [],
+        },
+        "planning/design-plan.json": {
+            "schema_version": 1,
+            "status": "draft",
+            "design_language": "",
+            "boldness": "balanced+",
+            "signature_move": "",
+            "signature_slides": [],
+            "semantic_colors": {},
+            "slide_shapes": [],
+            "rhythm_map": [],
+        },
+        "planning/contract-card.json": {
+            "schema_version": 1,
+            "status": "draft",
+            "source": source["path"],
+            "audience": request["audience"],
+            "purpose": request["purpose"],
+            "delivery_context": request["delivery_context"],
+            "language": request["language"],
+            "editability": "editable_pptx"
+            if expected["editable_pptx"]["required"]
+            else "non_editable_pptx",
+            "review_mode": request["review_mode"],
+            "output_scope": output_scope,
+        },
+        "qa/signature-proof.json": {
+            "schema_version": 1,
+            "status": "pending",
+            "signature_move": "",
+            "slides": [],
+            "preview_paths": [],
+            "reason": "",
+        },
+        "qa/critic-content.json": {
+            "schema_version": 1,
+            "status": "pending",
+            "lens": "content",
+            "reviewer": "",
+            "independent_of_builder": False,
+            "round": 0,
+            "verdict": "",
+            "blockers": [],
+            "majors": [],
+            "advisories": [],
+        },
+        "qa/critic-design.json": {
+            "schema_version": 1,
+            "status": "pending",
+            "lens": "design",
+            "reviewer": "",
+            "independent_of_builder": False,
+            "round": 0,
+            "verdict": "",
+            "blockers": [],
+            "majors": [],
+            "advisories": [],
+        },
+        "qa/host-validation.json": {
+            "schema_version": 1,
+            "status": "pending",
+            "host": "",
+            "preview_dir": primary_preview_dir,
+            "rendered_slide_count": 0,
+            "cjk_checked": False,
+            "cjk_passed": False,
+            "notes": "",
+        },
+    }
+    for relative_path, payload in templates.items():
+        path = out_dir / relative_path
+        if not path.exists():
+            write_json(path, payload)
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -256,12 +380,330 @@ def png_dimensions(path: Path) -> tuple[int, int] | None:
     return struct.unpack(">II", header[16:24])
 
 
+def resolve_inside(out_dir: Path, raw_path: Any) -> Path | None:
+    """Resolve a relative artifact path without allowing escape from the bundle."""
+    candidate = Path(str(raw_path))
+    if candidate.is_absolute():
+        return None
+    resolved = (out_dir / candidate).resolve()
+    try:
+        resolved.relative_to(out_dir.resolve())
+    except ValueError:
+        return None
+    return resolved
+
+
 def resolve(out_dir: Path, entry: dict[str, Any]) -> Path:
-    return out_dir / entry["path"]
+    path = resolve_inside(out_dir, entry["path"])
+    if path is None:
+        raise ValueError(f"Artifact path escapes output directory: {entry.get('path')}")
+    return path
 
 
 def add_problem(bucket: list[dict[str, str]], code: str, message: str) -> None:
     bucket.append({"code": code, "message": message})
+
+
+def read_json_artifact(path: Path, errors: list[dict[str, str]], code: str) -> dict[str, Any] | None:
+    if not path.is_file():
+        add_problem(errors, f"missing_{code}", f"Missing required file: {path}")
+        return None
+    try:
+        payload = json.loads(read_text(path))
+    except (OSError, json.JSONDecodeError) as exc:
+        add_problem(errors, f"invalid_{code}", f"Invalid JSON in {path}: {exc}")
+        return None
+    if not isinstance(payload, dict):
+        add_problem(errors, f"invalid_{code}", f"Expected a JSON object in {path}")
+        return None
+    return payload
+
+
+def validate_content_plan(
+    payload: dict[str, Any], manifest: dict[str, Any], errors: list[dict[str, str]]
+) -> None:
+    if payload.get("status") != "approved":
+        add_problem(errors, "content_plan_not_approved", "Content plan status must be approved")
+    if not str(payload.get("main_verdict", "")).strip():
+        add_problem(errors, "content_plan_missing_verdict", "Content plan must declare main_verdict")
+
+    claims = payload.get("claim_ledger")
+    if not isinstance(claims, list) or not claims:
+        add_problem(errors, "claim_ledger_empty", "Content plan must contain a non-empty claim_ledger")
+    else:
+        allowed_statuses = {"source-confirmed", "inference", "unverified"}
+        allowed_treatments = {"label", "exclude", "verify"}
+        for index, claim in enumerate(claims, 1):
+            if not isinstance(claim, dict):
+                add_problem(errors, "claim_ledger_invalid", f"Claim {index} must be an object")
+                continue
+            if not str(claim.get("claim", "")).strip():
+                add_problem(errors, "claim_missing_text", f"Claim {index} has no claim text")
+            status = claim.get("status")
+            if status not in allowed_statuses:
+                add_problem(errors, "claim_status_invalid", f"Claim {index} has invalid status: {status}")
+            if status in {"source-confirmed", "inference"} and not str(claim.get("source_anchor", "")).strip():
+                add_problem(errors, "claim_missing_anchor", f"Claim {index} has no source_anchor")
+            if status == "unverified" and claim.get("treatment") not in allowed_treatments:
+                add_problem(
+                    errors,
+                    "claim_unverified_without_treatment",
+                    f"Claim {index} must be labelled, excluded, or verified",
+                )
+
+    slide_plan = payload.get("slide_plan")
+    minimum = max(1, int(manifest["request"]["slide_count"]) - 2)
+    if not isinstance(slide_plan, list) or len(slide_plan) < minimum:
+        add_problem(
+            errors,
+            "slide_plan_too_short",
+            f"Content plan has {len(slide_plan) if isinstance(slide_plan, list) else 0} slides; expected at least {minimum}",
+        )
+    elif any(
+        not isinstance(slide, dict)
+        or not str(slide.get("title", "")).strip()
+        or not str(slide.get("page_job", "")).strip()
+        or not str(slide.get("source_anchor", "")).strip()
+        for slide in slide_plan
+    ):
+        add_problem(
+            errors,
+            "slide_plan_incomplete",
+            "Every slide plan row needs title, page_job, and source_anchor",
+        )
+
+
+def validate_design_plan(
+    payload: dict[str, Any], manifest: dict[str, Any], errors: list[dict[str, str]]
+) -> None:
+    if payload.get("status") != "approved":
+        add_problem(errors, "design_plan_not_approved", "Design plan status must be approved")
+    for field in ("design_language", "signature_move"):
+        if not str(payload.get(field, "")).strip():
+            add_problem(errors, f"design_plan_missing_{field}", f"Design plan must declare {field}")
+    if not isinstance(payload.get("signature_slides"), list) or not payload["signature_slides"]:
+        add_problem(errors, "design_plan_missing_signature_slides", "Design plan must name signature_slides")
+    if not isinstance(payload.get("semantic_colors"), dict) or not payload["semantic_colors"]:
+        add_problem(errors, "design_plan_missing_semantic_colors", "Design plan must define semantic_colors")
+    if not isinstance(payload.get("rhythm_map"), list) or not payload["rhythm_map"]:
+        add_problem(errors, "design_plan_missing_rhythm_map", "Design plan must define a rhythm_map")
+    shapes = payload.get("slide_shapes")
+    if int(manifest["request"]["slide_count"]) >= 8 and (
+        not isinstance(shapes, list) or len(set(map(str, shapes))) < 4
+    ):
+        add_problem(errors, "design_plan_low_shape_variety", "Decks with 8+ slides need at least 4 slide shapes")
+
+
+def expected_output_scope(manifest: dict[str, Any]) -> list[str]:
+    expected = manifest["expected"]
+    scope = [
+        role
+        for role in ("editable_pptx", "notebooklm_pptx", "infographic")
+        if expected[role]["required"]
+    ]
+    if expected["visual_assets"]["required"]:
+        scope.append("visual_assets")
+    return scope
+
+
+def validate_contract_card(
+    payload: dict[str, Any], manifest: dict[str, Any], errors: list[dict[str, str]]
+) -> None:
+    if payload.get("status") != "approved":
+        add_problem(errors, "contract_card_not_approved", "Contract card status must be approved")
+    for field in (
+        "source",
+        "audience",
+        "purpose",
+        "delivery_context",
+        "language",
+        "editability",
+        "review_mode",
+        "output_scope",
+    ):
+        value = payload.get(field)
+        if value in (None, "", [], {}):
+            add_problem(errors, f"contract_card_missing_{field}", f"Contract card must declare {field}")
+        elif field in {"audience", "purpose", "delivery_context", "language"} and value == "auto":
+            add_problem(errors, f"contract_card_unresolved_{field}", f"Contract card must resolve {field}")
+
+    request = manifest["request"]
+    expected_values = {
+        "audience": request["audience"],
+        "purpose": request["purpose"],
+        "delivery_context": request["delivery_context"],
+        "language": request["language"],
+        "editability": "editable_pptx"
+        if manifest["expected"]["editable_pptx"]["required"]
+        else "non_editable_pptx",
+        "review_mode": request["review_mode"],
+    }
+    for field, expected_value in expected_values.items():
+        if payload.get(field) != expected_value:
+            add_problem(
+                errors,
+                f"contract_card_{field}_mismatch",
+                f"Contract card {field} does not match the manifest",
+            )
+    source_value = payload.get("source")
+    try:
+        source_matches = Path(str(source_value)).expanduser().resolve() == Path(
+            manifest["source"]["path"]
+        ).expanduser().resolve()
+    except (OSError, RuntimeError):
+        source_matches = source_value == manifest["source"]["path"]
+    if not source_matches:
+        add_problem(
+            errors,
+            "contract_card_source_mismatch",
+            "Contract card source does not match the manifest",
+        )
+    scope = payload.get("output_scope")
+    if not isinstance(scope, list) or set(map(str, scope)) != set(expected_output_scope(manifest)):
+        add_problem(
+            errors,
+            "contract_card_output_scope_mismatch",
+            "Contract card output_scope does not match required manifest outputs",
+        )
+
+
+def validate_signature_proof(
+    payload: dict[str, Any],
+    design_plan: dict[str, Any] | None,
+    manifest: dict[str, Any],
+    out_dir: Path,
+    errors: list[dict[str, str]],
+) -> None:
+    status = payload.get("status")
+    if status == "skipped":
+        if not str(payload.get("reason", "")).strip():
+            add_problem(errors, "signature_proof_skip_without_reason", "Skipped signature proof needs a reason")
+        slide_count = int(manifest["request"]["slide_count"])
+        conservative = bool(design_plan and design_plan.get("boldness") == "conservative")
+        if slide_count > 2 and not conservative:
+            add_problem(
+                errors,
+                "signature_proof_skip_not_allowed",
+                "Signature proof may be skipped only for a conservative design or a 1-2 slide task",
+            )
+        return
+    if status != "passed":
+        add_problem(errors, "signature_proof_pending", "Signature proof must pass or be explicitly skipped")
+        return
+    slides = payload.get("slides")
+    previews = payload.get("preview_paths")
+    if not isinstance(slides, list) or not slides or not isinstance(previews, list) or not previews:
+        add_problem(errors, "signature_proof_incomplete", "Passed signature proof needs slides and preview_paths")
+        return
+    if design_plan:
+        declared = {str(item) for item in design_plan.get("signature_slides", [])}
+        proven = {str(item) for item in slides}
+        if declared and not declared.intersection(proven):
+            add_problem(errors, "signature_proof_mismatch", "Proof does not include a declared signature slide")
+    missing_previews = [
+        path
+        for path in previews
+        if (resolved := resolve_inside(out_dir, path)) is None or not resolved.is_file()
+    ]
+    if missing_previews:
+        add_problem(
+            errors,
+            "signature_proof_preview_missing",
+            f"Signature proof preview does not exist: {missing_previews}",
+        )
+
+
+def validate_critic(payload: dict[str, Any], lens: str, errors: list[dict[str, str]]) -> None:
+    if payload.get("lens") != lens:
+        add_problem(errors, f"critic_{lens}_wrong_lens", f"Critic artifact must declare lens={lens}")
+    if not str(payload.get("reviewer", "")).strip() or payload.get("independent_of_builder") is not True:
+        add_problem(
+            errors,
+            f"critic_{lens}_not_independent",
+            f"{lens} critic must name a reviewer independent of the builder",
+        )
+    if payload.get("verdict") != "consent":
+        add_problem(errors, f"critic_{lens}_not_consented", f"{lens} critic must consent")
+    if int(payload.get("round", 0) or 0) < 1:
+        add_problem(errors, f"critic_{lens}_no_round", f"{lens} critic must record at least one round")
+    if payload.get("blockers"):
+        add_problem(errors, f"critic_{lens}_blockers", f"{lens} critic has unresolved blockers")
+    if payload.get("majors"):
+        add_problem(errors, f"critic_{lens}_majors", f"{lens} critic has unresolved major findings")
+
+
+def language_requires_cjk(language: Any) -> bool:
+    normalized = str(language or "").strip().lower().replace("_", "-")
+    return normalized.startswith(("zh", "ja", "ko")) or any(
+        token in normalized for token in ("chinese", "japanese", "korean", "中文", "日文", "韩文")
+    )
+
+
+def validate_host(
+    payload: dict[str, Any],
+    slide_count: int,
+    cjk_required: bool,
+    out_dir: Path,
+    errors: list[dict[str, str]],
+) -> None:
+    if payload.get("status") != "passed":
+        add_problem(errors, "host_validation_pending", "Host validation status must be passed")
+    host = payload.get("host")
+    if host not in ALLOWED_HOSTS:
+        add_problem(
+            errors,
+            "host_validation_invalid_host",
+            f"Host must be one of: {', '.join(sorted(ALLOWED_HOSTS))}",
+        )
+    if int(payload.get("rendered_slide_count", 0) or 0) != slide_count:
+        add_problem(
+            errors,
+            "host_validation_slide_count",
+            f"Host rendered {payload.get('rendered_slide_count', 0)} slides; expected {slide_count}",
+        )
+    preview_dir = resolve_inside(out_dir, payload.get("preview_dir", ""))
+    if preview_dir is None or not preview_dir.is_dir():
+        add_problem(errors, "host_validation_preview_missing", "Host validation must reference a preview_dir inside the bundle")
+    else:
+        actual_count = len(list(preview_dir.glob("slide-*.png")))
+        if actual_count != slide_count or actual_count != int(payload.get("rendered_slide_count", 0) or 0):
+            add_problem(
+                errors,
+                "host_validation_preview_count",
+                f"Host preview_dir contains {actual_count} slide previews; expected {slide_count}",
+            )
+    if cjk_required and not (
+        payload.get("cjk_checked") is True and payload.get("cjk_passed") is True
+    ):
+        add_problem(errors, "host_validation_cjk_failed", "CJK source requires a passed CJK render check")
+
+
+def validate_manifest_contract(manifest: dict[str, Any], errors: list[dict[str, str]]) -> None:
+    if manifest.get("schema_version") != 2:
+        add_problem(errors, "manifest_schema_invalid", "Manifest schema_version must be 2")
+    expected = manifest.get("expected")
+    if not isinstance(expected, dict):
+        add_problem(errors, "manifest_expected_missing", "Manifest must contain an expected object")
+        return
+    for field, required_roles in (
+        ("planning", REQUIRED_PLANNING_ROLES),
+        ("qa", REQUIRED_QA_ROLES),
+    ):
+        entries = expected.get(field)
+        if not isinstance(entries, list):
+            add_problem(errors, f"manifest_{field}_missing", f"Manifest must contain the required {field} entries")
+            continue
+        roles = {
+            str(entry.get("role"))
+            for entry in entries
+            if isinstance(entry, dict) and entry.get("required") is True and str(entry.get("path", "")).strip()
+        }
+        for role in sorted(required_roles - roles):
+            add_problem(
+                errors,
+                f"manifest_{field}_role_missing",
+                f"Manifest {field} is missing required role: {role}",
+            )
 
 
 def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
@@ -272,6 +714,7 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     errors: list[dict[str, str]] = []
     warnings: list[dict[str, str]] = []
     artifacts: dict[str, Any] = {}
+    validate_manifest_contract(manifest, errors)
 
     for key in ("editable_pptx", "notebooklm_pptx"):
         entry = expected[key]
@@ -354,6 +797,42 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         if entry["required"] and (not path.is_file() or not read_text(path).strip()):
             add_problem(errors, "missing_prompt", f"Missing or empty prompt: {path}")
 
+    planning_payloads: dict[str, dict[str, Any] | None] = {}
+    for entry in expected.get("planning", []):
+        payload = read_json_artifact(resolve(out_dir, entry), errors, entry["role"])
+        planning_payloads[entry["role"]] = payload
+    content_plan = planning_payloads.get("content_plan")
+    design_plan = planning_payloads.get("design_plan")
+    contract_card = planning_payloads.get("contract_card")
+    if content_plan:
+        validate_content_plan(content_plan, manifest, errors)
+    if design_plan:
+        validate_design_plan(design_plan, manifest, errors)
+    if contract_card:
+        validate_contract_card(contract_card, manifest, errors)
+
+    qa_payloads: dict[str, dict[str, Any] | None] = {}
+    for entry in expected.get("qa", []):
+        payload = read_json_artifact(resolve(out_dir, entry), errors, entry["role"])
+        qa_payloads[entry["role"]] = payload
+    if qa_payloads.get("signature_proof"):
+        validate_signature_proof(qa_payloads["signature_proof"], design_plan, manifest, out_dir, errors)
+    if qa_payloads.get("content_critic"):
+        validate_critic(qa_payloads["content_critic"], "content", errors)
+    if qa_payloads.get("design_critic"):
+        validate_critic(qa_payloads["design_critic"], "design", errors)
+    if qa_payloads.get("host_validation"):
+        primary_deck = artifacts.get("editable_pptx") or artifacts.get("notebooklm_pptx") or {}
+        rendered_count = int(primary_deck.get("slides", 0))
+        validate_host(
+            qa_payloads["host_validation"],
+            rendered_count,
+            bool(manifest.get("source", {}).get("contains_cjk"))
+            or language_requires_cjk(manifest.get("request", {}).get("language")),
+            out_dir,
+            errors,
+        )
+
     if args.strict and not args.visual_reviewed:
         add_problem(errors, "visual_review_pending", "Strict validation requires --visual-reviewed")
     elif not args.visual_reviewed:
@@ -374,6 +853,15 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         "manual_gates": {
             "visual_reviewed": bool(args.visual_reviewed),
             "source_facts_reviewed": bool(args.source_facts_reviewed),
+            "content_plan_approved": bool(content_plan and content_plan.get("status") == "approved"),
+            "design_plan_approved": bool(design_plan and design_plan.get("status") == "approved"),
+            "dual_lens_consented": bool(
+                (qa_payloads.get("content_critic") or {}).get("verdict") == "consent"
+                and (qa_payloads.get("design_critic") or {}).get("verdict") == "consent"
+            ),
+            "host_validated": bool(
+                (qa_payloads.get("host_validation") or {}).get("status") == "passed"
+            ),
         },
     }
     write_json(out_dir / "media-validation.json", report)
@@ -394,6 +882,10 @@ def build_parser() -> argparse.ArgumentParser:
     plan.add_argument("--image-count", type=int, default=3)
     plan.add_argument("--infographic", action="store_true")
     plan.add_argument("--main-verdict", default="")
+    plan.add_argument("--purpose", default="auto")
+    plan.add_argument("--delivery-context", default="auto")
+    plan.add_argument("--language", default="auto")
+    plan.add_argument("--review-mode", choices=sorted(REVIEW_MODES), default="standard")
     plan.add_argument("--json", action="store_true")
 
     validate = subparsers.add_parser("validate", help="Validate files declared by media-manifest.json")
@@ -412,6 +904,7 @@ def main() -> int:
             manifest = build_manifest(args)
             output = Path(args.out_dir).expanduser().resolve() / "media-manifest.json"
             write_json(output, manifest)
+            write_planning_templates(output.parent, manifest)
             result = {"status": "planned", "manifest": str(output), "payload": manifest}
             print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else str(output))
             return 0

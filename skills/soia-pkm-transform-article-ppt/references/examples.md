@@ -56,3 +56,11 @@
 - `.pptx` 每页只有一张图，却声称内容可编辑。
 - 信息图方向与文章逻辑相反，或中文由图片模型直接生成而出现错字。
 - 文件生成后没有渲染预览，只检查文件存在。
+
+## 7. 复杂技术文章的严格版
+
+```text
+把 <technical-article.md> 做成 16 页中文技术分享 PPTX。现场讲解，采用 thorough 审稿，保留可编辑对象，并用 PowerPoint 做最终中文验收。
+```
+
+路由：`local_editable` + `review_mode=thorough`。先运行 `plan` 生成规划模板，完成 Claim Ledger、内容计划和 Contract Card；批准设计计划后先渲染 signature slide。全套完成后分别做 content/design Lens 审稿，修复 blocker/major，再填写宿主验收记录并执行 strict validation。完整命令和 JSON 示例见 [planning-and-review-contracts.md](planning-and-review-contracts.md)。
