@@ -20,8 +20,6 @@ from collections import defaultdict
 
 from library_env import env_source_hint, load_private_env
 
-load_private_env()
-
 DEFAULT_BASE = "Books"
 
 # 类型显示顺序与中文描述（默认值，可用 --config 覆盖）
@@ -100,6 +98,7 @@ def stars(n):
 
 
 def main(argv):
+    load_private_env()
     args = parse_args(argv)
     vault = resolve_vault(args)
     base = vault / args.base

@@ -32,7 +32,6 @@ from pathlib import Path
 
 from library_env import env_source_hint, load_private_env, require_weread_skills, weread_api_key_hint
 
-load_private_env()
 require_weread_skills()
 
 API = "https://i.weread.qq.com/api/agent/gateway"
@@ -321,6 +320,7 @@ def parse_args(argv):
 
 
 def main(argv):
+    load_private_env()
     args = parse_args(argv)
     vault = resolve_vault(args.vault)
     base = vault / args.base
