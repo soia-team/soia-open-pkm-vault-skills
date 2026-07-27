@@ -120,7 +120,7 @@ LibreOffice 适合自动化预检，但不能作为中文 PPTX 的唯一视觉�
 }
 ```
 
-`host` 只能使用 `microsoft_powerpoint`、`apple_keynote` 或 `libreoffice`；`preview_dir` 必须指向输出目录内由该宿主实际渲染的 `slide-*.png`。预览必须能解析且至少为 320×180，数量、`rendered_slide_count` 与正式母版实际页数必须一致；source 或目标语言含 CJK 时，`cjk_checked` 和 `cjk_passed` 都必须为布尔值 `true`。只能使用 LibreOffice 时，`notes` 不得为空，并在交付回执中明确宿主限制。
+`host` 只能使用 `microsoft_powerpoint`、`apple_keynote` 或 `libreoffice`；`preview_dir` 必须与正式母版在 manifest 中声明的 `preview_dir` 完全一致，并指向由该宿主实际渲染的 `slide-*.png`，不能借 NotebookLM 辅助版或素材目录代替。预览必须能解码且至少为 320×180，数量、`rendered_slide_count` 与正式母版实际页数必须一致；source 或目标语言含 CJK 时，`cjk_checked` 和 `cjk_passed` 都必须为布尔值 `true`。只能使用 LibreOffice 时，`notes` 不得为空，并在交付回执中明确宿主限制。
 
 ## 7. 最终验证
 
@@ -133,4 +133,4 @@ python3 scripts/media_bundle.py validate \
   --json
 ```
 
-新建媒体包使用 manifest schema v2；验证器仍接受 v1 历史媒体包，但只有 v2 才要求规划、双 Lens 与宿主合同。严格验证会同时检查 PPTX、预览、prompt、规划合同、Signature Proof、双 Lens 结论和宿主验收。修复后重新渲染全套页面并重跑验证，不得只修改 JSON 让门变绿。
+新建媒体包使用 manifest schema v2；验证器仅在非严格模式下读取 v1 历史媒体包并标记为 `legacy`，严格交付验收拒绝 v1。严格验证会同时检查 PPTX、预览、prompt、规划合同、Signature Proof、双 Lens 结论和宿主验收。修复后重新渲染全套页面并重跑验证，不得只修改 JSON 让门变绿。

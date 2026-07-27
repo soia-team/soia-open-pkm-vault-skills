@@ -64,6 +64,25 @@ def write_truncated_png_header(path: Path, width: int = 1080, height: int = 720)
     path.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR" + struct.pack(">II", width, height))
 
 
+def write_invalid_idat_png(path: Path, width: int = 1080, height: int = 720) -> None:
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + kind
+            + data
+            + struct.pack(">I", binascii.crc32(kind + data) & 0xFFFFFFFF)
+        )
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", ihdr)
+        + chunk(b"IDAT", b"not-a-zlib-stream")
+        + chunk(b"IEND", b"")
+    )
+
+
 class ArticlePptMediaBundleTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -258,6 +277,10 @@ published_at: 2026-07-22 09:37
         MODULE.write_json(content_path, payload)
         MODULE.write_planning_templates(self.out_dir, manifest)
         self.assertEqual(json.loads(content_path.read_text(encoding="utf-8"))["status"], "approved")
+
+    def test_plan_rejects_blank_main_verdict(self):
+        with self.assertRaisesRegex(ValueError, "main_verdict must be non-empty"):
+            self.plan(main_verdict="   ")
 
     def test_strict_validation_passes_complete_hybrid_bundle(self):
         self.materialize_valid_bundle()
@@ -474,6 +497,16 @@ published_at: 2026-07-22 09:37
         self.assertIn("host_validation_preview_invalid", codes)
         self.assertIn("signature_proof_preview_invalid", codes)
 
+    def test_crc_correct_but_undecodable_png_blocks_delivery(self):
+        self.materialize_valid_bundle()
+        write_invalid_idat_png(self.out_dir / "previews/editable/slide-1.png")
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("invalid_preview_editable_pptx", codes)
+        self.assertIn("host_validation_preview_invalid", codes)
+        self.assertIn("signature_proof_preview_invalid", codes)
+
     def test_signature_proof_must_match_move_and_slide_preview(self):
         self.materialize_valid_bundle()
         path = self.out_dir / "qa/signature-proof.json"
@@ -532,6 +565,33 @@ published_at: 2026-07-22 09:37
         codes = {item["code"] for item in report["errors"]}
         self.assertIn("preview_dir_escape_editable_pptx", codes)
         self.assertIn("visual_assets_directory_escape", codes)
+
+    def test_required_decks_cannot_share_preview_directory(self):
+        self.materialize_valid_bundle()
+        manifest_path = self.out_dir / "media-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["expected"]["notebooklm_pptx"]["preview_dir"] = "previews/editable"
+        MODULE.write_json(manifest_path, manifest)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        self.assertTrue(
+            any(item["code"] == "manifest_preview_dir_conflict" for item in report["errors"])
+        )
+
+    def test_host_validation_must_bind_primary_deck_preview(self):
+        self.materialize_valid_bundle()
+        path = self.out_dir / "qa/host-validation.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["preview_dir"] = "previews/notebooklm"
+        MODULE.write_json(path, payload)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        self.assertTrue(
+            any(
+                item["code"] == "host_validation_preview_origin_mismatch"
+                for item in report["errors"]
+            )
+        )
 
     def test_content_plan_verdict_must_match_manifest_verdict(self):
         self.materialize_valid_bundle()

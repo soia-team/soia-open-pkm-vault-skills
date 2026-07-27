@@ -10,6 +10,7 @@ import re
 import struct
 import sys
 import zipfile
+import zlib
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,7 @@ REQUIRED_QA_ROLES = {"signature_proof", "content_critic", "design_critic", "host
 ALLOWED_HOSTS = {"microsoft_powerpoint", "apple_keynote", "libreoffice"}
 MIN_PREVIEW_WIDTH = 320
 MIN_PREVIEW_HEIGHT = 180
+MAX_PNG_DECODED_BYTES = 256 * 1024 * 1024
 NS = {
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
     "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
@@ -134,6 +136,9 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("slide_count must be positive")
     if args.image_count < 0:
         raise ValueError("image_count cannot be negative")
+    main_verdict = str(args.main_verdict).strip()
+    if not main_verdict:
+        raise ValueError("main_verdict must be non-empty")
 
     provider = "local_editable" if args.provider == "auto" else args.provider
     out_dir = Path(args.out_dir).expanduser().resolve()
@@ -205,7 +210,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "slide_count": slide_count,
             "image_count": args.image_count,
             "infographic": bool(args.infographic),
-            "main_verdict": args.main_verdict,
+            "main_verdict": main_verdict,
             "purpose": getattr(args, "purpose", "auto"),
             "delivery_context": getattr(args, "delivery_context", "auto"),
             "language": getattr(args, "language", "auto"),
@@ -372,6 +377,71 @@ def inspect_pptx(path: Path) -> dict[str, Any]:
     return result
 
 
+def png_raster_is_decodable(
+    compressed: bytes,
+    width: int,
+    height: int,
+    bit_depth: int,
+    color_type: int,
+    interlace: int,
+) -> bool:
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}
+    allowed_depths = {
+        0: {1, 2, 4, 8, 16},
+        2: {8, 16},
+        3: {1, 2, 4, 8},
+        4: {8, 16},
+        6: {8, 16},
+    }
+    if not compressed or color_type not in channels or bit_depth not in allowed_depths[color_type]:
+        return False
+    bits_per_pixel = channels[color_type] * bit_depth
+    passes = (
+        ((0, 0, 1, 1),)
+        if interlace == 0
+        else (
+            (0, 0, 8, 8),
+            (4, 0, 8, 8),
+            (0, 4, 4, 8),
+            (2, 0, 4, 4),
+            (0, 2, 2, 4),
+            (1, 0, 2, 2),
+            (0, 1, 1, 2),
+        )
+    )
+    row_layout: list[tuple[int, int]] = []
+    expected_size = 0
+    for start_x, start_y, step_x, step_y in passes:
+        pass_width = 0 if width <= start_x else (width - start_x + step_x - 1) // step_x
+        pass_height = 0 if height <= start_y else (height - start_y + step_y - 1) // step_y
+        if pass_width < 1 or pass_height < 1:
+            continue
+        row_bytes = (pass_width * bits_per_pixel + 7) // 8
+        row_layout.append((pass_height, row_bytes))
+        expected_size += pass_height * (row_bytes + 1)
+        if expected_size > MAX_PNG_DECODED_BYTES:
+            return False
+    try:
+        decoder = zlib.decompressobj()
+        decoded = decoder.decompress(compressed, expected_size + 1)
+    except zlib.error:
+        return False
+    if (
+        len(decoded) != expected_size
+        or decoder.unconsumed_tail
+        or decoder.unused_data
+        or not decoder.eof
+    ):
+        return False
+    offset = 0
+    for row_count, row_bytes in row_layout:
+        for _ in range(row_count):
+            if decoded[offset] > 4:
+                return False
+            offset += row_bytes + 1
+    return offset == len(decoded)
+
+
 def png_dimensions(path: Path) -> tuple[int, int] | None:
     """Return dimensions only for a structurally complete PNG.
 
@@ -384,7 +454,14 @@ def png_dimensions(path: Path) -> tuple[int, int] | None:
             if handle.read(8) != b"\x89PNG\r\n\x1a\n":
                 return None
             dimensions: tuple[int, int] | None = None
+            bit_depth = -1
+            color_type = -1
+            interlace = -1
+            saw_plte = False
             saw_idat = False
+            idat_ended = False
+            idat_parts: list[bytes] = []
+            idat_bytes = 0
             first_chunk = True
             while True:
                 length_bytes = handle.read(4)
@@ -404,7 +481,7 @@ def png_dimensions(path: Path) -> tuple[int, int] | None:
                 if first_chunk:
                     if chunk_type != b"IHDR" or length != 13:
                         return None
-                    width, height, _depth, color_type, compression, filtering, interlace = struct.unpack(
+                    width, height, bit_depth, color_type, compression, filtering, interlace = struct.unpack(
                         ">IIBBBBB", data
                     )
                     if (
@@ -421,9 +498,35 @@ def png_dimensions(path: Path) -> tuple[int, int] | None:
                 elif chunk_type == b"IHDR":
                     return None
                 if chunk_type == b"IDAT":
+                    if idat_ended:
+                        return None
                     saw_idat = True
+                    idat_bytes += len(data)
+                    if idat_bytes > MAX_PNG_DECODED_BYTES:
+                        return None
+                    idat_parts.append(data)
+                elif saw_idat:
+                    idat_ended = True
+                if chunk_type == b"PLTE":
+                    if saw_idat or length < 3 or length > 768 or length % 3:
+                        return None
+                    saw_plte = True
                 if chunk_type == b"IEND":
-                    if length != 0 or not saw_idat or handle.read(1):
+                    if (
+                        length != 0
+                        or not saw_idat
+                        or (color_type == 3 and not saw_plte)
+                        or handle.read(1)
+                        or dimensions is None
+                        or not png_raster_is_decodable(
+                            b"".join(idat_parts),
+                            dimensions[0],
+                            dimensions[1],
+                            bit_depth,
+                            color_type,
+                            interlace,
+                        )
+                    ):
                         return None
                     return dimensions
     except (OSError, struct.error):
@@ -777,6 +880,7 @@ def validate_host(
     slide_count: int,
     cjk_required: bool,
     out_dir: Path,
+    primary_preview_dir: Path | None,
     errors: list[dict[str, str]],
 ) -> None:
     if payload.get("status") != "passed":
@@ -801,6 +905,14 @@ def validate_host(
             f"Host rendered {payload.get('rendered_slide_count', 0)} slides; expected {slide_count}",
         )
     preview_dir = resolve_inside(out_dir, payload.get("preview_dir", ""))
+    if preview_dir is not None and (
+        primary_preview_dir is None or preview_dir != primary_preview_dir.resolve()
+    ):
+        add_problem(
+            errors,
+            "host_validation_preview_origin_mismatch",
+            "Host validation preview_dir must equal the primary deck preview_dir",
+        )
     if preview_dir is None or not preview_dir.is_dir():
         add_problem(errors, "host_validation_preview_missing", "Host validation must reference a preview_dir inside the bundle")
     else:
@@ -887,6 +999,28 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "manifest_schema_legacy_strict_unsupported",
                 "Strict delivery validation requires schema v2; re-plan this bundle before release",
             )
+    required_preview_dirs: dict[str, Path] = {}
+    for key in ("editable_pptx", "notebooklm_pptx"):
+        entry = expected.get(key, {})
+        if entry.get("required") is True:
+            preview_dir = resolve_inside(out_dir, entry.get("preview_dir", ""))
+            if preview_dir is not None:
+                required_preview_dirs[key] = preview_dir
+    if len(set(required_preview_dirs.values())) != len(required_preview_dirs):
+        add_problem(
+            errors,
+            "manifest_preview_dir_conflict",
+            "Each required deck must have its own preview_dir",
+        )
+    asset_root = resolve_inside(out_dir, expected.get("visual_assets", {}).get("directory", ""))
+    if asset_root is not None:
+        for key, preview_dir in required_preview_dirs.items():
+            if preview_dir == asset_root or asset_root in preview_dir.parents:
+                add_problem(
+                    errors,
+                    f"manifest_preview_dir_in_assets_{key}",
+                    f"{key} preview_dir must not be inside the visual assets directory",
+                )
 
     for key in ("editable_pptx", "notebooklm_pptx"):
         entry = expected[key]
@@ -1015,7 +1149,15 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     if qa_payloads.get("design_critic"):
         validate_critic(qa_payloads["design_critic"], "design", errors)
     if qa_payloads.get("host_validation"):
-        primary_deck = artifacts.get("editable_pptx") or artifacts.get("notebooklm_pptx") or {}
+        primary_key = (
+            "editable_pptx"
+            if expected.get("editable_pptx", {}).get("required") is True
+            else "notebooklm_pptx"
+        )
+        primary_deck = artifacts.get(primary_key) or {}
+        primary_preview_dir = resolve_inside(
+            out_dir, expected.get(primary_key, {}).get("preview_dir", "")
+        )
         rendered_count = int(primary_deck.get("slides", 0))
         validate_host(
             qa_payloads["host_validation"],
@@ -1023,6 +1165,7 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             bool(manifest.get("source", {}).get("contains_cjk"))
             or language_requires_cjk(manifest.get("request", {}).get("language")),
             out_dir,
+            primary_preview_dir,
             errors,
         )
 

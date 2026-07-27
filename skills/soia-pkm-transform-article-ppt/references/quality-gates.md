@@ -21,14 +21,14 @@ python3 scripts/media_bundle.py validate \
 - PPTX 是否为合法 OOXML、实际页数是否达到计划下限。
 - `local_editable` 正式母版是否包含足够比例的可编辑文字/形状页，而不是整套全幅截图。
 - 预览目录和素材目录是否仍位于媒体包内部。
-- 预览 PNG 数是否与 slide 数一致，逐张 PNG 是否具备完整 chunk、正确 CRC、IDAT/IEND，且至少为 320×180；仅有 PNG 头的占位文件不算渲染证据。
+- 预览 PNG 数是否与 slide 数一致，逐张 PNG 是否具备完整 chunk、正确 CRC、可解压且与 IHDR 相容的像素流、IDAT/IEND，且至少为 320×180；仅有 PNG 头或损坏 IDAT 的占位文件不算渲染证据。
 - OOXML 可提取文字中是否出现 placeholder、内部路径、NotebookLM 运行字段。
 - `hybrid` 是否同时拥有正式母版和 NotebookLM 版。
 - 是否显式完成视觉复核和 source 事实复核。
 - 内容计划、Claim Ledger、设计计划和 Contract Card 是否批准且字段完整。
 - Signature Proof 的动作、页码和预览是否与 Design Plan 精确对应，或有允许跳过的明确原因。
 - content/design 双 Lens 是否都 consent，且没有未解决 blocker/major。
-- 正式母版是否经过真实宿主全量渲染；含 CJK 时中文检查是否通过。
+- 正式母版是否经过真实宿主全量渲染，Host Validation 的 `preview_dir` 是否与 manifest 中正式母版的预览目录完全一致；含 CJK 时中文检查是否通过。
 
 脚本不能识别位图内所有错别字和占位符，所以即使通过也不能替代人工检查。
 
