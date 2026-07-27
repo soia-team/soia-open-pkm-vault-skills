@@ -1,13 +1,13 @@
 ---
 name: soia-pkm-bootstrap-vault-obsidian
-description: 配置 Obsidian 作为本地 Markdown 知识库消费端：安装、启用 Bases、检查配置与样式。触发：「配置 Obsidian」「启用 Bases」
+description: 将已有 Markdown vault 配置为 Obsidian 消费端，并衔接通用 vault 基座。触发：「配置 Obsidian vault」「启用 Obsidian Bases」「接入 Obsidian 消费端」
 dependencies:
   hard: [soia-pkm-bootstrap-vault-base]
 version: 1.0.1
 created_at: 2026-07-16 16:00:31
-updated_at: 2026-07-27 10:51:21
+updated_at: 2026-07-27 10:47:17
 created_by: gpt-5.6-luna
-updated_by: claude opus 5
+updated_by: gpt-5.6-sol
 ---
 
 # soia-pkm-bootstrap-vault-obsidian
@@ -26,6 +26,8 @@ updated_by: claude opus 5
 本 skill 不创建 PARA 骨架、不替代 base，也不把 Obsidian 数据反向写回其他云端知识库。
 
 ### 客户如何使用
+
+其他可识别说法包括「配置 Obsidian」「装 Obsidian 插件」「Obsidian 特化配置」「启用 Bases」；从零建立通用 vault 骨架时先使用 `soia-pkm-bootstrap-vault-base`。
 
 1. 先安装并运行 `soia-pkm-bootstrap-vault-base`，通用初始化使用 `--no-obsidian`；如果要让脚本同时生成 CSS snippet，则按下方命令不带该参数运行。
 2. 提供已有 vault 路径，确认 Obsidian 是否已安装及版本。

@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-rednote
-description: 归档小红书图文或视频笔记到 Obsidian vault，媒体存本地，vault 只留轻量 Markdown。触发：「归档这条小红书」「clip 小红书」
+description: 将单篇小红书图文或视频笔记归档到 Obsidian vault。触发：「归档这条小红书」「clip 小红书笔记」「存这篇 rednote」
 version: 1.0.2
 created_at: 2026-07-21 14:40:40
-updated_at: 2026-07-27 10:51:21
+updated_at: 2026-07-27 10:47:17
 created_by: claude fable 5
-updated_by: claude opus 5
+updated_by: gpt-5.6-sol
 ---
 
 # soia-pkm-clip-rednote
