@@ -126,7 +126,14 @@ class RunWithEnvTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             config = Path(temporary) / "config.yml"
             config.write_text(f"env:\n  ALIPAN_RUN_WITH_ENV_TEST: {TEST_SECRET}\n", encoding="utf-8")
-            environment = os.environ.copy()
+            # 同 test_lint_vault：隔离维护者本机的 SOIA_* 与默认配置目录，
+            # 避免 alipan_env 的 setdefault 被已存在的同名值抢先占位。
+            environment = {
+                key: value
+                for key, value in os.environ.items()
+                if not key.startswith("SOIA_")
+            }
+            environment["HOME"] = temporary
             environment["SOIA_PKM_ALIPAN_DRIVE_OPS_CONFIG_FILE"] = str(config)
 
             import subprocess

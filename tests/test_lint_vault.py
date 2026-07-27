@@ -63,7 +63,16 @@ class LintConfigurationTests(unittest.TestCase):
     def run_lint(self, vault, config_text="", *args):
         config = vault / "config.yml"
         config.write_text(config_text, encoding="utf-8")
-        env = os.environ.copy()
+        # 剔除维护者本机的 SOIA_*/OBSIDIAN_VAULT 并改指临时 HOME：lint_vault 在模块
+        # 顶层调用 load_private_env()，import 时就把 ~/.config/soia-skills 的值
+        # setdefault 进本进程 environ；直接 copy 会让子进程的 setdefault 失效，
+        # 用例自己的 config.yml 反而被顶掉（CI 的 HOME 是干净的，只在本机复现）。
+        env = {
+            key: value
+            for key, value in os.environ.items()
+            if not key.startswith("SOIA_") and key != "OBSIDIAN_VAULT"
+        }
+        env["HOME"] = str(vault)
         env["SOIA_PKM_MAINTAIN_CONFIG_FILE"] = str(config)
         result = subprocess.run(
             [sys.executable, str(SCRIPT_DIR / "lint_vault.py"), "--vault", str(vault), "--json", *args],
