@@ -39,7 +39,7 @@
 - 规划时间。时间由运行环境实际读取，不手写未来时间。
 - 内容/设计计划、Contract Card、Signature Proof、双 Lens 审稿和宿主验收的预期路径。
 
-新规划默认写入 schema v2。验证器保留 schema v1 的只读兼容，使旧媒体包仍可复验；v1 不会被伪装成已完成 v2 的规划、双 Lens 与宿主质量合同。
+新规划写入 schema v2，并要求非空 `request.main_verdict`。验证器保留 schema v1 的只读兼容：非严格校验可读取并标记为 `legacy`；严格交付校验会拒绝 v1，必须重新 `plan` 升级，因此旧包不能通过修改版本号绕过规划、双 Lens 与宿主质量合同。
 
 manifest 不存账号、cookie、token、NotebookLM 下载 URL、用户邮箱或模型身份。Notebook/source/artifact id 仅在确有调试需要时写入用户私有运行日志，不进入幻灯片。
 

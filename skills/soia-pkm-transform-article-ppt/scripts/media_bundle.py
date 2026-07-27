@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import binascii
 import json
 import re
 import struct
@@ -372,14 +373,61 @@ def inspect_pptx(path: Path) -> dict[str, Any]:
 
 
 def png_dimensions(path: Path) -> tuple[int, int] | None:
+    """Return dimensions only for a structurally complete PNG.
+
+    This intentionally validates the full chunk envelope, CRCs, IDAT presence,
+    and terminal IEND instead of trusting the first 24 bytes. It is not an image
+    renderer, but it rejects truncated/header-only files as delivery evidence.
+    """
     try:
         with path.open("rb") as handle:
-            header = handle.read(24)
-    except OSError:
+            if handle.read(8) != b"\x89PNG\r\n\x1a\n":
+                return None
+            dimensions: tuple[int, int] | None = None
+            saw_idat = False
+            first_chunk = True
+            while True:
+                length_bytes = handle.read(4)
+                if len(length_bytes) != 4:
+                    return None
+                length = struct.unpack(">I", length_bytes)[0]
+                if length > 64 * 1024 * 1024:
+                    return None
+                chunk_type = handle.read(4)
+                data = handle.read(length)
+                crc_bytes = handle.read(4)
+                if len(chunk_type) != 4 or len(data) != length or len(crc_bytes) != 4:
+                    return None
+                expected_crc = struct.unpack(">I", crc_bytes)[0]
+                if (binascii.crc32(chunk_type + data) & 0xFFFFFFFF) != expected_crc:
+                    return None
+                if first_chunk:
+                    if chunk_type != b"IHDR" or length != 13:
+                        return None
+                    width, height, _depth, color_type, compression, filtering, interlace = struct.unpack(
+                        ">IIBBBBB", data
+                    )
+                    if (
+                        width < 1
+                        or height < 1
+                        or color_type not in {0, 2, 3, 4, 6}
+                        or compression != 0
+                        or filtering != 0
+                        or interlace not in {0, 1}
+                    ):
+                        return None
+                    dimensions = (width, height)
+                    first_chunk = False
+                elif chunk_type == b"IHDR":
+                    return None
+                if chunk_type == b"IDAT":
+                    saw_idat = True
+                if chunk_type == b"IEND":
+                    if length != 0 or not saw_idat or handle.read(1):
+                        return None
+                    return dimensions
+    except (OSError, struct.error):
         return None
-    if len(header) < 24 or header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
-        return None
-    return struct.unpack(">II", header[16:24])
 
 
 def valid_preview_dimensions(path: Path) -> bool:
@@ -434,7 +482,7 @@ def validate_content_plan(
     if not str(payload.get("main_verdict", "")).strip():
         add_problem(errors, "content_plan_missing_verdict", "Content plan must declare main_verdict")
     manifest_verdict = str(manifest.get("request", {}).get("main_verdict", "")).strip()
-    if manifest_verdict and str(payload.get("main_verdict", "")).strip() != manifest_verdict:
+    if str(payload.get("main_verdict", "")).strip() != manifest_verdict:
         add_problem(
             errors,
             "content_plan_verdict_mismatch",
@@ -623,6 +671,28 @@ def validate_signature_proof(
                 "Signature proof signature_move does not match the design plan",
             )
     resolved_previews = [(path, resolve_inside(out_dir, path)) for path in previews]
+    primary_key = (
+        "editable_pptx"
+        if manifest.get("expected", {}).get("editable_pptx", {}).get("required") is True
+        else "notebooklm_pptx"
+    )
+    primary_preview_dir = resolve_inside(
+        out_dir,
+        manifest.get("expected", {}).get(primary_key, {}).get("preview_dir", ""),
+    )
+    wrong_origin = [
+        path
+        for path, resolved in resolved_previews
+        if primary_preview_dir is None
+        or resolved is None
+        or resolved.parent != primary_preview_dir.resolve()
+    ]
+    if wrong_origin:
+        add_problem(
+            errors,
+            "signature_proof_preview_wrong_origin",
+            f"Signature proof previews must come from the primary deck preview_dir: {wrong_origin}",
+        )
     missing_previews = [path for path, resolved in resolved_previews if resolved is None or not resolved.is_file()]
     if missing_previews:
         add_problem(
@@ -662,7 +732,13 @@ def validate_signature_proof(
             malformed_paths.append(str(path))
         else:
             preview_slides.add(str(int(match.group(1))))
-    if invalid_slides or malformed_paths or preview_slides != proven_slides:
+    if (
+        invalid_slides
+        or malformed_paths
+        or len(proven_slides) != len(slides)
+        or len(preview_slides) != len(previews)
+        or preview_slides != proven_slides
+    ):
         add_problem(
             errors,
             "signature_proof_slide_preview_mismatch",
@@ -759,6 +835,15 @@ def validate_manifest_contract(manifest: dict[str, Any], errors: list[dict[str, 
         return
     if schema_version == 1:
         return
+    request = manifest.get("request")
+    if not isinstance(request, dict):
+        add_problem(errors, "manifest_request_missing", "Manifest must contain a request object")
+    elif not str(request.get("main_verdict", "")).strip():
+        add_problem(
+            errors,
+            "manifest_main_verdict_missing",
+            "Schema v2 requires a non-empty request.main_verdict",
+        )
     for field, required_roles in (
         ("planning", REQUIRED_PLANNING_ROLES),
         ("qa", REQUIRED_QA_ROLES),
@@ -789,6 +874,19 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     warnings: list[dict[str, str]] = []
     artifacts: dict[str, Any] = {}
     validate_manifest_contract(manifest, errors)
+    legacy_schema = manifest.get("schema_version") == 1
+    if legacy_schema:
+        add_problem(
+            warnings,
+            "manifest_schema_legacy",
+            "Schema v1 is readable for compatibility but does not satisfy v2 quality contracts",
+        )
+        if args.strict:
+            add_problem(
+                errors,
+                "manifest_schema_legacy_strict_unsupported",
+                "Strict delivery validation requires schema v2; re-plan this bundle before release",
+            )
 
     for key in ("editable_pptx", "notebooklm_pptx"):
         entry = expected[key]
@@ -941,7 +1039,7 @@ def validate_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         "schema_version": 1,
         "validated_at": now_iso(),
         "manifest": str(manifest_path),
-        "status": "failed" if errors else "passed",
+        "status": "failed" if errors else ("legacy" if legacy_schema else "passed"),
         "artifacts": artifacts,
         "errors": errors,
         "warnings": warnings,
@@ -976,7 +1074,7 @@ def build_parser() -> argparse.ArgumentParser:
     plan.add_argument("--slide-count", default="auto")
     plan.add_argument("--image-count", type=int, default=3)
     plan.add_argument("--infographic", action="store_true")
-    plan.add_argument("--main-verdict", default="")
+    plan.add_argument("--main-verdict", required=True)
     plan.add_argument("--purpose", default="auto")
     plan.add_argument("--delivery-context", default="auto")
     plan.add_argument("--language", default="auto")

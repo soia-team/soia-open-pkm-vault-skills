@@ -72,7 +72,7 @@ Claim Ledger 每行使用：
 }
 ```
 
-`signature_move` 必须与 Design Plan 完全一致；`slides` 必须逐一对应 `preview_paths` 中的 `slide-N.png`，而且预览必须是有效且尺寸合理的 PNG。只有 `boldness=conservative` 或 1–2 页极小任务可以 `status=skipped`，并写明 `reason`。
+`signature_move` 必须与 Design Plan 完全一致；`slides` 必须逐一对应主交付 deck 的 `preview_dir` 中的 `slide-N.png`，而且预览必须是结构完整、CRC 正确、尺寸合理的 PNG。不能引用素材目录或另一套 deck 的同名图片代替渲染证据。只有 `boldness=conservative` 或 1–2 页极小任务可以 `status=skipped`，并写明 `reason`。
 
 ## 4. Contract Card
 

@@ -1,10 +1,12 @@
 import argparse
+import binascii
 import importlib.util
 import json
 import struct
 import tempfile
 import unittest
 import zipfile
+import zlib
 from pathlib import Path
 
 
@@ -38,6 +40,26 @@ def write_fake_pptx(path: Path, slides: list[str]) -> None:
 
 
 def write_png_header(path: Path, width: int = 1080, height: int = 720) -> None:
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + kind
+            + data
+            + struct.pack(">I", binascii.crc32(kind + data) & 0xFFFFFFFF)
+        )
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ihdr = struct.pack(">IIBBBBB", width, height, 1, 0, 0, 0, 0)
+    row = b"\x00" + (b"\x00" * ((width + 7) // 8))
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", ihdr)
+        + chunk(b"IDAT", zlib.compress(row * height))
+        + chunk(b"IEND", b"")
+    )
+
+
+def write_truncated_png_header(path: Path, width: int = 1080, height: int = 720) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR" + struct.pack(">II", width, height))
 
@@ -442,6 +464,16 @@ published_at: 2026-07-22 09:37
         self.assertIn("host_validation_preview_invalid", codes)
         self.assertIn("signature_proof_preview_invalid", codes)
 
+    def test_truncated_header_only_png_blocks_delivery(self):
+        self.materialize_valid_bundle()
+        write_truncated_png_header(self.out_dir / "previews/editable/slide-1.png")
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("invalid_preview_editable_pptx", codes)
+        self.assertIn("host_validation_preview_invalid", codes)
+        self.assertIn("signature_proof_preview_invalid", codes)
+
     def test_signature_proof_must_match_move_and_slide_preview(self):
         self.materialize_valid_bundle()
         path = self.out_dir / "qa/signature-proof.json"
@@ -454,6 +486,36 @@ published_at: 2026-07-22 09:37
         codes = {item["code"] for item in report["errors"]}
         self.assertIn("signature_proof_move_mismatch", codes)
         self.assertIn("signature_proof_slide_preview_mismatch", codes)
+
+    def test_signature_proof_must_use_primary_deck_preview_directory(self):
+        self.materialize_valid_bundle()
+        unrelated = self.out_dir / "assets/imagegen/slide-1.png"
+        write_png_header(unrelated)
+        path = self.out_dir / "qa/signature-proof.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["preview_paths"] = ["assets/imagegen/slide-1.png"]
+        MODULE.write_json(path, payload)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        self.assertTrue(
+            any(item["code"] == "signature_proof_preview_wrong_origin" for item in report["errors"])
+        )
+
+    def test_signature_proof_rejects_duplicate_slide_evidence(self):
+        self.materialize_valid_bundle()
+        path = self.out_dir / "qa/signature-proof.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["slides"] = [1, 1]
+        payload["preview_paths"] = [
+            "previews/editable/slide-1.png",
+            "previews/editable/slide-1.png",
+        ]
+        MODULE.write_json(path, payload)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        self.assertTrue(
+            any(item["code"] == "signature_proof_slide_preview_mismatch" for item in report["errors"])
+        )
 
     def test_preview_and_asset_directories_cannot_escape_bundle(self):
         self.materialize_valid_bundle()
@@ -471,7 +533,7 @@ published_at: 2026-07-22 09:37
         self.assertIn("preview_dir_escape_editable_pptx", codes)
         self.assertIn("visual_assets_directory_escape", codes)
 
-    def test_content_plan_verdict_must_match_nonempty_manifest_verdict(self):
+    def test_content_plan_verdict_must_match_manifest_verdict(self):
         self.materialize_valid_bundle()
         manifest_path = self.out_dir / "media-manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -483,7 +545,19 @@ published_at: 2026-07-22 09:37
             any(item["code"] == "content_plan_verdict_mismatch" for item in report["errors"])
         )
 
-    def test_v1_manifest_remains_valid_for_backward_compatibility(self):
+    def test_schema_v2_manifest_requires_nonempty_main_verdict(self):
+        self.materialize_valid_bundle()
+        manifest_path = self.out_dir / "media-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["request"]["main_verdict"] = ""
+        MODULE.write_json(manifest_path, manifest)
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 1)
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("manifest_main_verdict_missing", codes)
+        self.assertIn("content_plan_verdict_mismatch", codes)
+
+    def test_v1_manifest_is_readable_but_cannot_pass_strict_delivery(self):
         self.materialize_valid_bundle()
         manifest_path = self.out_dir / "media-manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -494,8 +568,25 @@ published_at: 2026-07-22 09:37
             manifest["request"].pop(field)
         MODULE.write_json(manifest_path, manifest)
         report, exit_code = self.validate()
-        self.assertEqual(exit_code, 0)
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(
+            any(
+                item["code"] == "manifest_schema_legacy_strict_unsupported"
+                for item in report["errors"]
+            )
+        )
         self.assertFalse(any(item["code"] == "manifest_schema_invalid" for item in report["errors"]))
+        report, exit_code = MODULE.validate_manifest(
+            argparse.Namespace(
+                manifest=str(manifest_path),
+                visual_reviewed=True,
+                source_facts_reviewed=True,
+                strict=False,
+            )
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "legacy")
 
     def test_libreoffice_validation_must_record_host_limit(self):
         self.materialize_valid_bundle()
