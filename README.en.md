@@ -87,6 +87,39 @@ Skills marked 🟡 need a platform login or an API key first; each one tells you
 | `soia-pkm-transform-obsidian-pdf` | Export Markdown notes in a vault to PDF using Obsidian's native exporter. | ✅ |
 | `soia-pkm-translate-article-zh` | Translate a foreign-language article into a terminology-consistent Chinese document without overwriting the source. | ✅ |
 
+## Trigger phrases
+
+Once installed, just speak naturally — the agent routes to a skill by these phrases (the full trigger list lives in each skill's `SKILL.md` `description`):
+
+| You say | Skill |
+|---|---|
+| `整理阿里云盘资源` / `更新阿里云盘索引` / `用网盘资源做学习计划` | `soia-pkm-alipan-curator` |
+| `登录阿里云盘` / `下载阿里云盘文件` / `全盘扫描阿里云盘` | `soia-pkm-alipan-drive-ops` |
+| `看下百度网盘` / `登录百度网盘` / `扫描百度网盘` | `soia-pkm-baidu-netdisk-ops` |
+| `初始化知识库` / `从零建 Markdown 知识库` / `搭通用 vault 骨架` | `soia-pkm-bootstrap-vault-base` |
+| `接入 ima` / `同步到 ima 知识库` / `配置 ima` / `让 ima 监控 vault` | `soia-pkm-bootstrap-vault-ima` |
+| `配置 Obsidian vault` / `启用 Obsidian Bases` / `接入 Obsidian 消费端` | `soia-pkm-bootstrap-vault-obsidian` |
+| `归档这条抖音` / `clip 这个抖音视频` / `只要抖音文案` | `soia-pkm-clip-douyin` |
+| `导入云盘资料` / `把这批 PDF 导进来` / `clip 这个文档` / `整理云盘` | `soia-pkm-clip-drive` |
+| `归档这个项目 URL` / `clip 这个 repo` / `刷新项目卡` | `soia-pkm-clip-github-repo` |
+| `归档这条小红书` / `clip 小红书笔记` / `存这篇 rednote` | `soia-pkm-clip-rednote` |
+| `归档这个网页` / `clip 这个链接` / `存这篇博客` | `soia-pkm-clip-web` |
+| `同步我的公众号` / `批量拉取我公众号历史文章` / `批量归档我的公众号` / `导入公众号已发文章` | `soia-pkm-clip-wechat-account` |
+| `归档这篇公众号` / `clip 这个公众号文章` / `存这篇微信文章` | `soia-pkm-clip-wechat-article` |
+| `归档这条 X` / `clip 这条推文` / `整理这条 thread` | `soia-pkm-clip-x` |
+| `补我的看法` / `炼成观点` / `主题观点综述` | `soia-pkm-distill-article-opinion` |
+| `解读这篇` / `精读这篇` / `值得细读吗` | `soia-pkm-interpret-article-analysis` |
+| `重新生成图书馆总览` / `更新阅读记录总览` / `补建待读记录` / `书库整理` | `soia-pkm-library-book-catalog` |
+| `同步微信读书` / `同步划线` / `同步已读书目` / `补一下这本书的详情` | `soia-pkm-library-weread-sync` |
+| `vault 周维护` / `重建全库地图` / `接入会话日志` | `soia-pkm-maintain` |
+| `整理文章库` / `重建 MOC` / `收藏归类` | `soia-pkm-organize-article-moc` |
+| `做读书计划` / `书单排期` / `规划下半年阅读` | `soia-pkm-reading-plan` |
+| `NotebookLM 生成试卷` / `NotebookLM 做闪卡` / `NotebookLM 生成播客` | `soia-pkm-transform-article-notebooklm` |
+| `做 PPT` / `生成 PPTX` / `转成课件` | `soia-pkm-transform-article-ppt` |
+| `生成长图` / `做成信息图` / `转成海报` / `生成封面` | `soia-pkm-transform-article-visual` |
+| `转成PDF` / `导出PDF` / `归档并转PDF` / `生成PDF` | `soia-pkm-transform-obsidian-pdf` |
+| `翻译这篇` / `精翻` / `继续润色` | `soia-pkm-translate-article-zh` |
+
 ## Install
 
 Installing the whole domain plugin is recommended — it brings every skill in this repo:
@@ -113,6 +146,19 @@ twice and the two copies drift apart — pick one:
 ```bash
 npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s <skill-name> -y
 ```
+
+## Validate & contribute
+
+After changing a skill, run before committing:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 scripts/generate_skill_catalog.py --check
+python3 scripts/audit_skills.py --strict
+```
+
+Contribution flow, the skill contract, and release steps are in the portal's
+[CONTRIBUTING.md](https://github.com/soia-team/soia-open-skills/blob/main/CONTRIBUTING.md).
 
 ## Ecosystem
 
