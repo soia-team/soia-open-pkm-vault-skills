@@ -1,6 +1,6 @@
 {
   "name": "soia-pkm-vault",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "知识库技能：初始化、整理、提炼、翻译、转换与书库",
   "author": {
     "name": "soia-team"
@@ -22,7 +22,7 @@
     "websiteURL": "https://github.com/soia-team/soia-open-pkm-vault-skills",
     "composerIcon": "./assets/icon.svg",
     "logo": "./assets/icon.png",
-    "brandColor": "#F97316"
+    "brandColor": "#4F46E5"
   },
   "homepage": "https://github.com/soia-team/soia-open-pkm-vault-skills"
 }
