@@ -63,21 +63,21 @@
 | `soia-pkm-alipan-curator` | 规划并整理阿里云盘资源，产出可复核的馆藏索引与学习规划。 | 🟡 |
 | `soia-pkm-alipan-drive-ops` | 执行阿里云盘登录、浏览与文件操作，并为资源整理提供底层能力。 | 🟡 |
 | `soia-pkm-baidu-netdisk-ops` | 百度网盘原子操作与只读 JSONL 扫描适配。 | 🟡 |
-| `soia-pkm-bootstrap-vault-base` | 初始化知识库中立的 Markdown vault 骨架、多 AI 入口与 PKM 闭环，不包含平台特化配置。 | ✅ |
-| `soia-pkm-bootstrap-vault-ima` | 把已有本地 Markdown vault 接入腾讯 ima 知识库消费端：安装客户端、建立目录映射、用 ima 官方 Skills 配置本地文件夹监控同步并验证检索。 | 🟡 |
-| `soia-pkm-bootstrap-vault-obsidian` | 将已有 Markdown vault 配置为 Obsidian 消费端，并衔接通用 vault 基座。 | ✅ |
+| `soia-pkm-bootstrap-vault-base` | 初始化平台中立的 Markdown vault 骨架与 PKM 闭环。 | ✅ |
+| `soia-pkm-bootstrap-vault-ima` | 把已有 vault 接入腾讯 ima，配置目录监控同步并验证检索。 | 🟡 |
+| `soia-pkm-bootstrap-vault-obsidian` | 把已有 vault 配置为 Obsidian 消费端。 | ✅ |
 | `soia-pkm-clip-douyin` | 归档单条抖音视频到 Obsidian vault，并保留本地媒体索引。 | ✅ |
 | `soia-pkm-clip-drive` | 把云盘/本地的存量资料（PDF/Word/文档）批量导入 Obsidian vault。 | ✅ |
 | `soia-pkm-clip-github-repo` | 将 GitHub 开源仓库归档为 Obsidian vault 的项目卡和调研笔记。 | ✅ |
 | `soia-pkm-clip-rednote` | 将单篇小红书图文或视频笔记归档到 Obsidian vault。 | ✅ |
 | `soia-pkm-clip-web` | 归档网页或博客文章到 Obsidian vault，并按统一规范落地。 | ✅ |
 | `soia-pkm-clip-wechat-account` | 批量归档用户自己管理的微信公众号已发文章到 Obsidian vault。 | 🟡 |
-| `soia-pkm-clip-wechat-article` | 归档单篇微信公众号文章到 Obsidian vault：抓取静态 HTML，提取标题、作者、正文、发布时间和配图，按 clip 家族规范落地；需要 PDF 时优先用 Obsidian 导出。 | ✅ |
-| `soia-pkm-clip-x` | 将单条 X/Twitter 推文、thread 或 Article 归档到 Obsidian vault。 | 🟡 |
-| `soia-pkm-distill-article-opinion` | 通过苏格拉底式逐问，把用户对 vault 文章的回答整理成其本人观点，并写入「我的看法」或主题综述。 | ✅ |
-| `soia-pkm-interpret-article-analysis` | 为 vault 长文或论文生成独立 AI 解读，帮助判断是否值得深挖，且不改原文或代写用户观点。 | ✅ |
-| `soia-pkm-library-book-catalog` | 纯本地、幂等、可重复运行地维护 Obsidian 书库：补建待读记录并重新生成图书馆、阅读记录和按类型总览，不依赖微信读书。 | ✅ |
-| `soia-pkm-library-weread-sync` | 同步微信读书已读书目与划线到 Obsidian 书库，并调用微信读书 API 补单本书详情。 | 🟡 |
+| `soia-pkm-clip-wechat-article` | 归档单篇微信公众号文章，含标题、作者、正文与配图。 | ✅ |
+| `soia-pkm-clip-x` | 归档 X 推文、thread 或 Article 到 vault。 | 🟡 |
+| `soia-pkm-distill-article-opinion` | 苏格拉底式逐问，把你的回答整理成你自己的观点。 | ✅ |
+| `soia-pkm-interpret-article-analysis` | 为长文生成独立 AI 解读，帮你判断值不值得细读。 | ✅ |
+| `soia-pkm-library-book-catalog` | 纯本地幂等地维护书库、阅读记录与分类总览。 | ✅ |
+| `soia-pkm-library-weread-sync` | 同步微信读书已读书目与划线到书库。 | 🟡 |
 | `soia-pkm-maintain` | 维护 Obsidian vault 的健康状态、全库地图与 AI 会话日志。 | ✅ |
 | `soia-pkm-organize-article-moc` | 将 Obsidian 文章库按元数据、主题双链、月份和两级 MOC 规范化整理。 | ✅ |
 | `soia-pkm-reading-plan` | 把书单、主题或观点映射组织成按字数排期的可执行阅读计划，并落为 Obsidian 笔记。 | ✅ |
@@ -85,7 +85,7 @@
 | `soia-pkm-transform-article-ppt` | 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包。 | ✅ |
 | `soia-pkm-transform-article-visual` | 把文章转换为长图、信息图、海报、封面、插画等视觉产物。 | ✅ |
 | `soia-pkm-transform-obsidian-pdf` | 用 Obsidian 原生导出把 vault 内 Markdown 笔记导出为 PDF。 | ✅ |
-| `soia-pkm-translate-article-zh` | 将外文文章按 quick、normal 或 refined 模式翻译成独立中文稿，保持术语一致且不覆盖原文。 | ✅ |
+| `soia-pkm-translate-article-zh` | 按 quick/normal/refined 三档翻译外文文章，不覆盖原文。 | ✅ |
 
 ## 安装
 
