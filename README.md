@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/icon.png" width="88" alt="">
+<img src="assets/hero.webp" width="640" alt="">
 
 # SOIA Open PKM Vault Skills
 
