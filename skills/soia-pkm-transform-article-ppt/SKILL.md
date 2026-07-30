@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-transform-article-ppt
-description: 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包。触发：「做 PPT」「生成 PPTX」「转成课件」
-version: 2.2.0
+description: 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包，并支持外置固定模板与机密内容本地隔离。触发：「做 PPT」「生成 PPTX」「转成课件」「按公司模板做周报」
+version: 2.3.0
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-07-28 00:31:43
+updated_at: 2026-07-30 00:00:00
 created_by: claude opus 4.6
 updated_by: gpt-5.6-sol
 dependencies:
@@ -74,10 +74,10 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 私有配置放在：
 
 ```text
-~/.config/soia-skills/soia-pkm-transform-article-ppt/config.yml
+~/.config/soia-skills/soia-open-pkm-vault-skills/soia-pkm/soia-pkm-transform-article-ppt/config.yml
 ```
 
-可用 `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` 覆盖路径。配置示例见 `config.example.yml`。
+配置文件选择顺序是 `--config` > `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` > 上述默认路径；字段值按“显式 CLI > 私有 config > 内置默认”解析。配置示例见 `config.example.yml`。
 
 ### 日志与完成回执
 
@@ -119,6 +119,8 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 7. prompt、素材和中间 manifest 只落到用户指定输出目录；登录态、cookie、账号信息永不进入输出或回执。
 8. **规划证据不能事后伪造。** Claim Ledger、设计计划、Signature Proof 和 critic 结果必须来自真实执行；不得只修改 JSON 让验证变绿。
 9. **中文 deck 不把 LibreOffice 当唯一真相。** 最终优先在 PowerPoint/Keynote 打开和渲染；只能用 LibreOffice 时必须实际检查并记录 CJK 字形与换行。
+10. **机密内容默认本地闭环。** `confidential` 必须 `network=deny`，中间证据写入私有 state，最终交付写入独立绝对目录；模板、state 和交付目录都不得位于 Git checkout。
+11. **私有模板只引用、不复制。** 严格跟随模板时先核对 alias 与 SHA-256；manifest 不记录模板绝对路径，公开 fixture 只能使用虚构组织和数据。
 
 ## 工作流
 
@@ -147,6 +149,8 @@ python3 scripts/media_bundle.py plan \
 ### 2. 选择 provider 和交付范围
 
 按「用户明确指定 > 私有配置 > 交互选择 > 默认 `local_editable`」决定。具体选择规则见 [references/provider-selection.md](references/provider-selection.md)。
+
+固定企业模板或敏感材料先读取 [references/template-and-privacy-contract.md](references/template-and-privacy-contract.md)。模板模式与隐私级别分别决策；`confidential` 会覆盖普通 provider 偏好，只允许本地 allowlist 中的执行层。
 
 `hybrid` 的职责固定：
 
@@ -215,7 +219,7 @@ OfficeCLI 可用时，把它作为额外机械证据：运行 `validate`、`view
 
 ### 9. 交付与回链
 
-把正式母版、辅助版本、图片和 manifest 放在同一输出目录。若 source 位于可写知识库且已有「关联/派生产物」区域，更新链接；不要在多个文件复制同一份产物清单。
+普通任务把正式母版、辅助版本、图片和 manifest 放在同一输出目录。`confidential` 任务把 prompt、规划、预览、QA 和 manifest 留在私有 state，仅把最终 PPTX 与用户明确要求的交付文件写入独立 final output。若 source 位于可写知识库且已有「关联/派生产物」区域，更新链接；不要在多个文件复制同一份产物清单。
 
 ## 按需读取
 
@@ -229,12 +233,13 @@ OfficeCLI 可用时，把它作为额外机械证据：运行 `validate`、`view
 - OfficeCLI 操作与复验：[references/provider-officecli.md](references/provider-officecli.md)
 - 质量门：[references/quality-gates.md](references/quality-gates.md)
 - 规划、Signature Proof、双 Lens 审稿和宿主验收：[references/planning-and-review-contracts.md](references/planning-and-review-contracts.md)
+- 外置模板、SHA-256、机密隔离和路径硬门：[references/template-and-privacy-contract.md](references/template-and-privacy-contract.md)
 - 典型调用：[references/examples.md](references/examples.md)
 
 ## 私密信息与中间数据
 
-- 私有配置只放 `~/.config/soia-skills/soia-pkm-transform-article-ppt/config.yml`，或使用 `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` 指向用户自有文件。
+- 私有配置只放 `~/.config/soia-skills/soia-open-pkm-vault-skills/soia-pkm/soia-pkm-transform-article-ppt/config.yml`，或使用 `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` 指向用户自有文件。
 - NotebookLM、Office 或其他 provider 的凭据留在 provider 官方登录存储或系统钥匙串；不得写入 config、prompt、manifest、PPTX、预览和回执。
-- prompt、规划 JSON、QA JSON、预览和临时素材只写到用户指定的媒体包目录；内容可能敏感时，由用户决定是否纳入版本控制。
+- 普通任务的 prompt、规划 JSON、QA JSON、预览和临时素材写入媒体包目录。`confidential` 任务必须写入私有 state，且不得纳入版本控制。
 - 可重建的临时转换文件使用操作系统临时目录并在成功或失败后清理；不得把仓库 checkout 当运行缓存。
 - 正式 PPTX、PDF、图片与用户明确要求保留的媒体包由用户控制保留期；删除或覆盖前必须确认目标。

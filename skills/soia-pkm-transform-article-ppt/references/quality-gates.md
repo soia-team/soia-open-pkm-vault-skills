@@ -29,6 +29,8 @@ python3 scripts/media_bundle.py validate \
 - Signature Proof 的动作、页码和预览是否与 Design Plan 精确对应，或有允许跳过的明确原因。
 - content/design 双 Lens 是否都 consent，且没有未解决 blocker/major。
 - 正式母版是否经过真实宿主全量渲染，Host Validation 的 `preview_dir` 是否与 manifest 中正式母版的预览目录完全一致；含 CJK 时中文检查是否通过。
+- `strict_following` 是否完成 template-fidelity：母版/版式、字体允许清单、可编辑图表、原生表格分页、零越界和零孤立连接符。
+- `confidential` 是否保持 network deny、私有 state/最终交付分层、绝对路径和零 Git checkout 污染。
 
 脚本不能识别位图内所有错别字和占位符，所以即使通过也不能替代人工检查。
 
@@ -77,6 +79,14 @@ python3 scripts/media_bundle.py validate \
 - `officecli view <deck.pptx> issues --json` 的 error 已清零，warning 已处理或解释。
 - 修复使用生成文件的副本；不原地覆盖正式母版。
 - `validate` 通过只代表 OOXML 结构成立，不能替代编辑性检测、事实核对或人工逐页视觉检查。
+
+## 固定模板特别门
+
+- 规划前校验模板 alias 与 SHA-256，manifest 不保存模板源路径。
+- strict validation 用 `--template-file` 或与 manifest alias + SHA-256 同时绑定的私有 config 再次检查模板；路径不进入 manifest 或报告。
+- `qa/template-fidelity.json` 只声明允许字体、预期原生图表/表格数量和长表分页页组；不得自报“已通过”布尔值。
+- 验证器直接比较模板与正式 PPTX 的 slide size、master/layout 摘要，扫描实际字体、越界元素和孤立连接线。
+- 原生图表必须由 slide relationship 绑定到可解析 chart part；表格必须是 OOXML 原生表格，声明的分页页组每页都必须含表格，不能用整页截图绕过。
 
 ## 规划、审稿与宿主门
 

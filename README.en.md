@@ -82,7 +82,7 @@ Skills marked 🟡 need a platform login or an API key first; each one tells you
 | `soia-pkm-organize-article-moc` | Organize an Obsidian article library using metadata, topic links, months, and two-level MOCs. | ✅ |
 | `soia-pkm-reading-plan` | Turn reading lists, topics, or ideas into an actionable reading schedule based on word count. | ✅ |
 | `soia-pkm-transform-article-notebooklm` | Use NotebookLM to turn articles into quizzes, flashcards, mind maps, podcasts, and study notes. | 🟡 |
-| `soia-pkm-transform-article-ppt` | Turn an article, outline, or topic into a presentation media bundle centered on an editable PPTX. | ✅ |
+| `soia-pkm-transform-article-ppt` | Turn an article, outline, or topic into an editable PPTX with external fixed-template support and local isolation for confidential content. | ✅ |
 | `soia-pkm-transform-article-visual` | Turn an article into long-form graphics, infographics, posters, covers, or illustrations. | ✅ |
 | `soia-pkm-transform-obsidian-pdf` | Export Markdown notes in a vault to PDF using Obsidian's native exporter. | ✅ |
 | `soia-pkm-translate-article-zh` | Translate a foreign-language article into a terminology-consistent Chinese document without overwriting the source. | ✅ |
@@ -117,7 +117,7 @@ Once installed, just speak naturally — the agent routes to a skill by these ph
 | `整理文章库` / `重建 MOC` / `收藏归类` | `soia-pkm-organize-article-moc` |
 | `做读书计划` / `书单排期` / `规划下半年阅读` | `soia-pkm-reading-plan` |
 | `NotebookLM 生成试卷` / `NotebookLM 做闪卡` / `NotebookLM 生成播客` | `soia-pkm-transform-article-notebooklm` |
-| `做 PPT` / `生成 PPTX` / `转成课件` | `soia-pkm-transform-article-ppt` |
+| `做 PPT` / `生成 PPTX` / `转成课件` / `按公司模板做周报` | `soia-pkm-transform-article-ppt` |
 | `生成长图` / `做成信息图` / `转成海报` / `生成封面` | `soia-pkm-transform-article-visual` |
 | `转成PDF` / `导出PDF` / `归档并转PDF` / `生成PDF` | `soia-pkm-transform-obsidian-pdf` |
 | `翻译这篇` / `精翻` / `继续润色` | `soia-pkm-translate-article-zh` |

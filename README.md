@@ -82,7 +82,7 @@
 | `soia-pkm-organize-article-moc` | 将 Obsidian 文章库按元数据、主题双链、月份和两级 MOC 规范化整理。 | ✅ |
 | `soia-pkm-reading-plan` | 把书单、主题或观点映射组织成按字数排期的可执行阅读计划，并落为 Obsidian 笔记。 | ✅ |
 | `soia-pkm-transform-article-notebooklm` | 用 NotebookLM 将文章转换为学习材料。 | 🟡 |
-| `soia-pkm-transform-article-ppt` | 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包。 | ✅ |
+| `soia-pkm-transform-article-ppt` | 把文章、提纲或主题转换为可编辑 PPTX，支持外置固定模板与机密内容本地隔离。 | ✅ |
 | `soia-pkm-transform-article-visual` | 把文章转换为长图、信息图、海报、封面、插画等视觉产物。 | ✅ |
 | `soia-pkm-transform-obsidian-pdf` | 用 Obsidian 原生导出把 vault 内 Markdown 笔记导出为 PDF。 | ✅ |
 | `soia-pkm-translate-article-zh` | 按 quick/normal/refined 三档翻译外文文章，不覆盖原文。 | ✅ |
@@ -115,7 +115,7 @@
 | `整理文章库` / `重建 MOC` / `收藏归类` | `soia-pkm-organize-article-moc` |
 | `做读书计划` / `书单排期` / `规划下半年阅读` | `soia-pkm-reading-plan` |
 | `NotebookLM 生成试卷` / `NotebookLM 做闪卡` / `NotebookLM 生成播客` | `soia-pkm-transform-article-notebooklm` |
-| `做 PPT` / `生成 PPTX` / `转成课件` | `soia-pkm-transform-article-ppt` |
+| `做 PPT` / `生成 PPTX` / `转成课件` / `按公司模板做周报` | `soia-pkm-transform-article-ppt` |
 | `生成长图` / `做成信息图` / `转成海报` / `生成封面` | `soia-pkm-transform-article-visual` |
 | `转成PDF` / `导出PDF` / `归档并转PDF` / `生成PDF` | `soia-pkm-transform-obsidian-pdf` |
 | `翻译这篇` / `精翻` / `继续润色` | `soia-pkm-translate-article-zh` |

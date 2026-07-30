@@ -1,4 +1,5 @@
-schema_version: 1
+# Copy to the documented user-owned config path; never commit the filled file.
+schema_version: 2
 
 defaults:
   provider: auto              # auto | local_editable | notebooklm | hybrid | open_design
@@ -13,9 +14,25 @@ defaults:
   review_mode: standard      # standard | thorough
   final_host: auto           # auto | microsoft_powerpoint | apple_keynote | libreoffice
   qa_mode: strict             # strict | normal
-  output_root: outputs/transform
+
+template:
+  mode: none                  # none | strict_following
+  alias: ""                   # 例如 weekly_report；不要写公司名
+  path: "<absolute-private-template-path>"
+  sha256: "<64-character-sha256>"
+  allowed_fonts: []
+
+privacy:
+  classification: public     # public | internal | confidential
+  network: allow              # allow | deny
+  provider_allowlist: [local_editable, officecli, notebooklm, open_design, imagegen]
+  persist_intermediates: bundle  # bundle | private_state
+
+paths:
+  state_root: "<absolute-private-state-root>"
+  output_root: "<absolute-delivery-root>"
 
 env:
-  NOTEBOOKLM_HOME: "~/.config/soia-skills/soia-pkm-transform-article-ppt/notebooklm"
+  NOTEBOOKLM_HOME: "~/.config/soia-skills/soia-open-pkm-vault-skills/soia-pkm/soia-pkm-transform-article-ppt/notebooklm"
   NOTEBOOKLM_HL: "zh_Hans"
   OPEN_DESIGN_HOME: "<optional-open-design-home>"
