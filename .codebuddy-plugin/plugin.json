@@ -1,0 +1,87 @@
+{
+  "name": "soia-pkm-vault",
+  "version": "1.0.0",
+  "description": "Personal knowledge vault curator: archive web, WeChat, X and cloud-drive material into a local Markdown vault, organize it, and turn it into interpretations, decks, long images and reading plans.",
+  "author": {
+    "name": "soia-team"
+  },
+  "agents": [
+    "./agents/soia-pkm-vault.md"
+  ],
+  "skills": [
+    "./skills/soia-pkm-alipan-curator",
+    "./skills/soia-pkm-alipan-drive-ops",
+    "./skills/soia-pkm-baidu-netdisk-ops",
+    "./skills/soia-pkm-bootstrap-vault-base",
+    "./skills/soia-pkm-bootstrap-vault-ima",
+    "./skills/soia-pkm-bootstrap-vault-obsidian",
+    "./skills/soia-pkm-clip-douyin",
+    "./skills/soia-pkm-clip-drive",
+    "./skills/soia-pkm-clip-github-repo",
+    "./skills/soia-pkm-clip-rednote",
+    "./skills/soia-pkm-clip-web",
+    "./skills/soia-pkm-clip-wechat-account",
+    "./skills/soia-pkm-clip-wechat-article",
+    "./skills/soia-pkm-clip-x",
+    "./skills/soia-pkm-distill-article-opinion",
+    "./skills/soia-pkm-interpret-article-analysis",
+    "./skills/soia-pkm-library-book-catalog",
+    "./skills/soia-pkm-library-weread-sync",
+    "./skills/soia-pkm-maintain",
+    "./skills/soia-pkm-organize-article-moc",
+    "./skills/soia-pkm-reading-plan",
+    "./skills/soia-pkm-transform-article-notebooklm",
+    "./skills/soia-pkm-transform-article-ppt",
+    "./skills/soia-pkm-transform-article-visual",
+    "./skills/soia-pkm-transform-obsidian-pdf",
+    "./skills/soia-pkm-translate-article-zh"
+  ],
+  "expertType": "agent",
+  "agentName": "soia-pkm-vault",
+  "displayName": {
+    "en": "Soia Vault",
+    "zh": "Soia Vault"
+  },
+  "profession": {
+    "en": "Knowledge Vault Curator",
+    "zh": "知识库管家"
+  },
+  "displayDescription": {
+    "en": "Archives web, WeChat and cloud-drive material into a local Markdown vault, organizes it with metadata and topic backlinks, then turns it into interpretations, decks, long images and reading plans.",
+    "zh": "把网页、公众号与云盘资料收进本地知识库，按元数据与主题双链整理，再转成解读、演示稿与长图。"
+  },
+  "avatar": "assets/icon.png",
+  "categoryId": "06-ContentCreative",
+  "defaultInitPrompt": {
+    "en": "My reading material is scattered across bookmarks, WeChat and cloud drives. Help me pull it into one local Markdown vault and keep it organized.",
+    "zh": "我的资料散在收藏夹、公众号和云盘里，帮我收进一个本地 Markdown 知识库并持续整理好。"
+  },
+  "tags": [
+    {
+      "en": "Knowledge Management",
+      "zh": "知识管理"
+    },
+    {
+      "en": "Content Archiving",
+      "zh": "资料归档"
+    },
+    {
+      "en": "Content Transformation",
+      "zh": "内容转换"
+    }
+  ],
+  "quickPrompts": [
+    {
+      "en": "My reading material is scattered across bookmarks, WeChat and cloud drives. Help me pull it into one local Markdown vault and keep it organized.",
+      "zh": "我的资料散在收藏夹、公众号和云盘里，帮我收进一个本地 Markdown 知识库并持续整理好。"
+    },
+    {
+      "en": "Archive this article into my vault, then tell me whether it is worth reading closely.",
+      "zh": "把这篇文章存进我的知识库，然后告诉我它值不值得细读。"
+    },
+    {
+      "en": "Turn this article into a deck and a long image.",
+      "zh": "把这篇文章转成演示稿和长图。"
+    }
+  ]
+}

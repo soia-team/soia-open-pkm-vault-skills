@@ -25,6 +25,8 @@ jobs:
         run: python3 scripts/audit_skills.py --strict
       - name: Check skill catalog freshness
         run: python3 scripts/generate_skill_catalog.py --check
+      - name: Check WorkBuddy expert manifest freshness
+        run: python3 scripts/generate_expert_manifest.py --check
       - name: Validate Codex plugin manifest
         run: |
           curl --fail --location --silent --show-error \
