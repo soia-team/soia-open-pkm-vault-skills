@@ -13,8 +13,10 @@ Rules for all AI agents editing this repository.
 - No maintainer-specific absolute paths such as `/Users/<name>/...`.
 - No private family, home, health, finance, or learner profile context.
 - Put user-specific behavior behind CLI args, env vars, or skill-specific
-  user-owned config files outside this repo:
-  `~/.config/soia-skills/<skill-name>/config.yml`.
+  user-owned config files outside this repo. Existing skills may retain
+  `~/.config/soia-skills/<skill-name>/config.yml`; newly isolated configs may use
+  `~/.config/soia-skills/<repository>/<domain>/<skill-name>/config.yml` when the
+  skill documents and implements that path.
 - Repository examples must use placeholders such as `<path>`, `<repo>`, and
   `<YOUR_KEY>`.
 

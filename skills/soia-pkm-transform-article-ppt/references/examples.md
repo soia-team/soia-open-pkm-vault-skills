@@ -64,3 +64,11 @@
 ```
 
 路由：`local_editable` + `review_mode=thorough`。先运行 `plan` 生成规划模板，完成 Claim Ledger、内容计划和 Contract Card；批准设计计划后先渲染 signature slide。全套完成后分别做 content/design Lens 审稿，修复 blocker/major，再填写宿主验收记录并执行 strict validation。完整命令和 JSON 示例见 [planning-and-review-contracts.md](planning-and-review-contracts.md)。
+
+## 8. 私有企业周报模板
+
+```text
+按我本机登记的 weekly_report 模板生成经营周报；内容机密，禁止联网，中间文件不要进交付目录。
+```
+
+路由：`template.mode=strict_following` + `privacy.classification=confidential` + `provider=local_editable`。先校验模板 SHA-256 和路径硬门，把规划、预览和 QA 写入私有 state，只把最终可编辑 PPTX 写入独立 delivery root。完整参数和 `template-fidelity` 字段见 [template-and-privacy-contract.md](template-and-privacy-contract.md)。

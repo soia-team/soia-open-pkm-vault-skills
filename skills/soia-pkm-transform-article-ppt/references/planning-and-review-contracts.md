@@ -19,7 +19,7 @@ python3 scripts/media_bundle.py plan \
   --main-verdict "<一句主判断>"
 ```
 
-命令除 `media-manifest.json` 外，还会创建七份 JSON 模板。已存在的模板不会被覆盖；`media-manifest.json` 会按新参数重建。重跑后若 `main_verdict` 等合同已经变化，必须同步更新批准过的计划，严格验证会拒绝 manifest 与旧计划并存的分裂状态。
+命令除 `media-manifest.json` 外，还会创建七份 JSON 模板；`strict_following` 额外创建 `qa/template-fidelity.json`。已存在的模板不会被覆盖；`media-manifest.json` 会按新参数重建。重跑后若 `main_verdict` 等合同已经变化，必须同步更新批准过的计划，严格验证会拒绝 manifest 与旧计划并存的分裂状态。
 
 ## 2. 内容计划与 Claim Ledger
 
@@ -82,6 +82,7 @@ Claim Ledger 每行使用：
 - 正式母版的编辑性；
 - review mode；
 - 本次真实交付范围。
+- template mode/alias 与 privacy classification/network。
 
 内容或设计改变后同步更新 Contract Card，避免审稿者按旧目标评判新文件。
 
@@ -133,4 +134,4 @@ python3 scripts/media_bundle.py validate \
   --json
 ```
 
-新建媒体包使用 manifest schema v2；验证器仅在非严格模式下读取 v1 历史媒体包并标记为 `legacy`，严格交付验收拒绝 v1。严格验证会同时检查 PPTX、预览、prompt、规划合同、Signature Proof、双 Lens 结论和宿主验收。修复后重新渲染全套页面并重跑验证，不得只修改 JSON 让门变绿。
+新建媒体包使用 manifest schema v3；验证器继续兼容 v2 质量合同，仅在非严格模式下读取 v1 历史媒体包并标记为 `legacy`，严格交付验收拒绝 v1。严格验证会同时检查 PPTX、预览、prompt、规划合同、Signature Proof、双 Lens 结论、模板结构证据和宿主验收。修复后重新渲染全套页面并重跑验证，不得只修改 JSON 让门变绿。

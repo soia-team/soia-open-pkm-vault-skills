@@ -16,6 +16,8 @@
 3. 交互会话问一次：可编辑本地版、NotebookLM 视觉版、还是两版对比。
 4. 无法等待回答时默认 `local_editable`。
 
+隐私策略在 provider 偏好之前执行。`confidential + network=deny` 只允许本地 allowlist；即使用户私有配置默认使用 `hybrid`，也必须拒绝 NotebookLM、Open Design 和 imagegen，不能静默降级或上传。
+
 以下意图可直接推断：
 
 - 「以后还要改」「公司模板」「需要可编辑」→ `local_editable`。

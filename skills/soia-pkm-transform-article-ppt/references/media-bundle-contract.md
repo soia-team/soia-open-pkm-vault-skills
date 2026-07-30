@@ -1,6 +1,6 @@
 # Media Bundle Contract
 
-本技能把输出组织成一个媒体包。路径可由用户覆盖；默认使用 source 文件名作为 `<stem>`。
+普通任务把输出组织成一个媒体包。路径可由用户覆盖；默认使用 source 文件名作为 `<stem>`。
 
 ```text
 <output-dir>/
@@ -38,8 +38,9 @@
 - 每个预期产物的路径、是否必需、编辑性语义。
 - 规划时间。时间由运行环境实际读取，不手写未来时间。
 - 内容/设计计划、Contract Card、Signature Proof、双 Lens 审稿和宿主验收的预期路径。
+- 模板 mode、alias、SHA-256 与隐私合同；不记录严格模板的源文件路径。
 
-新规划写入 schema v2，并要求非空 `request.main_verdict`。验证器保留 schema v1 的只读兼容：非严格校验可读取并标记为 `legacy`；严格交付校验会拒绝 v1，必须重新 `plan` 升级，因此旧包不能通过修改版本号绕过规划、双 Lens 与宿主质量合同。
+新规划写入 manifest schema v3，并要求非空 `request.main_verdict`。v3 增加模板、隐私、存储根和 artifact base 合同；验证器继续兼容 schema v2 的既有质量合同。schema v1 只允许非严格读取并标记为 `legacy`，严格交付校验会拒绝 v1，因此旧包不能通过修改版本号绕过规划、双 Lens 与宿主质量合同。
 
 manifest 不存账号、cookie、token、NotebookLM 下载 URL、用户邮箱或模型身份。Notebook/source/artifact id 仅在确有调试需要时写入用户私有运行日志，不进入幻灯片。
 
@@ -57,3 +58,13 @@ manifest 不存账号、cookie、token、NotebookLM 下载 URL、用户邮箱或
 ## 规划与 QA 产物
 
 `plan` 会创建七份 JSON 模板，但不覆盖已有文件。它们是可审计中间产物和验收证据，不应出现在幻灯片正文中。字段、状态流和严格验证规则见 [planning-and-review-contracts.md](planning-and-review-contracts.md)。
+
+## Confidential 分层
+
+`privacy.classification=confidential` 时不使用“同包交付”：
+
+- `state_root/runs/<run-id>/`：prompt、规划、预览、QA、manifest 和 validation。
+- `output_root/`：最终 PPTX 与用户明确要求的正式交付。
+- 最终产物 entry 标记 `base: delivery`；中间证据使用 `base: state`。
+
+两个根目录都必须是绝对路径、互不重叠且位于 Git checkout 之外。完整合同见 [template-and-privacy-contract.md](template-and-privacy-contract.md)。

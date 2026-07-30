@@ -8,6 +8,7 @@ import unittest
 import zipfile
 import zlib
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,10 +34,117 @@ IMAGE_SLIDE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 """
 
 
+TABLE_SLIDE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+       xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld><p:spTree>
+    <p:sp><p:txBody><a:p><a:r><a:rPr typeface="Aptos"/><a:t>{text}</a:t></a:r></a:p></p:txBody></p:sp>
+    <p:graphicFrame>
+      <p:xfrm><a:off x="100000" y="100000"/><a:ext cx="6000000" cy="3000000"/></p:xfrm>
+      <a:graphic><a:graphicData><a:tbl><a:tr><a:tc/></a:tr></a:tbl></a:graphicData></a:graphic>
+    </p:graphicFrame>
+  </p:spTree></p:cSld>
+</p:sld>
+"""
+
+
+CHART_TABLE_SLIDE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+       xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"
+       xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
+       xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <p:cSld><p:spTree>
+    <p:sp><p:txBody><a:p><a:r><a:rPr typeface="Aptos"/><a:t>{text}</a:t></a:r></a:p></p:txBody></p:sp>
+    <p:graphicFrame>
+      <p:xfrm><a:off x="100000" y="100000"/><a:ext cx="5000000" cy="2400000"/></p:xfrm>
+      <a:graphic><a:graphicData><c:chart r:id="rId1"/></a:graphicData></a:graphic>
+    </p:graphicFrame>
+    <p:graphicFrame>
+      <p:xfrm><a:off x="100000" y="2700000"/><a:ext cx="6000000" cy="3000000"/></p:xfrm>
+      <a:graphic><a:graphicData><a:tbl><a:tr><a:tc/></a:tr></a:tbl></a:graphicData></a:graphic>
+    </p:graphicFrame>
+  </p:spTree></p:cSld>
+</p:sld>
+"""
+
+
+OVERFLOW_SLIDE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+       xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld><p:spTree>
+    <p:graphicFrame>
+      <p:xfrm><a:off x="12000000" y="100000"/><a:ext cx="1000000" cy="1000000"/></p:xfrm>
+      <a:graphic><a:graphicData><a:tbl><a:tr><a:tc/></a:tr></a:tbl></a:graphicData></a:graphic>
+    </p:graphicFrame>
+  </p:spTree></p:cSld>
+</p:sld>
+"""
+
+
+PRESENTATION_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:sldSz cx="12192000" cy="6858000"/>
+</p:presentation>
+"""
+
+MASTER_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sldMaster xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+             xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld><p:spTree/></p:cSld>
+</p:sldMaster>
+"""
+
+LAYOUT_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sldLayout xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+             xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld><p:spTree/></p:cSld>
+</p:sldLayout>
+"""
+
+
 def write_fake_pptx(path: Path, slides: list[str]) -> None:
     with zipfile.ZipFile(path, "w") as archive:
+        overrides = "".join(
+            f'<Override PartName="/ppt/slides/slide{index}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>'
+            for index in range(1, len(slides) + 1)
+        )
+        archive.writestr(
+            "[Content_Types].xml",
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            '<Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>'
+            '<Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/>'
+            '<Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>'
+            + overrides
+            + "</Types>",
+        )
+        archive.writestr("ppt/presentation.xml", PRESENTATION_XML)
+        archive.writestr("ppt/slideMasters/slideMaster1.xml", MASTER_XML)
+        archive.writestr("ppt/slideLayouts/slideLayout1.xml", LAYOUT_XML)
+        chart_index = 0
         for index, slide in enumerate(slides, 1):
             archive.writestr(f"ppt/slides/slide{index}.xml", slide)
+            relationship_entries = []
+            for relationship_index in range(1, slide.count("<c:chart") + 1):
+                chart_index += 1
+                archive.writestr(
+                    f"ppt/charts/chart{chart_index}.xml",
+                    '<?xml version="1.0" encoding="UTF-8"?>'
+                    '<c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart/></c:chartSpace>',
+                )
+                relationship_entries.append(
+                    f'<Relationship Id="rId{relationship_index}" '
+                    'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart" '
+                    f'Target="../charts/chart{chart_index}.xml"/>'
+                )
+            if relationship_entries:
+                archive.writestr(
+                    f"ppt/slides/_rels/slide{index}.xml.rels",
+                    '<?xml version="1.0" encoding="UTF-8"?>'
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+                    + "".join(relationship_entries)
+                    + "</Relationships>",
+                )
 
 
 def write_png_header(path: Path, width: int = 1080, height: int = 720) -> None:
@@ -126,15 +234,35 @@ published_at: 2026-07-22 09:37
         }
         values.update(overrides)
         manifest = MODULE.build_manifest(argparse.Namespace(**values))
-        MODULE.write_json(self.out_dir / "media-manifest.json", manifest)
+        MODULE.write_json(Path(values["out_dir"]) / "media-manifest.json", manifest)
         return manifest
 
-    def materialize_quality_contracts(self, *, cjk_passed: bool = True, empty_claims: bool = False):
+    def materialize_quality_contracts(
+        self,
+        *,
+        cjk_passed: bool = True,
+        empty_claims: bool = False,
+        expected_editable_charts: int = 0,
+        expected_native_tables: int = 0,
+        table_pagination_required: bool = False,
+        table_page_groups: list[list[int]] | None = None,
+        out_dir: Path | None = None,
+    ):
+        out_dir = out_dir or self.out_dir
+        manifest = json.loads((out_dir / "media-manifest.json").read_text(encoding="utf-8"))
+        request = manifest["request"]
+        template = manifest["template"]
+        primary_key = (
+            "editable_pptx"
+            if manifest["expected"]["editable_pptx"]["required"]
+            else "notebooklm_pptx"
+        )
+        primary_preview_dir = manifest["expected"][primary_key]["preview_dir"]
         payloads = {
             "planning/content-plan.json": {
                 "schema_version": 1,
                 "status": "approved",
-                "main_verdict": "术语要放回系统链路理解",
+                "main_verdict": request["main_verdict"],
                 "claim_ledger": []
                 if empty_claims
                 else [
@@ -175,14 +303,20 @@ published_at: 2026-07-22 09:37
             "planning/contract-card.json": {
                 "schema_version": 1,
                 "status": "approved",
-                "source": str(self.article),
-                "audience": "初学者",
-                "purpose": "教学",
-                "delivery_context": "live",
-                "language": "zh-Hans",
-                "editability": "editable_pptx",
-                "review_mode": "standard",
-                "output_scope": ["editable_pptx", "notebooklm_pptx", "infographic", "visual_assets"],
+                "source": manifest["source"]["path"],
+                "audience": request["audience"],
+                "purpose": request["purpose"],
+                "delivery_context": request["delivery_context"],
+                "language": request["language"],
+                "editability": "editable_pptx"
+                if manifest["expected"]["editable_pptx"]["required"]
+                else "non_editable_pptx",
+                "review_mode": request["review_mode"],
+                "output_scope": MODULE.expected_output_scope(manifest),
+                "template_mode": template["mode"],
+                "template_alias": template.get("alias", ""),
+                "privacy_classification": manifest["privacy"]["classification"],
+                "network": manifest["privacy"]["network"],
             },
             "qa/signature-proof.json": {
                 "schema_version": 1,
@@ -220,15 +354,28 @@ published_at: 2026-07-22 09:37
                 "schema_version": 1,
                 "status": "passed",
                 "host": "microsoft_powerpoint",
-                "preview_dir": "previews/editable",
+                "preview_dir": primary_preview_dir,
                 "rendered_slide_count": 2,
                 "cjk_checked": True,
                 "cjk_passed": cjk_passed,
                 "notes": "中文标题和正文显示正常",
             },
         }
+        if template["mode"] == "strict_following":
+            payloads["qa/template-fidelity.json"] = {
+                "schema_version": 1,
+                "status": "passed",
+                "template_alias": template["alias"],
+                "template_sha256": template["sha256"],
+                "allowed_fonts": template.get("allowed_fonts", []),
+                "expected_editable_charts": expected_editable_charts,
+                "expected_native_tables": expected_native_tables,
+                "table_pagination_required": table_pagination_required,
+                "table_page_groups": table_page_groups or [],
+                "notes": "Synthetic Acme fixture passed all template checks",
+            }
         for relative_path, payload in payloads.items():
-            MODULE.write_json(self.out_dir / relative_path, payload)
+            MODULE.write_json(out_dir / relative_path, payload)
 
     def materialize_valid_bundle(self, placeholder: bool = False):
         manifest = self.plan()
@@ -262,7 +409,7 @@ published_at: 2026-07-22 09:37
         self.assertIn("Token", manifest["source"]["concepts"])
         self.assertTrue(manifest["expected"]["editable_pptx"]["required"])
         self.assertTrue(manifest["expected"]["notebooklm_pptx"]["required"])
-        self.assertEqual(manifest["schema_version"], 2)
+        self.assertEqual(manifest["schema_version"], 3)
         self.assertEqual(manifest["request"]["review_mode"], "standard")
         self.assertTrue(manifest["source"]["contains_cjk"])
         self.assertNotIn("created_by", json.dumps(manifest, ensure_ascii=False))
@@ -367,13 +514,14 @@ published_at: 2026-07-22 09:37
         self.assertEqual(exit_code, 1)
         self.assertTrue(any(item["code"] == "critic_content_not_independent" for item in report["errors"]))
 
-    def validate(self):
+    def validate(self, template_file: str | None = None):
         return MODULE.validate_manifest(
             argparse.Namespace(
                 manifest=str(self.out_dir / "media-manifest.json"),
                 visual_reviewed=True,
                 source_facts_reviewed=True,
                 strict=True,
+                template_file=template_file,
             )
         )
 
@@ -605,7 +753,7 @@ published_at: 2026-07-22 09:37
             any(item["code"] == "content_plan_verdict_mismatch" for item in report["errors"])
         )
 
-    def test_schema_v2_manifest_requires_nonempty_main_verdict(self):
+    def test_schema_v3_manifest_requires_nonempty_main_verdict(self):
         self.materialize_valid_bundle()
         manifest_path = self.out_dir / "media-manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -616,6 +764,30 @@ published_at: 2026-07-22 09:37
         codes = {item["code"] for item in report["errors"]}
         self.assertIn("manifest_main_verdict_missing", codes)
         self.assertIn("content_plan_verdict_mismatch", codes)
+
+    def test_schema_v2_manifest_remains_strictly_valid_without_v3_contracts(self):
+        self.materialize_valid_bundle()
+        manifest_path = self.out_dir / "media-manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["schema_version"] = 2
+        manifest.pop("template")
+        manifest.pop("privacy")
+        manifest.pop("storage")
+        MODULE.write_json(manifest_path, manifest)
+        contract_path = self.out_dir / "planning/contract-card.json"
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        for field in (
+            "template_mode",
+            "template_alias",
+            "privacy_classification",
+            "network",
+        ):
+            contract.pop(field)
+        MODULE.write_json(contract_path, contract)
+
+        report, exit_code = self.validate()
+        self.assertEqual(exit_code, 0, report["errors"])
+        self.assertEqual(report["status"], "passed")
 
     def test_v1_manifest_is_readable_but_cannot_pass_strict_delivery(self):
         self.materialize_valid_bundle()
@@ -664,12 +836,490 @@ published_at: 2026-07-22 09:37
             )
         )
 
+    def test_confidential_strict_template_plan_separates_delivery_and_redacts_template_path(self):
+        state_root = self.root / "private-state"
+        run_dir = state_root / "runs" / "run-001"
+        output_root = self.root / "company-delivery"
+        template_path = self.root / "private-templates" / "weekly-report.pptx"
+        template_path.parent.mkdir(parents=True)
+        write_fake_pptx(template_path, [EDITABLE_SLIDE.format(text="Acme template")])
+        template_hash = MODULE.sha256_file(template_path)
+
+        manifest = self.plan(
+            out_dir=str(run_dir),
+            provider="local_editable",
+            image_count=0,
+            infographic=False,
+            template_mode="strict_following",
+            template_alias="weekly_report",
+            template_file=str(template_path),
+            template_sha256=template_hash,
+            allowed_font=["Aptos", "Noto Sans SC"],
+            privacy_classification="confidential",
+            network="deny",
+            provider_allowlist="local_editable,officecli",
+            persist_intermediates="private_state",
+            state_root=str(state_root),
+            output_root=str(output_root),
+        )
+
+        serialized = json.dumps(manifest, ensure_ascii=False)
+        self.assertNotIn(str(template_path), serialized)
+        self.assertEqual(manifest["template"]["alias"], "weekly_report")
+        self.assertEqual(manifest["template"]["sha256"], template_hash)
+        self.assertEqual(manifest["expected"]["editable_pptx"]["base"], "delivery")
+        self.assertEqual(manifest["expected"]["prompts"][0]["path"], "prompts/ppt-local.txt")
+        self.assertTrue((run_dir / "media-manifest.json").is_file())
+        self.assertFalse(output_root.exists())
+
+    def test_confidential_intermediates_cannot_be_redirected_to_delivery(self):
+        state_root = self.root / "private-state"
+        run_dir = state_root / "runs" / "run-001"
+        manifest = self.plan(
+            out_dir=str(run_dir),
+            provider="local_editable",
+            image_count=0,
+            infographic=False,
+            privacy_classification="confidential",
+            network="deny",
+            provider_allowlist="local_editable,officecli",
+            persist_intermediates="private_state",
+            state_root=str(state_root),
+            output_root=str(self.root / "delivery"),
+        )
+        manifest["expected"]["prompts"][0]["base"] = "delivery"
+        manifest["expected"]["visual_assets"]["base"] = "delivery"
+        errors = []
+        MODULE.validate_privacy_contract(manifest, run_dir, errors)
+        codes = {item["code"] for item in errors}
+        self.assertIn("confidential_intermediate_not_state", codes)
+        self.assertIn("confidential_visual_assets_not_state", codes)
+
+    def test_confidential_plan_rejects_relative_output_root(self):
+        with self.assertRaisesRegex(ValueError, "absolute output_root"):
+            self.plan(
+                out_dir=str(self.root / "state" / "runs" / "run-001"),
+                provider="local_editable",
+                image_count=0,
+                infographic=False,
+                privacy_classification="confidential",
+                network="deny",
+                provider_allowlist="local_editable,officecli",
+                persist_intermediates="private_state",
+                state_root=str(self.root / "state"),
+                output_root="relative-delivery",
+            )
+
+    def test_confidential_plan_rejects_network_provider(self):
+        with self.assertRaisesRegex(ValueError, "network=deny rejects network providers"):
+            self.plan(
+                out_dir=str(self.root / "state" / "runs" / "run-001"),
+                provider="notebooklm",
+                image_count=0,
+                infographic=False,
+                privacy_classification="confidential",
+                network="deny",
+                provider_allowlist="local_editable,officecli,notebooklm",
+                persist_intermediates="private_state",
+                state_root=str(self.root / "state"),
+                output_root=str(self.root / "delivery"),
+            )
+
+    def test_confidential_plan_rejects_network_provider_in_allowlist(self):
+        with self.assertRaisesRegex(ValueError, "allowlist cannot include network providers"):
+            self.plan(
+                out_dir=str(self.root / "state" / "runs" / "run-001"),
+                provider="local_editable",
+                image_count=0,
+                infographic=False,
+                privacy_classification="confidential",
+                network="deny",
+                provider_allowlist="local_editable,officecli,notebooklm",
+                persist_intermediates="private_state",
+                state_root=str(self.root / "state"),
+                output_root=str(self.root / "delivery"),
+            )
+
+    def test_confidential_plan_rejects_git_checkout_roots(self):
+        checkout = self.root / "repo"
+        (checkout / ".git").mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, "output_root cannot be inside a Git checkout"):
+            self.plan(
+                out_dir=str(self.root / "state" / "runs" / "run-001"),
+                provider="local_editable",
+                image_count=0,
+                infographic=False,
+                privacy_classification="confidential",
+                network="deny",
+                provider_allowlist="local_editable,officecli",
+                persist_intermediates="private_state",
+                state_root=str(self.root / "state"),
+                output_root=str(checkout / "deliveries"),
+            )
+
+    def test_strict_template_plan_rejects_hash_mismatch(self):
+        template_path = self.root / "template.pptx"
+        write_fake_pptx(template_path, [EDITABLE_SLIDE.format(text="Acme template")])
+        with self.assertRaisesRegex(ValueError, "template_sha256 does not match"):
+            self.plan(
+                provider="local_editable",
+                image_count=0,
+                infographic=False,
+                template_mode="strict_following",
+                template_alias="weekly_report",
+                template_file=str(template_path),
+                template_sha256="0" * 64,
+            )
+
+    def test_strict_template_plan_rejects_plain_text_named_pptx(self):
+        template_path = self.root / "not-really-a-template.pptx"
+        template_path.write_text("not an OOXML package", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "valid PPTX OOXML package"):
+            self.plan(
+                provider="local_editable",
+                image_count=0,
+                infographic=False,
+                template_mode="strict_following",
+                template_alias="weekly_report",
+                template_file=str(template_path),
+                template_sha256=MODULE.sha256_file(template_path),
+            )
+
+    def test_confidential_strict_template_bundle_passes_with_private_state_and_final_delivery(self):
+        self.article = ROOT / "tests" / "fixtures" / "article-ppt" / "acme-weekly-report.md"
+        state_root = self.root / "private-state"
+        run_dir = state_root / "runs" / "acme-001"
+        output_root = self.root / "company-delivery"
+        output_root.mkdir(parents=True)
+        template_path = self.root / "private-templates" / "weekly-report.pptx"
+        template_path.parent.mkdir(parents=True)
+        write_fake_pptx(template_path, [EDITABLE_SLIDE.format(text="Acme template")])
+        template_hash = MODULE.sha256_file(template_path)
+        manifest = self.plan(
+            out_dir=str(run_dir),
+            provider="local_editable",
+            slide_count="2",
+            image_count=0,
+            infographic=False,
+            main_verdict="稳定交付需要先处理测试环境容量风险",
+            template_mode="strict_following",
+            template_alias="weekly_report",
+            template_file=str(template_path),
+            template_sha256=template_hash,
+            allowed_font=["Aptos", "Arial", "Noto Sans SC"],
+            privacy_classification="confidential",
+            network="deny",
+            provider_allowlist="local_editable,officecli",
+            persist_intermediates="private_state",
+            state_root=str(state_root),
+            output_root=str(output_root),
+        )
+        write_fake_pptx(
+            output_root / manifest["expected"]["editable_pptx"]["path"],
+            [
+                CHART_TABLE_SLIDE.format(text="本周结论"),
+                TABLE_SLIDE.format(text="下周计划"),
+            ],
+        )
+        for index in (1, 2):
+            write_png_header(run_dir / f"previews/editable/slide-{index}.png")
+        prompt = run_dir / manifest["expected"]["prompts"][0]["path"]
+        prompt.parent.mkdir(parents=True)
+        prompt.write_text("Use the verified private template without network providers.\n", encoding="utf-8")
+        self.materialize_quality_contracts(
+            out_dir=run_dir,
+            expected_editable_charts=1,
+            expected_native_tables=2,
+            table_pagination_required=True,
+            table_page_groups=[[1, 2]],
+        )
+
+        report, exit_code = MODULE.validate_manifest(
+            argparse.Namespace(
+                manifest=str(run_dir / "media-manifest.json"),
+                visual_reviewed=True,
+                source_facts_reviewed=True,
+                strict=True,
+                template_file=str(template_path),
+            )
+        )
+        self.assertEqual(exit_code, 0, report["errors"])
+        self.assertEqual(report["status"], "passed")
+        self.assertFalse((run_dir / manifest["expected"]["editable_pptx"]["path"]).exists())
+
+    def test_template_fidelity_rejects_overflow_and_manifest_template_path(self):
+        template_path = self.root / "template.pptx"
+        write_fake_pptx(template_path, [EDITABLE_SLIDE.format(text="Acme template")])
+        manifest = self.plan(
+            provider="local_editable",
+            image_count=0,
+            infographic=False,
+            template_mode="strict_following",
+            template_alias="weekly_report",
+            template_file=str(template_path),
+            template_sha256=MODULE.sha256_file(template_path),
+        )
+        write_fake_pptx(
+            self.out_dir / manifest["expected"]["editable_pptx"]["path"],
+            [EDITABLE_SLIDE.format(text="本周结论"), OVERFLOW_SLIDE],
+        )
+        for index in (1, 2):
+            write_png_header(self.out_dir / f"previews/editable/slide-{index}.png")
+        prompt = self.out_dir / manifest["expected"]["prompts"][0]["path"]
+        prompt.parent.mkdir(parents=True)
+        prompt.write_text("Use the Acme synthetic template.\n", encoding="utf-8")
+        self.materialize_quality_contracts()
+        manifest_path = self.out_dir / "media-manifest.json"
+        manifest["template"]["template_path"] = str(template_path)
+        MODULE.write_json(manifest_path, manifest)
+
+        report, exit_code = self.validate(str(template_path))
+        self.assertEqual(exit_code, 1)
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("template_fidelity_overflow", codes)
+        self.assertIn("manifest_template_path_disclosed", codes)
+
+    def test_strict_validation_rechecks_template_bytes_after_planning(self):
+        template_path = self.root / "template.pptx"
+        write_fake_pptx(template_path, [EDITABLE_SLIDE.format(text="Acme template")])
+        manifest = self.plan(
+            provider="local_editable",
+            image_count=0,
+            infographic=False,
+            template_mode="strict_following",
+            template_alias="weekly_report",
+            template_file=str(template_path),
+            template_sha256=MODULE.sha256_file(template_path),
+        )
+        template_path.write_bytes(template_path.read_bytes() + b"changed-after-plan")
+        errors = []
+        warnings = []
+        MODULE.validate_template_source(
+            manifest,
+            argparse.Namespace(template_file=str(template_path), strict=True),
+            errors,
+            warnings,
+        )
+        self.assertIn("template_source_sha256_mismatch", {item["code"] for item in errors})
+        self.assertEqual(warnings, [])
+
+    def test_template_fidelity_contract_covers_every_weekly_report_gate(self):
+        manifest = {
+            "template": {
+                "mode": "strict_following",
+                "alias": "weekly_report",
+                "sha256": "a" * 64,
+                "allowed_fonts": ["Aptos", "Noto Sans SC"],
+            }
+        }
+        valid = {
+            "status": "passed",
+            "template_alias": "weekly_report",
+            "template_sha256": "a" * 64,
+            "allowed_fonts": ["Aptos", "Noto Sans SC"],
+            "expected_editable_charts": 1,
+            "expected_native_tables": 2,
+            "table_pagination_required": True,
+            "table_page_groups": [[1, 2]],
+        }
+        template_inspection = {
+            "valid_ooxml": True,
+            "slide_size": [12192000, 6858000],
+            "master_digest": "master",
+            "layout_digest": "layout",
+        }
+        output_inspection = {
+            **template_inspection,
+            "fonts": ["Aptos"],
+            "chart_references": 1,
+            "bound_chart_count": 1,
+            "unbound_chart_references": 0,
+            "chart_parts": 1,
+            "table_count": 2,
+            "slide_table_counts": {"1": 1, "2": 1},
+            "overflow_count": 0,
+            "orphan_connector_count": 0,
+        }
+        cases = {
+            "slide_size": ([100, 100], "template_fidelity_slide_size_mismatch"),
+            "master_digest": ("changed", "template_fidelity_masters_mismatch"),
+            "layout_digest": ("changed", "template_fidelity_layouts_mismatch"),
+            "fonts": (["Comic Sans MS"], "template_fidelity_unexpected_fonts"),
+            "bound_chart_count": (0, "template_fidelity_editable_charts_missing"),
+            "unbound_chart_references": (1, "template_fidelity_unbound_charts"),
+            "table_count": (1, "template_fidelity_native_tables_missing"),
+            "slide_table_counts": ({"1": 1, "2": 0}, "template_fidelity_table_pagination_invalid"),
+            "overflow_count": (1, "template_fidelity_overflow"),
+            "orphan_connector_count": (1, "template_fidelity_orphan_connectors"),
+        }
+        for field, (value, expected_code) in cases.items():
+            with self.subTest(field=field):
+                inspection = dict(output_inspection)
+                inspection[field] = value
+                errors = []
+                MODULE.validate_template_fidelity(
+                    dict(valid), manifest, template_inspection, inspection, errors
+                )
+                self.assertIn(expected_code, {item["code"] for item in errors})
+
+        errors = []
+        invalid_declaration = dict(valid)
+        invalid_declaration["allowed_fonts"] = ["Comic Sans MS"]
+        MODULE.validate_template_fidelity(
+            invalid_declaration, manifest, template_inspection, output_inspection, errors
+        )
+        self.assertIn(
+            "template_fidelity_allowed_fonts_mismatch",
+            {item["code"] for item in errors},
+        )
+
+    def test_layout_digest_ignores_volatile_relationship_attributes(self):
+        layout_a = """<?xml version="1.0" encoding="UTF-8"?>
+<p:sldLayout xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+              xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
+              xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <p:cSld><p:spTree><p:pic><p:blipFill><a:blip r:embed="Rvolatile-a"/></p:blipFill></p:pic></p:spTree></p:cSld>
+</p:sldLayout>
+"""
+        layout_b = layout_a.replace("Rvolatile-a", "Rvolatile-b")
+        first = self.root / "digest-a.pptx"
+        second = self.root / "digest-b.pptx"
+        for path, payload in ((first, layout_a), (second, layout_b)):
+            with zipfile.ZipFile(path, "w") as archive:
+                archive.writestr("ppt/slideLayouts/slideLayout1.xml", payload)
+        with zipfile.ZipFile(first) as archive:
+            digest_a = MODULE.ooxml_parts_digest(
+                archive, ["ppt/slideLayouts/slideLayout1.xml"]
+            )
+        with zipfile.ZipFile(second) as archive:
+            digest_b = MODULE.ooxml_parts_digest(
+                archive, ["ppt/slideLayouts/slideLayout1.xml"]
+            )
+        self.assertEqual(digest_a, digest_b)
+
     def test_config_uses_validator_host_enum(self):
         config = (
             ROOT / "skills" / "soia-pkm-transform-article-ppt" / "config.example.yml"
         ).read_text(encoding="utf-8")
         self.assertIn("apple_keynote", config)
         self.assertNotIn("| keynote |", config)
+        self.assertIn("schema_version: 2", config)
+        self.assertIn("mode: none", config)
+        self.assertIn("classification: public", config)
+        self.assertIn("provider_allowlist:", config)
+        self.assertIn("state_root:", config)
+        self.assertIn("output_root:", config)
+        self.assertIn(
+            "soia-open-pkm-vault-skills/soia-pkm/soia-pkm-transform-article-ppt",
+            config,
+        )
+
+    def test_private_config_env_resolves_template_and_cli_takes_precedence(self):
+        template_path = self.root / "private-templates" / "weekly-report.pptx"
+        template_path.parent.mkdir(parents=True)
+        write_fake_pptx(template_path, [EDITABLE_SLIDE.format(text="Acme template")])
+        template_hash = MODULE.sha256_file(template_path)
+        state_root = self.root / "private-state"
+        run_dir = state_root / "runs" / "run-001"
+        output_root = self.root / "delivery"
+        config_path = self.root / "config.yml"
+        config_path.write_text(
+            f"""schema_version: 2
+defaults:
+  provider: notebooklm
+  image_count: 0
+  infographic: false
+template:
+  mode: strict_following
+  alias: weekly_report
+  path: {template_path}
+  sha256: {template_hash}
+  allowed_fonts: [Aptos, Noto Sans SC]
+privacy:
+  classification: confidential
+  network: deny
+  provider_allowlist:
+    - local_editable
+    - officecli
+  persist_intermediates: private_state
+paths:
+  state_root: {state_root}
+  output_root: {output_root}
+""",
+            encoding="utf-8",
+        )
+        args = MODULE.build_parser().parse_args(
+            [
+                "plan",
+                "--article",
+                str(self.article),
+                "--out-dir",
+                str(run_dir),
+                "--provider",
+                "local_editable",
+                "--main-verdict",
+                "本地隔离优先",
+            ]
+        )
+        with mock.patch.dict(
+            "os.environ", {MODULE.CONFIG_ENV_VAR: str(config_path)}, clear=False
+        ):
+            config = MODULE.load_private_config(args)
+        MODULE.apply_plan_config(args, config)
+        manifest = MODULE.build_manifest(args)
+
+        self.assertEqual(manifest["request"]["provider"], "local_editable")
+        self.assertEqual(manifest["template"]["alias"], "weekly_report")
+        self.assertEqual(manifest["template"]["sha256"], template_hash)
+        self.assertEqual(manifest["privacy"]["classification"], "confidential")
+        self.assertEqual(manifest["privacy"]["provider_allowlist"], ["local_editable", "officecli"])
+        self.assertNotIn(str(template_path), json.dumps(manifest, ensure_ascii=False))
+
+        errors = []
+        warnings = []
+        inspection = MODULE.validate_template_source(
+            manifest,
+            argparse.Namespace(
+                template_file=None,
+                strict=True,
+                _private_config=config,
+            ),
+            errors,
+            warnings,
+        )
+        self.assertTrue(inspection and inspection["valid_ooxml"])
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
+    def test_private_config_template_binding_rejects_alias_drift(self):
+        template_path = self.root / "template.pptx"
+        write_fake_pptx(template_path, [EDITABLE_SLIDE.format(text="Acme template")])
+        manifest = {
+            "template": {
+                "mode": "strict_following",
+                "alias": "weekly_report",
+                "sha256": MODULE.sha256_file(template_path),
+            }
+        }
+        config = {
+            "schema_version": 2,
+            "template": {
+                "alias": "different_report",
+                "path": str(template_path),
+                "sha256": manifest["template"]["sha256"],
+            },
+        }
+        errors = []
+        MODULE.validate_template_source(
+            manifest,
+            argparse.Namespace(template_file=None, strict=True, _private_config=config),
+            errors,
+            [],
+        )
+        self.assertIn(
+            "template_config_binding_mismatch",
+            {item["code"] for item in errors},
+        )
 
 
 if __name__ == "__main__":
