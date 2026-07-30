@@ -43,8 +43,8 @@
     "zh": "Soia Vault"
   },
   "profession": {
-    "en": "Knowledge Vault Curator",
-    "zh": "知识库管家"
+    "en": "Soia · Knowledge Vault Curator",
+    "zh": "Soia · 知识库管家"
   },
   "displayDescription": {
     "en": "Archives web, WeChat and cloud-drive material into a local Markdown vault, organizes it with metadata and topic backlinks, then turns it into interpretations, decks, long images and reading plans.",

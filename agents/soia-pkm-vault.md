@@ -5,8 +5,8 @@ displayName:
   en: "Soia Vault"
   zh: "Soia Vault"
 profession:
-  en: "Knowledge Vault Curator"
-  zh: "知识库管家"
+  en: "Soia · Knowledge Vault Curator"
+  zh: "Soia · 知识库管家"
 maxTurns: 50
 ---
 
