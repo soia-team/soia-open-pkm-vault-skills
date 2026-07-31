@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/hero.webp" width="640" alt="">
+<img src="assets/icon.png" width="88" alt="">
 
 # SOIA Open PKM Vault Skills
 
@@ -33,52 +33,52 @@ flowchart LR
 
 | 技能 | 职责 | 开箱 |
 |---|---|:-:|
-| `soia-pkm-bootstrap-vault-base` | 初始化中立 Markdown vault 骨架与 PKM 闭环 | ✅ |
-| `soia-pkm-bootstrap-vault-obsidian` | 把已有 vault 配成 Obsidian 消费端 | ✅ |
-| `soia-pkm-bootstrap-vault-ima` | 把已有 vault 接入腾讯 ima | 🟡 |
-| `soia-pkm-maintain` | 健康体检、全库地图与 AI 会话日志 | ✅ |
+| [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | 初始化中立 Markdown vault 骨架与 PKM 闭环 | ✅ |
+| [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | 把已有 vault 配成 Obsidian 消费端 | ✅ |
+| [`soia-pkm-bootstrap-vault-ima`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-ima.md) | 把已有 vault 接入腾讯 ima | 🟡 |
+| [`soia-pkm-maintain`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain.md) | 健康体检、全库地图与 AI 会话日志 | ✅ |
 
 ### 02 多源采集　`链接 · 账号 · 文件 → 结构化原始素材入库`
 
 | 技能 | 职责 | 开箱 |
 |---|---|:-:|
-| `soia-pkm-clip-web` | 归档网页或博客文章 | ✅ |
-| `soia-pkm-clip-wechat-article` | 归档单篇公众号文章 | ✅ |
-| `soia-pkm-clip-wechat-account` | 批量归档自己公众号的已发文章 | 🟡 |
-| `soia-pkm-clip-x` | 归档 X 推文、thread 或 Article | 🟡 |
-| `soia-pkm-clip-rednote` | 归档小红书图文或视频笔记 | ✅ |
-| `soia-pkm-clip-douyin` | 归档抖音视频并保留媒体索引 | ✅ |
-| `soia-pkm-clip-github-repo` | 把 GitHub 仓库归档为项目卡与调研笔记 | ✅ |
-| `soia-pkm-clip-drive` | 批量导入云盘或本地的 PDF / Word 存量资料 | ✅ |
-| `soia-pkm-alipan-curator` | 规划整理阿里云盘资源，产出馆藏索引 | 🟡 |
-| `soia-pkm-alipan-drive-ops` | 阿里云盘登录、浏览与文件操作 | 🟡 |
-| `soia-pkm-baidu-netdisk-ops` | 百度网盘原子操作与只读扫描 | 🟡 |
+| [`soia-pkm-clip-web`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-web.md) | 归档网页或博客文章 | ✅ |
+| [`soia-pkm-clip-wechat-article`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-article.md) | 归档单篇公众号文章 | ✅ |
+| [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | 批量归档自己公众号的已发文章 | 🟡 |
+| [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | 归档 X 推文、thread 或 Article | 🟡 |
+| [`soia-pkm-clip-rednote`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-rednote.md) | 归档小红书图文或视频笔记 | ✅ |
+| [`soia-pkm-clip-douyin`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-douyin.md) | 归档抖音视频并保留媒体索引 | ✅ |
+| [`soia-pkm-clip-github-repo`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-github-repo.md) | 把 GitHub 仓库归档为项目卡与调研笔记 | ✅ |
+| [`soia-pkm-clip-drive`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-drive.md) | 批量导入云盘或本地的 PDF / Word 存量资料 | ✅ |
+| [`soia-pkm-alipan-curator`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-curator.md) | 规划整理阿里云盘资源，产出馆藏索引 | 🟡 |
+| [`soia-pkm-alipan-drive-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-drive-ops.md) | 阿里云盘登录、浏览与文件操作 | 🟡 |
+| [`soia-pkm-baidu-netdisk-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-baidu-netdisk-ops.md) | 百度网盘原子操作与只读扫描 | 🟡 |
 
 ### 03 阅读整理　`入库素材 · 书籍 · 阅读进度 → 有序知识库与阅读看板`
 
 | 技能 | 职责 | 开箱 |
 |---|---|:-:|
-| `soia-pkm-organize-article-moc` | 元数据规范化、主题双链与两级 MOC | ✅ |
-| `soia-pkm-library-book-catalog` | 纯本地维护书库编目与阅读记录 | ✅ |
-| `soia-pkm-library-weread-sync` | 同步微信读书已读书目与划线 | 🟡 |
-| `soia-pkm-reading-plan` | 把书单或主题排成按字数的阅读计划 | ✅ |
+| [`soia-pkm-organize-article-moc`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-organize-article-moc.md) | 元数据规范化、主题双链与两级 MOC | ✅ |
+| [`soia-pkm-library-book-catalog`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-book-catalog.md) | 纯本地维护书库编目与阅读记录 | ✅ |
+| [`soia-pkm-library-weread-sync`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-weread-sync.md) | 同步微信读书已读书目与划线 | 🟡 |
+| [`soia-pkm-reading-plan`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-reading-plan.md) | 把书单或主题排成按字数的阅读计划 | ✅ |
 
 ### 04 理解提炼　`长文 · 论文 · 外文资料 → 要点总结 · 观点卡片 · 译文`
 
 | 技能 | 职责 | 开箱 |
 |---|---|:-:|
-| `soia-pkm-interpret-article-analysis` | 为长文生成独立 AI 解读，帮你判断值不值得深挖 | ✅ |
-| `soia-pkm-distill-article-opinion` | 苏格拉底式逐问，把你自己的观点问出来 | ✅ |
-| `soia-pkm-translate-article-zh` | 外文文章三档翻译，不覆盖原文 | ✅ |
+| [`soia-pkm-interpret-article-analysis`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-interpret-article-analysis.md) | 为长文生成独立 AI 解读，帮你判断值不值得深挖 | ✅ |
+| [`soia-pkm-distill-article-opinion`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-distill-article-opinion.md) | 苏格拉底式逐问，把你自己的观点问出来 | ✅ |
+| [`soia-pkm-translate-article-zh`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-translate-article-zh.md) | 外文文章三档翻译，不覆盖原文 | ✅ |
 
 ### 05 内容转换　`整理后的知识 → 可编辑 PPTX · 长图 · PDF · 学习材料`
 
 | 技能 | 职责 | 开箱 |
 |---|---|:-:|
-| `soia-pkm-transform-article-ppt` | 转为以可编辑 PPTX 为母版的演示媒体包 | ✅ |
-| `soia-pkm-transform-article-visual` | 转为长图、信息图、海报、封面 | ✅ |
-| `soia-pkm-transform-obsidian-pdf` | 用 Obsidian 原生导出转 PDF | ✅ |
-| `soia-pkm-transform-article-notebooklm` | 用 NotebookLM 转试卷、闪卡、播客 | 🟡 |
+| [`soia-pkm-transform-article-ppt`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-ppt.md) | 转为以可编辑 PPTX 为母版的演示媒体包 | ✅ |
+| [`soia-pkm-transform-article-visual`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-visual.md) | 转为长图、信息图、海报、封面 | ✅ |
+| [`soia-pkm-transform-obsidian-pdf`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-obsidian-pdf.md) | 用 Obsidian 原生导出转 PDF | ✅ |
+| [`soia-pkm-transform-article-notebooklm`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-notebooklm.md) | 用 NotebookLM 转试卷、闪卡、播客 | 🟡 |
 
 ✅ 装完即用　🟡 需先完成平台登录或申请 API key，技能会在执行前告诉你缺什么
 
