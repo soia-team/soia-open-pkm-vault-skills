@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/hero.webp" width="640" alt="">
+<img src="assets/icon.png" width="88" alt="">
 
 # SOIA Open PKM Vault Skills
 
@@ -33,52 +33,52 @@ flowchart LR
 
 | Skill | Responsibility | Ready |
 |---|---|:-:|
-| `soia-pkm-bootstrap-vault-base` | Initializes a neutral Markdown vault skeleton and the PKM loop | ✅ |
-| `soia-pkm-bootstrap-vault-obsidian` | Configures an existing vault as an Obsidian consumer | ✅ |
-| `soia-pkm-bootstrap-vault-ima` | Connects an existing vault to Tencent ima | 🟡 |
-| `soia-pkm-maintain` | Health checks, whole-vault map and AI session logs | ✅ |
+| [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | Initializes a neutral Markdown vault skeleton and the PKM loop | ✅ |
+| [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | Configures an existing vault as an Obsidian consumer | ✅ |
+| [`soia-pkm-bootstrap-vault-ima`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-ima.md) | Connects an existing vault to Tencent ima | 🟡 |
+| [`soia-pkm-maintain`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain.md) | Health checks, whole-vault map and AI session logs | ✅ |
 
 ### 02 Multi-source capture　`Links · accounts · files → structured material in the vault`
 
 | Skill | Responsibility | Ready |
 |---|---|:-:|
-| `soia-pkm-clip-web` | Archives a web page or blog article | ✅ |
-| `soia-pkm-clip-wechat-article` | Archives a single WeChat Official Account article | ✅ |
-| `soia-pkm-clip-wechat-account` | Bulk-archives published articles from your own account | 🟡 |
-| `soia-pkm-clip-x` | Archives an X post, thread or Article | 🟡 |
-| `soia-pkm-clip-rednote` | Archives a Rednote text or video note | ✅ |
-| `soia-pkm-clip-douyin` | Archives a Douyin video and keeps a local media index | ✅ |
-| `soia-pkm-clip-github-repo` | Archives a GitHub repo as a project card and research note | ✅ |
-| `soia-pkm-clip-drive` | Bulk-imports existing PDFs and Word files from cloud or local storage | ✅ |
-| `soia-pkm-alipan-curator` | Plans and organizes Alipan resources into a reviewable catalog index | 🟡 |
-| `soia-pkm-alipan-drive-ops` | Alipan login, browsing and file operations | 🟡 |
-| `soia-pkm-baidu-netdisk-ops` | Baidu Netdisk atomic operations and read-only scanning | 🟡 |
+| [`soia-pkm-clip-web`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-web.md) | Archives a web page or blog article | ✅ |
+| [`soia-pkm-clip-wechat-article`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-article.md) | Archives a single WeChat Official Account article | ✅ |
+| [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | Bulk-archives published articles from your own account | 🟡 |
+| [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | Archives an X post, thread or Article | 🟡 |
+| [`soia-pkm-clip-rednote`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-rednote.md) | Archives a Rednote text or video note | ✅ |
+| [`soia-pkm-clip-douyin`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-douyin.md) | Archives a Douyin video and keeps a local media index | ✅ |
+| [`soia-pkm-clip-github-repo`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-github-repo.md) | Archives a GitHub repo as a project card and research note | ✅ |
+| [`soia-pkm-clip-drive`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-drive.md) | Bulk-imports existing PDFs and Word files from cloud or local storage | ✅ |
+| [`soia-pkm-alipan-curator`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-curator.md) | Plans and organizes Alipan resources into a reviewable catalog index | 🟡 |
+| [`soia-pkm-alipan-drive-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-drive-ops.md) | Alipan login, browsing and file operations | 🟡 |
+| [`soia-pkm-baidu-netdisk-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-baidu-netdisk-ops.md) | Baidu Netdisk atomic operations and read-only scanning | 🟡 |
 
 ### 03 Reading and organization　`Material · books · progress → an ordered vault and reading board`
 
 | Skill | Responsibility | Ready |
 |---|---|:-:|
-| `soia-pkm-organize-article-moc` | Metadata normalization, topic backlinks and two-level MOCs | ✅ |
-| `soia-pkm-library-book-catalog` | Maintains the book catalog and reading records, purely locally | ✅ |
-| `soia-pkm-library-weread-sync` | Syncs WeRead finished books and highlights | 🟡 |
-| `soia-pkm-reading-plan` | Turns a book list or topic into a word-count-paced reading plan | ✅ |
+| [`soia-pkm-organize-article-moc`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-organize-article-moc.md) | Metadata normalization, topic backlinks and two-level MOCs | ✅ |
+| [`soia-pkm-library-book-catalog`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-book-catalog.md) | Maintains the book catalog and reading records, purely locally | ✅ |
+| [`soia-pkm-library-weread-sync`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-weread-sync.md) | Syncs WeRead finished books and highlights | 🟡 |
+| [`soia-pkm-reading-plan`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-reading-plan.md) | Turns a book list or topic into a word-count-paced reading plan | ✅ |
 
 ### 04 Understanding and distillation　`Long reads · papers · foreign text → summaries, opinions, translations`
 
 | Skill | Responsibility | Ready |
 |---|---|:-:|
-| `soia-pkm-interpret-article-analysis` | Produces a standalone AI interpretation so you can judge whether to read closely | ✅ |
-| `soia-pkm-distill-article-opinion` | Socratic questioning until *you* articulate your own take | ✅ |
-| `soia-pkm-translate-article-zh` | Three-tier translation of foreign articles; never overwrites the original | ✅ |
+| [`soia-pkm-interpret-article-analysis`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-interpret-article-analysis.md) | Produces a standalone AI interpretation so you can judge whether to read closely | ✅ |
+| [`soia-pkm-distill-article-opinion`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-distill-article-opinion.md) | Socratic questioning until *you* articulate your own take | ✅ |
+| [`soia-pkm-translate-article-zh`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-translate-article-zh.md) | Three-tier translation of foreign articles; never overwrites the original | ✅ |
 
 ### 05 Transformation　`Organized knowledge → PPTX · long image · PDF · study material`
 
 | Skill | Responsibility | Ready |
 |---|---|:-:|
-| `soia-pkm-transform-article-ppt` | Turns an article into a media package with an editable PPTX as the master | ✅ |
-| `soia-pkm-transform-article-visual` | Turns an article into long images, infographics, posters and covers | ✅ |
-| `soia-pkm-transform-obsidian-pdf` | Exports vault notes to PDF via Obsidian's native export | ✅ |
-| `soia-pkm-transform-article-notebooklm` | Turns an article into quizzes, flashcards and podcasts via NotebookLM | 🟡 |
+| [`soia-pkm-transform-article-ppt`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-ppt.md) | Turns an article into a media package with an editable PPTX as the master | ✅ |
+| [`soia-pkm-transform-article-visual`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-visual.md) | Turns an article into long images, infographics, posters and covers | ✅ |
+| [`soia-pkm-transform-obsidian-pdf`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-obsidian-pdf.md) | Exports vault notes to PDF via Obsidian's native export | ✅ |
+| [`soia-pkm-transform-article-notebooklm`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-notebooklm.md) | Turns an article into quizzes, flashcards and podcasts via NotebookLM | 🟡 |
 
 ✅ Works right after install　🟡 Needs a platform login or API key first; the skill tells you what is missing before it runs
 
