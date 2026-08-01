@@ -328,18 +328,34 @@ def render_single(tweet: dict) -> str:
     return text
 
 
-def collect_media(tweets: list[dict]) -> list[dict]:
+def collect_media(tweets: list[dict], article: dict | None = None) -> list[dict]:
+    """Collect tweet media and X Article ``media_entities``.
+
+    Articles keep their images outside the ordinary tweet ``media`` object.
+    De-duplicate URLs because some API responses expose an asset in both
+    locations.
+    """
     media: list[dict] = []
+    seen_urls: set[str] = set()
+
+    def append(item: dict) -> None:
+        url = str(item.get("url") or "")
+        if url and url in seen_urls:
+            return
+        if url:
+            seen_urls.add(url)
+        media.append(item)
+
     for t in tweets:
         m = t.get("media") or {}
         if not isinstance(m, dict):
             continue
         for p in (m.get("photos") or []):
             if isinstance(p, dict):
-                media.append({"type": "image", "url": p.get("url", "")})
+                append({"type": "image", "url": p.get("url", "")})
         for v in (m.get("videos") or []):
             if isinstance(v, dict):
-                media.append({
+                append({
                     "type": "video",
                     "url": v.get("url", ""),
                     "thumbnail": v.get("thumbnail_url", ""),
@@ -355,11 +371,29 @@ def collect_media(tweets: list[dict]) -> list[dict]:
                 continue
             fmts = g.get("formats")
             if isinstance(fmts, dict):
-                media.append({
+                append({
                     "type": "mosaic",
                     "url": fmts.get("jpeg") or fmts.get("webp") or "",
                 })
+
+    for entity in (article or {}).get("media_entities") or []:
+        if not isinstance(entity, dict):
+            continue
+        info = entity.get("media_info") or {}
+        if not isinstance(info, dict):
+            continue
+        image_url = info.get("original_img_url")
+        video_url = info.get("original_video_url")
+        url = image_url or video_url
+        if not url:
+            continue
+        append({"type": "video" if video_url and not image_url else "image", "url": url})
     return media
+
+
+def archive_month_dir(article_root: Path, dt: datetime) -> Path:
+    """Return the canonical ``<articles>/<YYYY>/<MM>/`` directory."""
+    return article_root / f"{dt.year:04d}" / f"{dt.month:02d}"
 
 
 def sanitize_title_for_filename(title: str, limit: int = 50) -> str:
@@ -629,7 +663,7 @@ def main():
         body = render_single(tweet)
         body_meta = "single tweet"
 
-    media = collect_media(chain)
+    media = collect_media(chain, article if is_article else None)
     sample_text = body[:1000] if body else ""
     lang = detect_language(sample_text, root.get("lang"))
 
@@ -718,14 +752,17 @@ def main():
 """
 
     # write
-    year_dir = article_root / str(dt_cst.year)
-    year_dir.mkdir(parents=True, exist_ok=True)
+    month_dir = archive_month_dir(article_root, dt_cst)
+    month_dir.mkdir(parents=True, exist_ok=True)
     if existing and args.force:
-        out_path = existing
+        # Force re-archives from the pre-month-layout version should be
+        # written to the canonical month directory. The operator can migrate
+        # the old path separately without silently deleting it here.
+        out_path = existing if existing.parent == month_dir else month_dir / filename
     else:
-        out_path = year_dir / filename
+        out_path = month_dir / filename
         if out_path.exists():
-            out_path = year_dir / f"{filename[:-3]}-{status_id[-6:]}.md"
+            out_path = month_dir / f"{filename[:-3]}-{status_id[-6:]}.md"
     out_path.write_text(doc, encoding="utf-8")
 
     rel = out_path.relative_to(vault)

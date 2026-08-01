@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-x
 description: 将单条 X/Twitter 推文、thread 或 Article 归档到 Obsidian vault。触发：「归档这条 X」「clip 这条推文」「整理这条 thread」
-version: 1.1.3
+version: 1.1.4
 created_at: 2026-07-02 03:51:43
-updated_at: 2026-07-27 10:47:17
+updated_at: 2026-08-01 15:00:00
 created_by: claude opus 4.6
 updated_by: gpt-5.6-sol
 ---
@@ -122,6 +122,7 @@ X 的原生 UI 不利于长期回看：thread 散在时间线、Article 排版�
 | `tweet.text` / `tweet.raw_text.text` | 推文正文 |
 | `tweet.article.title` | X Article 标题 |
 | `tweet.article.content.blocks[]` | Article 长文 blocks |
+| `tweet.article.media_entities[]` | X Article 图片/视频实体 |
 | `tweet.replying_to_status` | 上一条推文（thread 回溯） |
 | `tweet.quote` | 引用的推文 |
 | `tweet.media[]` | 媒体（图/视频直链） |
@@ -209,6 +210,7 @@ metrics:
 | 推文文本空且无 article 且无 media | 警告：「纯转推/纯回复，可能无独立内容」 |
 | 同日同作者文件名重复 | 末尾加 `-<status_id 后 6 位>` |
 | 视频媒体 | frontmatter `media[]` 记 mp4 直链，不内嵌 |
+| 归档目录 | 按发布时间写入 `<articles>/<YYYY>/<MM>/`，例如 `2026/08/` |
 
 ## 命令行参考（归档）
 
