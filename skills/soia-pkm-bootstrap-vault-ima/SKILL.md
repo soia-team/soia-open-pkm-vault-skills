@@ -2,12 +2,12 @@
 name: soia-pkm-bootstrap-vault-ima
 description: 把已有本地 Markdown vault 接入腾讯 ima 知识库消费端：安装客户端、建立目录映射、用 ima 官方 Skills 配置本地文件夹监控同步并验证检索。Triggers：「接入 ima」「同步到 ima 知识库」「配置 ima」「让 ima 监控 vault」
 dependencies:
-  hard: [soia-pkm-bootstrap-vault-base]
-version: 1.0.0
+  hard: [soia-pkm-bootstrap-vault-base, soia-pkm-query-vault]
+version: 1.1.0
 created_at: 2026-07-16 16:00:31
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-08-01 16:30:00
 created_by: gpt-5.6-luna
-updated_by: gpt-5.6-luna
+updated_by: gpt-5
 ---
 
 # soia-pkm-bootstrap-vault-ima
@@ -30,7 +30,7 @@ updated_by: gpt-5.6-luna
 
 1. 提供已有 vault 路径、希望同步的相对目录、目标 ima 知识库和一篇用于验证的文章标题。
 2. 安装并登录 ima 客户端。
-3. 先确定 allowlist 形式的本地同步范围，再在 ima 官方 Skills 中配置本地文件夹监控。
+3. 先确定**不能是 vault 根或整个 20 区**的目录 allowlist，并完成敏感级别预检，再在 ima 官方 Skills 中配置本地文件夹监控。
 4. 首次同步只选一篇或一个小目录，确认层级、标题和正文后再扩大范围。
 5. 在 ima 搜索验证文章；任何冲突都以本地 Markdown 为准，不从 ima 反向写回。
 
@@ -78,18 +78,26 @@ SOIA_PKM_BOOTSTRAP_VAULT_IMA_CONFIG_FILE=<custom-config-path>
 
 在 ima 客户端创建一个用于消费 vault 内容的知识库。具体创建动作和字段名称未经实测，**以 ima 客户端实际界面为准，首次执行时校正本文档**。
 
-建议先使用 allowlist，而不是把整个 vault 暴露给云端：
+只允许用户明确选择、并能持续保证不混入敏感笔记的子目录 allowlist。整个 vault、整个 `20_资料库/` 或历史导入树都不是合法同步源：
 
 | vault 相对目录/类别 | 默认建议 | 原因 |
 |---|---|---|
-| `20_资料库/` | 同步 | 长期参考资料，适合检索 |
-| `40_阅读与资料/` | 同步 | 文章摘抄和阅读资料，适合检索 |
-| 已确认可公开的发布留底 | 可选同步 | 只同步用户明确选择的内容 |
+| `20_资料库/<精选子目录>/<明确云端范围>/` | 条件同步 | 目录内每篇 Markdown 都有 `sensitivity: public` 或 `internal`，且用户确认可上传 |
+| `20_资料库/`、`20_资料库/10_融合分类/`、其他历史导入目录 | 禁止 | 根范围过宽；导入语料可能含凭据、个人路径和未核验内容 |
+| `40_图书视频馆/` | 默认排除 | 可能含个人阅读记录、家庭信息或受版权约束的原文 |
+| 已确认可上传的发布留底子目录 | 可选同步 | 只同步用户明确选择且完成隐私/版权复核的内容 |
 | `00_Obsidian系统/`、`.obsidian/` | 排除 | 平台配置不是知识正文 |
-| `30_日志与思考/`、`10_Workbench/` | 默认排除 | 可能包含会话、草稿和临时私密内容 |
+| `30_日志与思考/`、`10_工作台/` | 默认排除 | 可能包含会话、草稿和临时私密内容 |
 | `.git/`、`.env`、配置/凭据类文件 | 必须排除 | 版本数据、密钥和本机状态不应上传 |
 
-这些是默认建议，不是替用户决定。将私密目录、家庭/工作机密、未发布草稿和任何凭据类文件加入排除清单；没有明确的同步范围时暂停，不要监控整个 vault。
+路径允许不等于内容允许。先运行 fail-closed 预检；它只输出相对路径、计数与风险代码，不输出命中值：
+
+```bash
+python3 scripts/preflight_sync.py --vault <vault-path> \
+  --path-prefix '20_资料库/<精选分类>/<明确云端范围>'
+```
+
+缺少/非法 `sensitivity`、值为 `private/restricted`、疑似凭据/私有绝对路径、symlink 或无法分类的附件都会使 `ready=false`。版权和业务授权仍需人工复核。没有明确范围或无法保证未来新增文件遵守同一规则时暂停，不要开启监控。
 
 映射记录至少包含：
 
@@ -103,12 +111,13 @@ SOIA_PKM_BOOTSTRAP_VAULT_IMA_CONFIG_FILE=<custom-config-path>
 
 在 ima 的官方 Skills 能力中选择本地文件夹监控/知识库导入类能力，将上一步的本地 allowlist 目录映射到目标知识库。具体 Skill 名称、授权提示、监控开关、知识库选择和目录映射 UI **未经实测，必须以 ima 客户端实际界面为准，首次执行时校正本文档**；不要根据本 skill 猜测按钮或菜单路径。
 
-首次配置建议：
+首次配置硬门：
 
-1. 只选择一个不含私密数据的测试子目录。
-2. 先导入一篇 Markdown，再观察 ima 是否保留标题、正文、相对层级和可检索文本。
-3. 确认监控范围、目标知识库和同步方向后，才扩大到完整 allowlist。
-4. 若官方 Skills 在当前客户端不可用，记录版本和缺失能力并停止自动同步；不要擅自改用第三方 watcher 或自建反向同步。
+1. 运行预检并输出相对目录 allowlist、文件数、敏感级别分布与拒绝项；必须 `ready=true`，报告不得含正文或秘密值。
+2. 只选择一个已通过预检的测试子目录，不选择 `20_资料库/` 根目录。
+3. 先导入一篇 `sensitivity: public` 的 Markdown，再观察 ima 是否保留标题、正文、相对层级和可检索文本。
+4. 确认监控范围、目标知识库和同步方向后，才扩大到完整 allowlist；扩大时重新预检。
+5. 若官方 Skills 在当前客户端不可用，记录版本和缺失能力并停止自动同步；不要擅自改用第三方 watcher 或自建反向同步。
 
 ### 4. 验证检索
 
@@ -120,6 +129,7 @@ SOIA_PKM_BOOTSTRAP_VAULT_IMA_CONFIG_FILE=<custom-config-path>
 - 只允许 vault → ima 的同步约定；本 skill 不做 ima → vault 反向同步。
 - ima 中的摘要、标签、重排或 AI 生成内容不能自动覆盖本地正文。
 - 变更同步范围前先暂停监控并复核排除清单，尤其是 `.env`、私密目录、会话日志和未发布草稿。
+- 目录监控开启后，新增笔记也会进入云端范围；该目录的最近 `AGENTS.md` 必须明确只允许 `public/internal`，否则不启用持续监控。
 
 ## 完成后回执
 

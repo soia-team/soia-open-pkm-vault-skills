@@ -1,0 +1,44 @@
+filters:
+  and:
+    - file.hasTag("资料库")
+    - file.hasTag("长期知识")
+    - 'file.ext == "md"'
+    - or:
+        - file.inFolder("20_资料库/10_主题知识")
+        - file.inFolder("20_资料库/20_规范与手册")
+        - file.inFolder("20_资料库/30_学习指南")
+properties:
+  title:
+    displayName: 标题
+  type:
+    displayName: 类型
+  knowledge_state:
+    displayName: 知识状态
+  sensitivity:
+    displayName: 敏感级别
+  source:
+    displayName: 来源
+  updated:
+    displayName: 更新
+  review_after:
+    displayName: 复核日期
+views:
+  - type: table
+    name: 全部长期知识
+    order: [title, type, knowledge_state, sensitivity, source, updated, review_after]
+    sort:
+      - property: updated
+        direction: DESC
+  - type: table
+    name: 待复核
+    filters:
+      and:
+        - note.knowledge_state == "needs_review"
+    order: [title, type, sensitivity, source, updated, review_after]
+  - type: table
+    name: 本地敏感知识
+    filters:
+      or:
+        - note.sensitivity == "private"
+        - note.sensitivity == "restricted"
+    order: [title, type, knowledge_state, sensitivity, updated]

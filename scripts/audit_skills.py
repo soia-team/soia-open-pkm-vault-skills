@@ -43,9 +43,7 @@ GRANDFATHER_MISSING_PRIVATE_DATA_SECTION = frozenset(
         "soia-dev-terminal-ops",
         "soia-pkm-alipan-drive-ops",
         "soia-pkm-baidu-netdisk-ops",
-        "soia-pkm-bootstrap-vault-base",
         "soia-pkm-bootstrap-vault-ima",
-        "soia-pkm-bootstrap-vault-obsidian",
         "soia-pkm-clip-drive",
         "soia-pkm-clip-github-repo",
         "soia-pkm-clip-rednote",
@@ -59,7 +57,6 @@ GRANDFATHER_MISSING_PRIVATE_DATA_SECTION = frozenset(
         "soia-pkm-interpret-article-analysis",
         "soia-pkm-library-book-catalog",
         "soia-pkm-library-weread-sync",
-        "soia-pkm-maintain",
         "soia-pkm-organize-article-moc",
         "soia-pkm-publish-rednote-card",
         "soia-pkm-publish-wechat-draft",
@@ -73,7 +70,6 @@ GRANDFATHER_MISSING_PRIVATE_DATA_SECTION = frozenset(
         "soia-pkm-translate-article-zh",
     }
 )
-SEGMENT_EXEMPT = {"soia-pkm-maintain"}
 DEPENDENCY_KEYS = {"hard", "optional", "external"}
 MAX_SKILL_LINES = 500
 DISALLOWED_SKILL_DOCS = {
@@ -259,21 +255,13 @@ def audit_skill_name(root: Path, skill_dir: Path, findings: list[Finding]) -> No
         return
     parts = name.split("-")
     if not 4 <= len(parts) <= 6:
-        if name in SEGMENT_EXEMPT:
-            findings.append(
-                grandfather_warning(
-                    rel(skill_dir, root),
-                    f"segment-count exemption: {name!r} has {len(parts)} segments; required range is 4-6",
-                )
+        findings.append(
+            Finding(
+                "ERROR",
+                rel(skill_dir, root),
+                f"skill name must have 4-6 kebab-case segments; found {len(parts)}: {name!r}",
             )
-        else:
-            findings.append(
-                Finding(
-                    "ERROR",
-                    rel(skill_dir, root),
-                    f"skill name must have 4-6 kebab-case segments; found {len(parts)}: {name!r}",
-                )
-            )
+        )
     domain = parts[1]
     if domain not in VALID_DOMAINS:
         findings.append(Finding("ERROR", rel(skill_dir, root),

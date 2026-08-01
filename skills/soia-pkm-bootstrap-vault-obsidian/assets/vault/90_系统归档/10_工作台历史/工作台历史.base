@@ -1,0 +1,19 @@
+filters:
+  and:
+    - file.hasTag("工作台归档")
+properties:
+  file.name:
+    displayName: 文档
+  project:
+    displayName: 原项目
+  archived:
+    displayName: 归档日期
+  archive_reason:
+    displayName: 归档原因
+views:
+  - type: table
+    name: 全部历史
+    order: [file.name, project, archived, archive_reason]
+    sort:
+      - property: archived
+        direction: DESC

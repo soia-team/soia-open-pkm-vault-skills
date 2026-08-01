@@ -1,0 +1,7 @@
+env:
+  OBSIDIAN_VAULT: "<vault-path>"
+  SOIA_LINT_TAGS: "<comma-separated-primary-tags>"
+  SOIA_LINT_TAGS_ADD: "<additional-primary-tag>"
+  SOIA_LINT_EXCLUDE: "<comma-separated-vault-relative-paths>"
+  SOIA_LINT_EXCLUDE_ADD: "<vault-relative-path-to-skip>"
+  SOIA_VAULT_MAP_OUTPUT: "<vault-path>/20_资料库/OB知识库地图.md"

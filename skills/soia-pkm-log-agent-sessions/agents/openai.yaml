@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Session Logs"
+  short_description: "安全接入最小化 AI 会话改动快照，不保存完整对话"
+  default_prompt: "Use $soia-pkm-log-agent-sessions to preview a safe session-log integration for this vault; do not change my agent config until I approve."

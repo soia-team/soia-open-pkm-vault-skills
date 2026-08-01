@@ -6,13 +6,13 @@
 
 **别再收藏吃灰——把散落资料变成能用的知识资产**
 
-本地 Markdown，不锁平台；26 个技能串起完整知识生命周期
+本地 Markdown，不锁平台；30 个技能串起完整知识生命周期
 
 [English](README.en.md) · 中文 · [全生态门户](https://github.com/soia-team/soia-open-skills)
 
 <p align="center">
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
-  <img alt="skills" src="https://img.shields.io/badge/技能-26-brightgreen">
+  <img alt="skills" src="https://img.shields.io/badge/技能-30-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/宿主-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
   <img alt="always-on cost" src="https://img.shields.io/badge/常驻-~2.8k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
@@ -32,10 +32,10 @@ flowchart LR
     B --> C["整理<br/>元数据 · 双链 · MOC"]
     C --> D["提炼<br/>解读 · 观点 · 翻译"]
     D --> E["转换<br/>PPTX · 长图 · PDF · 播客"]
-    C -.定期.-> F["维护<br/>体检 · 全库地图"]
+    C -.定期.-> F["健康巡检<br/>死链 · 标签 · 全库地图"]
 ```
 
-## 26 个技能
+## 30 个技能
 
 ### 01 建库与维护　`需求与规范 → 本地知识库结构与标准体系`
 
@@ -44,7 +44,10 @@ flowchart LR
 | [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | 初始化中立 Markdown vault 骨架与 PKM 闭环 | ✅ |
 | [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | 把已有 vault 配成 Obsidian 消费端 | ✅ |
 | [`soia-pkm-bootstrap-vault-ima`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-ima.md) | 把已有 vault 接入腾讯 ima | 🟡 |
-| [`soia-pkm-maintain`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain.md) | 健康体检、全库地图与 AI 会话日志 | ✅ |
+| [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | 只读健康检查、全库地图与周简报 | ✅ |
+| [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | 工作台、Inbox、证据与归档生命周期 | ✅ |
+| [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | 最小化 AI 会话改动快照 | ✅ |
+| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | 只读检索当前状态、稳定知识与历史证据 | ✅ |
 
 ### 02 多源采集　`链接 · 账号 · 文件 → 结构化原始素材入库`
 
@@ -77,6 +80,7 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-interpret-article-analysis`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-interpret-article-analysis.md) | 为长文生成独立 AI 解读，帮你判断值不值得深挖 | ✅ |
 | [`soia-pkm-distill-article-opinion`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-distill-article-opinion.md) | 苏格拉底式逐问，把你自己的观点问出来 | ✅ |
+| [`soia-pkm-extract-vault-knowledge`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-extract-vault-knowledge.md) | 保留来源，从报告、日志与历史语料提炼长期知识 | ✅ |
 | [`soia-pkm-translate-article-zh`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-translate-article-zh.md) | 外文文章三档翻译，不覆盖原文 | ✅ |
 
 ### 05 内容转换　`整理后的知识 → 可编辑 PPTX · 长图 · PDF · 学习材料`
@@ -92,7 +96,7 @@ flowchart LR
 
 ## 安装
 
-三个宿主任选，装整个领域插件即 26 个技能一次到位。
+三个宿主任选，装整个领域插件即 30 个技能一次到位。
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia
