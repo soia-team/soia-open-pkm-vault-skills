@@ -1,0 +1,39 @@
+filters:
+  and:
+    - file.hasTag("工作台")
+properties:
+  file.name:
+    displayName: 文档
+  title:
+    displayName: 标题
+  project:
+    displayName: 项目
+  type:
+    displayName: 类型
+  status:
+    displayName: 状态
+  priority:
+    displayName: 优先级
+  updated:
+    displayName: 更新
+views:
+  - type: table
+    name: 当前与待办
+    order: [title, project, type, status, priority, updated]
+    sort:
+      - property: priority
+        direction: ASC
+      - property: updated
+        direction: DESC
+  - type: table
+    name: 等待用户
+    filters:
+      and:
+        - note.status == "waiting_user"
+    order: [title, project, priority, updated]
+  - type: table
+    name: 阻塞
+    filters:
+      and:
+        - note.status == "blocked"
+    order: [title, project, priority, updated]

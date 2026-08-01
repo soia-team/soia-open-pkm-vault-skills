@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vault Lifecycle"
+  short_description: "先生成 manifest，再安全分流工作台、证据、知识与归档"
+  default_prompt: "Use $soia-pkm-manage-vault-lifecycle to plan this vault reorganization without deleting or moving anything until I confirm."

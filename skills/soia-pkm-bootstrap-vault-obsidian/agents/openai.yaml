@@ -1,4 +1,4 @@
 interface:
   display_name: "Obsidian Vault Setup"
-  short_description: "配置 Obsidian 消费端：启用 Bases、CSS snippets 和可选插件"
-  default_prompt: "Use soia-pkm-bootstrap-vault-obsidian: 配置这个 Markdown vault 的 Obsidian、Bases 和 CSS"
+  short_description: "先预览再安全合并 Bases、CSS 和可选 link format"
+  default_prompt: "Use $soia-pkm-bootstrap-vault-obsidian to preview a safe Obsidian configuration merge; preserve all existing settings and wait for my approval before applying."

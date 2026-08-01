@@ -1,0 +1,4 @@
+env:
+  OBSIDIAN_VAULT: "<vault-path>"
+  SOIA_SESSION_LOG_DIR: "30_日志与思考/20_Agent工作日志/10_自动快照"
+  SOIA_SESSION_STATE_DIR: "<optional-user-state-path>"

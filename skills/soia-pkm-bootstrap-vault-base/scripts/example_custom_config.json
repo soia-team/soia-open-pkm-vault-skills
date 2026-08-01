@@ -1,31 +1,15 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "extends_default": true,
   "directories": {
-    "remove": [
-      "30_日志与思考/20_Agent工作日志"
-    ],
-    "add": [
-      "30_日志与思考/20_会话日志"
-    ]
+    "add": ["20_资料库/自定义主题"]
   },
   "files": {
-    "remove": [
-      "30_日志与思考/AGENTS.md"
-    ],
     "add": [
       {
-        "path": "30_日志与思考/AGENTS.md",
-        "content": [
-          "# 30_日志与思考 · AGENTS.md",
-          "",
-          "本区按时间线记录日志、会议、决策与 AI 会话。",
-          "",
-          "- `10_日常所思/`：日常记录",
-          "- `20_会话日志/`：AI 会话日志（示例自定义目录）",
-          "- `30_对话纪要与决策/`：对话纪要与决策",
-          "- `40_周维护简报/`：周维护输出"
-        ]
+        "path": "20_资料库/自定义主题/AGENTS.md",
+        "mode": "create_only",
+        "content": "# 自定义主题规则\n\n先读根 AGENTS.md；本区只保存稳定知识。\n"
       }
     ]
   }

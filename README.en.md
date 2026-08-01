@@ -6,13 +6,13 @@
 
 **Stop hoarding links you never reopen — turn scattered material into usable knowledge**
 
-Local Markdown, no platform lock-in; 26 skills covering the full knowledge lifecycle
+Local Markdown, no platform lock-in; 30 skills covering the full knowledge lifecycle
 
 [中文](README.md) · English · [Ecosystem portal](https://github.com/soia-team/soia-open-skills)
 
 <p align="center">
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
-  <img alt="skills" src="https://img.shields.io/badge/skills-26-brightgreen">
+  <img alt="skills" src="https://img.shields.io/badge/skills-30-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/hosts-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
   <img alt="always-on cost" src="https://img.shields.io/badge/always--on-~2.8k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
@@ -32,10 +32,10 @@ flowchart LR
     B --> C["Organize<br/>metadata · backlinks · MOC"]
     C --> D["Distill<br/>interpretation · opinion · translation"]
     D --> E["Transform<br/>PPTX · long image · PDF · podcast"]
-    C -.periodic.-> F["Maintain<br/>health check · vault map"]
+    C -.periodic.-> F["Health audit<br/>links · tags · vault map"]
 ```
 
-## 26 skills
+## 30 skills
 
 ### 01 Build and maintain　`Requirements and conventions → local vault structure`
 
@@ -44,7 +44,10 @@ flowchart LR
 | [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | Initializes a neutral Markdown vault skeleton and the PKM loop | ✅ |
 | [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | Configures an existing vault as an Obsidian consumer | ✅ |
 | [`soia-pkm-bootstrap-vault-ima`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-ima.md) | Connects an existing vault to Tencent ima | 🟡 |
-| [`soia-pkm-maintain`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain.md) | Health checks, whole-vault map and AI session logs | ✅ |
+| [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | Read-only health checks, vault maps and weekly reports | ✅ |
+| [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | Workbench, Inbox, evidence and archive lifecycle | ✅ |
+| [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | Minimal AI session change snapshots | ✅ |
+| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | Read-only queries across current, stable and historical knowledge | ✅ |
 
 ### 02 Multi-source capture　`Links · accounts · files → structured material in the vault`
 
@@ -77,6 +80,7 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-interpret-article-analysis`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-interpret-article-analysis.md) | Produces a standalone AI interpretation so you can judge whether to read closely | ✅ |
 | [`soia-pkm-distill-article-opinion`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-distill-article-opinion.md) | Socratic questioning until *you* articulate your own take | ✅ |
+| [`soia-pkm-extract-vault-knowledge`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-extract-vault-knowledge.md) | Preserves sources while extracting stable knowledge from reports, logs and legacy material | ✅ |
 | [`soia-pkm-translate-article-zh`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-translate-article-zh.md) | Three-tier translation of foreign articles; never overwrites the original | ✅ |
 
 ### 05 Transformation　`Organized knowledge → PPTX · long image · PDF · study material`
@@ -92,7 +96,7 @@ flowchart LR
 
 ## Install
 
-Any of three hosts. Installing the domain plugin brings all 26 skills at once.
+Any of three hosts. Installing the domain plugin brings all 30 skills at once.
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia

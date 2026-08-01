@@ -1,0 +1,10 @@
+/* wide-page: expand Markdown content and tables without changing note frontmatter */
+body {
+  --file-line-width: 100% !important;
+  --max-width: 100% !important;
+  --line-width: 100% !important;
+}
+.markdown-preview-view table,
+.markdown-rendered table {
+  width: 100% !important;
+}

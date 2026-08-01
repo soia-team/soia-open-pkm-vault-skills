@@ -1,0 +1,101 @@
+---
+name: soia-pkm-extract-vault-knowledge
+description: 从工作台、冻结证据、文章、项目研究或历史导入语料中提炼去状态、可复用且带来源的长期知识，同时保留原始证据并隔离敏感信息。触发：「提炼到资料库」「沉淀长期知识」「整理 20 区」「从这份报告抽方法」
+dependencies:
+  hard: [soia-pkm-query-vault]
+  optional: [soia-pkm-manage-vault-lifecycle, soia-pkm-maintain-vault-health]
+version: 1.0.0
+created_at: 2026-08-01 16:30:00
+updated_at: 2026-08-01 16:30:00
+created_by: gpt-5
+updated_by: gpt-5
+---
+
+# soia-pkm-extract-vault-knowledge
+
+把带时间、任务状态或来源噪声的材料提炼成 20 区长期知识。新建知识，不搬走证据；原始报告、文章、日志和历史导入语料继续留在各自证据层。
+
+## 客户可读说明
+
+### 这个技能可以做什么
+
+- 先查重，再从一个或多个来源提炼概念、指南、参考、检查表或通用模式。
+- 删除当前进度、责任人、下一步和一次性环境值，保留适用边界、反例、时效说明与来源 wikilink。
+- 在写入前识别账号、密码、token、cookie、个人路径、客户数据等敏感内容；知识笔记只保留抽象方法，不复制秘密值。
+- 盘点 20 区时区分“精选长期知识”和“历史导入/来源语料”，不把旧语料的目录位置当成可信度。
+
+### 客户如何使用
+
+提供 vault 路径以及来源笔记、主题或待整理的 20 区范围。Agent 先给候选与去向；单篇且目标明确时可直接 create-only，新建超过 3 篇、存在重名或涉及敏感内容时必须先确认逐项计划。
+
+### 依赖与安装
+
+需要 soia-pkm-query-vault 做查重与来源定位。移动误放文件时转 soia-pkm-manage-vault-lifecycle；完成后可用 soia-pkm-maintain-vault-health 检查链接和地图。推荐安装整个 soia-pkm-vault@soia 插件。
+
+### 私密信息与中间数据
+
+默认不把历史导入语料的正文片段写进终端或会话日志；先用路径过滤和 --no-snippets 找候选，再只读必要文件。不得把凭据、真实账号、私有绝对路径、客户身份或家庭信息复制到知识笔记、manifest 或公开 skill 仓库。
+
+### 日志与完成回执
+
+回执包含：来源、来源 SHA-256、查重结果、创建/跳过文件、剥离的状态类别、敏感信息处理、来源是否保留、链接验证和待人工判断项。
+
+## 执行流程
+
+1. 读取根 AGENTS.md、来源区与 20_资料库/AGENTS.md。
+2. 用查询技能先查目标标题、主题和反向链接；精选区优先，历史语料只作来源。
+3. 把候选分成：
+   - extract：有可复用结论，创建新的长期知识；
+   - move：内容本身稳定，只是路径错，转生命周期技能；
+   - evidence_only：只有时间线、任务状态或个人经历，保留证据；
+   - needs_review：重名、冲突、过时或含敏感信息。
+4. 对 extract 写计划：来源路径与 SHA-256、目标路径、知识类型、拟保留结论、拟删除状态、敏感级别、重复候选和来源链接。用脚本生成 create-only manifest：
+
+   ```bash
+   python3 scripts/knowledge_manifest.py plan --vault <vault-path> \
+     --manifest <vault-relative-manifest.json> \
+     --source <source.md> --target <20-target.md> \
+     --type guide --sensitivity internal
+   ```
+
+5. 检查 `ready_to_write` 并让客户确认；create-only 写入目标。目标已存在时停止并比较，不覆盖、不生成“最终版/新版”副本。
+6. 用脚本验证来源未漂移、目标 schema、精确来源 wikilink、开放项、私有绝对路径和秘密值候选，再按授权更新 Base 或地图：
+
+   ```bash
+   python3 scripts/knowledge_manifest.py verify --vault <vault-path> \
+     --manifest <vault-relative-manifest.json>
+   ```
+
+详细判定和字段合同见 [references/knowledge-contract.md](references/knowledge-contract.md)。
+
+## 内容合同
+
+长期知识正文至少回答：
+
+- 结论或方法是什么；
+- 适用于什么条件，不适用于什么；
+- 依据来自哪里，哪些内容仍待核验；
+- 如何执行或复用；
+- 常见失败方式、风险或时效性。
+
+不要复制整份报告，不保留 owner/status/priority/next_action，不要把旧命令、端口、产品版本或组织事实写成永恒结论。
+
+## 与其他技能的边界
+
+| 意图 | 负责技能 |
+|---|---|
+| 查找已有知识或来源 | soia-pkm-query-vault |
+| 新建来源保留的长期知识 | 本技能 |
+| 移动 Inbox、误放笔记或历史文件 | soia-pkm-manage-vault-lifecycle |
+| 死链、重复名、地图和周健康 | soia-pkm-maintain-vault-health |
+| 文章主题/MOC 整理 | soia-pkm-organize-article-moc |
+
+不得用 move 把 30 区冻结证据迁到 20；应保留 30 原件并新建 20 区提炼稿。
+
+## 验收
+
+- 来源保留且 SHA-256 与计划一致。
+- 目标是新文件，frontmatter 完整，首标签为 资料库，含 长期知识 与来源 wikilink。
+- 正文没有当前任务状态、开放待办或可识别秘密值。
+- 同主题已有笔记已合并或明确说明为何并存。
+- 自动 fixture 前向测试“30 区审计 → 20 区指南”：原证据不变、目标新建、目标冲突和来源漂移均停止。
