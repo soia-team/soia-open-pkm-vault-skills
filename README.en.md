@@ -47,7 +47,7 @@ flowchart LR
 | [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | Read-only health checks, vault maps and weekly reports | ✅ |
 | [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | Workbench, Inbox, evidence and archive lifecycle | ✅ |
 | [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | Minimal AI session change snapshots | ✅ |
-| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | Read-only queries across current, stable and historical knowledge | ✅ |
+| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | Read-only search across Markdown, requirements and code with current/stable/historical source ranking | ✅ |
 
 ### 02 Multi-source capture　`Links · accounts · files → structured material in the vault`
 
