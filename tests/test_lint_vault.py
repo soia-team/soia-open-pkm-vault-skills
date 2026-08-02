@@ -15,6 +15,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 from lint_vault import (  # noqa: E402
     DEFAULT_EXCLUDE,
     check_dead_links,
+    check_20_structure,
     clean_wikilink_target,
     collect_all_files,
     collect_md_files,
@@ -162,6 +163,20 @@ class LintConfigurationTests(unittest.TestCase):
             payload = self.run_lint(vault)
             dead = {(item["file"], item["target"]) for item in payload["dead_links"]}
             self.assertEqual(dead, {("system/broken.md", "../articles/2026/post")})
+
+    def test_20_structure_reports_semantic_numbering_but_skips_resources_and_dates(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "20_资料库/10_主题知识/未编号").mkdir(parents=True)
+            (vault / "20_资料库/10_主题知识/10_重复甲").mkdir()
+            (vault / "20_资料库/10_主题知识/10_重复乙").mkdir()
+            (vault / "20_资料库/10_主题知识/_resources/任意层").mkdir(parents=True)
+            (vault / "20_资料库/10_主题知识/2024/12月").mkdir(parents=True)
+            payload = check_20_structure(str(vault))
+            self.assertEqual(payload["unexpected_roots"], [])
+            self.assertEqual(payload["unnumbered"], ["20_资料库/10_主题知识/未编号"])
+            self.assertEqual(len(payload["duplicate_prefixes"]), 1)
+            self.assertFalse(payload["legacy_10_融合分类"])
 
 
 if __name__ == "__main__":

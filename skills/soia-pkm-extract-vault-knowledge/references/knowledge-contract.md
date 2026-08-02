@@ -50,3 +50,7 @@
 - source 指向真实文件；
 - 无开放 checkbox、当前 owner/priority/next action；
 - 不出现真实密码、token、cookie、私有绝对路径或身份信息。
+
+## 写入后的索引同步
+
+目标在 `20_资料库/` 时，新建文件本身就是索引变化，不能只验证知识稿而不更新地图。写入后重建 `20_资料库/OB知识库地图.md`；再对目标模块所属的 `.base` 运行 `vault_index_verify.py`，核对 `file.inFolder` 根路径和地图统计。`.base` 使用递归范围时不为每篇新笔记手工追加列表。没有 Base 的 vault 要在回执中明确记录未配置。

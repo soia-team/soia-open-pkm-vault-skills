@@ -1,4 +1,4 @@
 interface:
   display_name: "Vault Health"
-  short_description: "只读检查 vault 健康，并按授权重建地图或周报"
-  default_prompt: "Use $soia-pkm-maintain-vault-health to audit this vault without changing notes, then summarize structural risks."
+  short_description: "只读检查整个知识库或指定模块，并按授权重建地图或周报"
+  default_prompt: "Use $soia-pkm-maintain-vault-health to audit the whole knowledge base or selected module without changing notes, then summarize structural risks."

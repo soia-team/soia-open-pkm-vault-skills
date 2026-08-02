@@ -9,9 +9,9 @@ dependencies:
     - name: huashu-weread-advisor
       required: false
       install: "npx skills add alchaincyf/huashu-weread -g -y"
-version: 2.2.0
+version: 2.2.1
 created_at: 2026-07-02 16:45:19
-updated_at: 2026-08-01 12:00:00
+updated_at: 2026-08-02 15:20:00
 created_by: claude opus 4.6
 updated_by: gpt-5
 ---
@@ -24,7 +24,7 @@ updated_by: gpt-5
 
 ### 这个技能可以做什么
 
-- 创建 00/10/20/30/40/50/60/90 分区、下钻 `AGENTS.md`、工作台 Schema v2、长期知识 Schema 与对应模板。
+- 创建 00/10/20/30/40/50/60/90 分区、下钻 `AGENTS.md`、工作台 Schema v2、长期知识 Schema 与对应模板；20 区精选目录固定为 `10_主题知识`、`20_规范与手册`、`30_学习指南`，历史导入使用 `90_历史导入`。
 - 建立 `AGENTS.md` 唯一规则源及 Claude/Gemini/opencode/workbuddy 适配层。
 - 支持 JSON/YAML 自定义、默认 plan、显式 `--apply`、create-only 幂等和 `--check`。
 - 不创建 `.obsidian`、不安装插件、不配置 hook、不删除或覆盖现有文件。
@@ -73,6 +73,7 @@ python3 scripts/init_vault.py --print-default-config
 - 一次性调研/审计/决策/执行/验收冻结到 30。
 - 去状态后仍可复用的知识以“来源保留、create-only 提炼”进入 20 的主题知识、规范手册或学习指南；历史导入语料不自动视为精选知识。
 - 已结束或被取代的工作台材料移到 `90_系统归档/10_工作台历史`。
+- 20 区历史导入目标为 `90_历史导入/`；其一级分类采用 `10_保险`、`20_读书`、`30_工作`、`40_技术`、`50_日记`、`60_生活`、`70_写作`、`80_学习`、`90_资源`。已有旧 `10_融合分类/` 只能通过生命周期 manifest 迁移，不得初始化时裸改名。
 - Agent 日志分为 `10_自动快照 / 20_精选复盘 / 90_历史导入`，默认不存完整聊天。
 
 默认配置和种子资产是一个可修改的起点，不声称数字分区适合所有客户。若客户已有 `AGENTS.md` 或不同分区，先读取并用自定义 config 扩展；create-only 会保留现有规则。
@@ -83,10 +84,10 @@ python3 scripts/init_vault.py --print-default-config
 {
   "schema_version": 2,
   "extends_default": true,
-  "directories": {"add": ["20_资料库/主题"], "remove": []},
+  "directories": {"add": ["20_资料库/10_主题知识/40_扩展主题"], "remove": []},
   "files": {
     "add": [
-      {"path": "20_资料库/主题/AGENTS.md", "mode": "create_only", "content": "# 规则\n"}
+      {"path": "20_资料库/10_主题知识/40_扩展主题/AGENTS.md", "mode": "create_only", "content": "# 规则\n"}
     ]
   }
 }
@@ -94,6 +95,7 @@ python3 scripts/init_vault.py --print-default-config
 
 - 所有目标必须是 vault 相对路径；绝对路径、`..` 和 symlink 逃逸立即失败。
 - `mode: create_only`：存在即跳过；`managed`：check 时报告内容漂移，但仍不自动覆盖。
+- 自定义配置新增 `20_资料库/` 语义目录时必须使用唯一数字前缀；不要用 `20_资料库/主题` 这类无编号路径。已有目录改名应转生命周期 manifest，并在完成后刷新地图、验证 Base。
 - CLI > custom config > bundled defaults。配置扩展不要求改公开脚本。
 - schema v1 仍可读取一个兼容周期，并在合并后按 v2 行为执行。
 
@@ -104,6 +106,7 @@ python3 scripts/init_vault.py --print-default-config
 - 工作台/Inbox/归档迁移 → `soia-pkm-manage-vault-lifecycle`。
 - 会话日志 hook → `soia-pkm-log-agent-sessions`（改用户配置前必须确认）。
 - 只读搜索/回答 → `soia-pkm-query-vault`。
+- PDF、Word、表格等附件提取后再检索 → `soia-pkm-clip-drive` → `soia-pkm-query-vault`；图片正文需要显式 OCR，不能把文件名命中当正文。
 - 从日志、报告或历史语料提炼长期知识 → `soia-pkm-extract-vault-knowledge`。
 
 ## 验收

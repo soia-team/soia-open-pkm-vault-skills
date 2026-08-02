@@ -1,0 +1,4 @@
+interface:
+  display_name: "PKM Clip X Profile"
+  short_description: "检索并研究公开 X 账号，按条件输出摘要或 image Prompt Deck"
+  default_prompt: "Use soia-pkm-clip-x-profile to research a bounded public X profile window, filter by time/topic/evidence conditions, and produce a summary or explicitly route selected posts to soia-media-generate-article-image."

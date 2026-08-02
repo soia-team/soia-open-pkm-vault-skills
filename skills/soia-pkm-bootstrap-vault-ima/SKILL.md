@@ -3,9 +3,9 @@ name: soia-pkm-bootstrap-vault-ima
 description: 把已有本地 Markdown vault 接入腾讯 ima 知识库消费端：安装客户端、建立目录映射、用 ima 官方 Skills 配置本地文件夹监控同步并验证检索。Triggers：「接入 ima」「同步到 ima 知识库」「配置 ima」「让 ima 监控 vault」
 dependencies:
   hard: [soia-pkm-bootstrap-vault-base, soia-pkm-query-vault]
-version: 1.1.0
+version: 1.1.1
 created_at: 2026-07-16 16:00:31
-updated_at: 2026-08-01 16:30:00
+updated_at: 2026-08-02 15:20:00
 created_by: gpt-5.6-luna
 updated_by: gpt-5
 ---
@@ -83,7 +83,7 @@ SOIA_PKM_BOOTSTRAP_VAULT_IMA_CONFIG_FILE=<custom-config-path>
 | vault 相对目录/类别 | 默认建议 | 原因 |
 |---|---|---|
 | `20_资料库/<精选子目录>/<明确云端范围>/` | 条件同步 | 目录内每篇 Markdown 都有 `sensitivity: public` 或 `internal`，且用户确认可上传 |
-| `20_资料库/`、`20_资料库/10_融合分类/`、其他历史导入目录 | 禁止 | 根范围过宽；导入语料可能含凭据、个人路径和未核验内容 |
+| `20_资料库/`、`20_资料库/90_历史导入/`、其他历史导入目录 | 禁止 | 根范围过宽；导入语料可能含凭据、个人路径和未核验内容 |
 | `40_图书视频馆/` | 默认排除 | 可能含个人阅读记录、家庭信息或受版权约束的原文 |
 | 已确认可上传的发布留底子目录 | 可选同步 | 只同步用户明确选择且完成隐私/版权复核的内容 |
 | `00_Obsidian系统/`、`.obsidian/` | 排除 | 平台配置不是知识正文 |
