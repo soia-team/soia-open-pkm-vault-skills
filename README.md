@@ -6,13 +6,13 @@
 
 **别再收藏吃灰——把散落资料变成能用的知识资产**
 
-本地 Markdown，不锁平台；30 个技能串起完整知识生命周期
+本地 Markdown，不锁平台；31 个技能串起完整知识生命周期
 
 [English](README.en.md) · 中文 · [全生态门户](https://github.com/soia-team/soia-open-skills)
 
 <p align="center">
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
-  <img alt="skills" src="https://img.shields.io/badge/技能-30-brightgreen">
+  <img alt="skills" src="https://img.shields.io/badge/技能-31-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/宿主-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
   <img alt="always-on cost" src="https://img.shields.io/badge/常驻-~2.8k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
@@ -35,7 +35,7 @@ flowchart LR
     C -.定期.-> F["健康巡检<br/>死链 · 标签 · 全库地图"]
 ```
 
-## 30 个技能
+## 31 个技能
 
 ### 01 建库与维护　`需求与规范 → 本地知识库结构与标准体系`
 
@@ -47,7 +47,7 @@ flowchart LR
 | [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | 只读健康检查、全库地图与周简报 | ✅ |
 | [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | 工作台、Inbox、证据与归档生命周期 | ✅ |
 | [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | 最小化 AI 会话改动快照 | ✅ |
-| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | 只读检索 Markdown、需求与代码，并区分当前状态、稳定知识与历史证据 | ✅ |
+| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | 只读检索 Markdown、需求、代码与附件；区分当前状态、稳定知识、历史证据及文件名/提取正文命中 | ✅ |
 
 ### 02 多源采集　`链接 · 账号 · 文件 → 结构化原始素材入库`
 
@@ -57,10 +57,11 @@ flowchart LR
 | [`soia-pkm-clip-wechat-article`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-article.md) | 归档单篇公众号文章 | ✅ |
 | [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | 批量归档自己公众号的已发文章 | 🟡 |
 | [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | 归档 X 推文、thread 或 Article | 🟡 |
+| [`soia-pkm-clip-x-profile`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x-profile.md) | 研究公开 X 账号，按时间/关键词/主题/媒体条件筛选，输出摘要或按需转换为 image Prompt Deck | 🟡 |
 | [`soia-pkm-clip-rednote`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-rednote.md) | 归档小红书图文或视频笔记 | ✅ |
 | [`soia-pkm-clip-douyin`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-douyin.md) | 归档抖音视频并保留媒体索引 | ✅ |
 | [`soia-pkm-clip-github-repo`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-github-repo.md) | 把 GitHub 仓库归档为项目卡与调研笔记 | ✅ |
-| [`soia-pkm-clip-drive`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-drive.md) | 批量导入云盘或本地的 PDF / Word 存量资料 | ✅ |
+| [`soia-pkm-clip-drive`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-drive.md) | 批量导入云盘或本地的 PDF / Word / 表格 / 演示文稿；图片需显式 OCR | ✅ |
 | [`soia-pkm-alipan-curator`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-curator.md) | 规划整理阿里云盘资源，产出馆藏索引 | 🟡 |
 | [`soia-pkm-alipan-drive-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-drive-ops.md) | 阿里云盘登录、浏览与文件操作 | 🟡 |
 | [`soia-pkm-baidu-netdisk-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-baidu-netdisk-ops.md) | 百度网盘原子操作与只读扫描 | 🟡 |
@@ -96,7 +97,7 @@ flowchart LR
 
 ## 安装
 
-三个宿主任选，装整个领域插件即 30 个技能一次到位。
+三个宿主任选，装整个领域插件即 31 个技能一次到位。
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia

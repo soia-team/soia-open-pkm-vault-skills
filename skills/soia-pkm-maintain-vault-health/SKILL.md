@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-maintain-vault-health
-description: 只读审计 Markdown/Obsidian vault 的死链、歧义文件名、标签策略与过期内容，并按授权重建知识库地图或周健康简报。触发：「vault 周维护」「检查知识库健康」「重建全库地图」
+description: 只读检查整个 Markdown/Obsidian 知识库或指定模块的健康状态，审计死链、歧义文件名、标签策略与过期内容，并按授权重建地图或健康简报。触发：「检查知识库健康」「检查知识库某个模块」「维护知识库」「重建知识库地图」「vault 周维护」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.1.0
+version: 1.1.1
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-01 12:00:00
+updated_at: 2026-08-02 09:50:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -20,7 +20,7 @@ updated_by: gpt-5
 
 | 客户目标 | 技能行为 | 默认是否写文件 |
 |---|---|---|
-| 检查 vault 健康 | 扫描死链、重复文件名、主标签漂移、未打标、过期文章与读取失败 | 否 |
+| 检查 vault 健康 | 扫描死链、重复文件名、主标签漂移、未打标、过期文章、读取失败，并报告 20 区目录编号漂移 | 否 |
 | 重建知识库地图 | 先生成临时预览；用户明确要求后覆盖配置的地图文件 | 预览否，确认后是 |
 | vault 周维护 | 运行健康检查，汇总近 7 天变化；按授权写周简报 | 默认否 |
 
@@ -66,6 +66,10 @@ python3 scripts/lint_vault.py --vault <vault-path> --json \
 
 能唯一对应的拼写错误可在用户要求修复时单独列 plan；有多个候选、语义归类或删除需求时只报告。
 
+### 20 区结构检查
+
+健康回执必须额外报告：精选一级目录是否只有 `10_主题知识`、`20_规范与手册`、`30_学习指南`；是否仍存在 legacy `10_融合分类`；历史导入一级分类是否使用 `10_保险`、`20_读书`、`30_工作`、`40_技术`、`50_日记`、`60_生活`、`70_写作`、`80_学习`、`90_资源`。发现重复 `10_` 或无编号分类时只生成整改清单，不在健康检查中自动改名。
+
 ## 工作流 B：重建地图
 
 先预览：
@@ -87,6 +91,7 @@ python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-previe
 ## 边界
 
 - 不删除、移动、改名或归档笔记。
+- 不把 PDF/Word/图片附件当作可直接读取的 Markdown；附件正文完整性转 `soia-pkm-clip-drive` 或显式 OCR 流程核验。
 - 不接入 Claude/Codex 会话日志；转 `soia-pkm-log-agent-sessions`。
 - 不回答“知识库里关于 X 有什么”；转 `soia-pkm-query-vault`。
 - 不使用个人 vault 的标签表作为公开默认；标签策略由客户配置。

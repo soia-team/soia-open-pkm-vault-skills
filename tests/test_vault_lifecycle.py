@@ -45,6 +45,27 @@ class VaultLifecycleTests(unittest.TestCase):
             applied = self.run_cmd(vault, "apply", "--manifest", manifest, check=False)
             self.assertNotEqual(applied.returncode, 0)
 
+    def test_explicit_flags_allow_historical_items_and_preserve_unknown_status(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "note.md").write_text(
+                "---\nstatus: public\n---\n- [ ] historical item\n", encoding="utf-8"
+            )
+            result = self.run_cmd(
+                vault,
+                "plan",
+                "--manifest", "manifest.json",
+                "--move", "note.md::archive/note.md",
+                "--allow-open-items",
+                "--allow-unknown-status",
+            )
+            payload = json.loads(result.stdout)
+            manifest = json.loads((vault / "manifest.json").read_text(encoding="utf-8"))
+            self.assertTrue(payload["ready_to_apply"])
+            self.assertEqual(manifest["actions"][0]["status"], "public")
+            self.assertEqual(manifest["actions"][0]["open_items"], 1)
+            self.assertEqual(manifest["actions"][0]["blockers"], [])
+
     def test_conflict_and_path_escape_fail(self):
         with tempfile.TemporaryDirectory() as temporary:
             vault = Path(temporary)
@@ -124,6 +145,117 @@ class VaultLifecycleTests(unittest.TestCase):
             )
             data = json.loads((vault / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(data["actions"][0]["incoming_refs"], ["exact.md", "short.md"])
+
+    def test_plan_reads_moves_file_with_single_reference_index_and_batch_summary(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "source/alpha").mkdir(parents=True)
+            (vault / "source/beta").mkdir(parents=True)
+            (vault / "source/alpha/a.md").write_text("# a\n", encoding="utf-8")
+            (vault / "source/beta/b.md").write_text("# b\n", encoding="utf-8")
+            (vault / "refs.md").write_text(
+                "[[source/alpha/a]]\n[[source/beta/b]]\n", encoding="utf-8"
+            )
+            moves_file = vault / "moves.txt"
+            moves_file.write_text(
+                "# bulk plan\n"
+                "source/alpha/a.md::archive/10_alpha/a.md\n"
+                "\n"
+                "source/beta/b.md::archive/20_beta/b.md\n",
+                encoding="utf-8",
+            )
+
+            result = self.run_cmd(
+                vault,
+                "plan",
+                "--manifest", "manifest.json",
+                "--moves-file", str(moves_file),
+            )
+            payload = json.loads(result.stdout)
+            data = json.loads((vault / "manifest.json").read_text(encoding="utf-8"))
+
+            self.assertTrue(payload["ready_to_apply"])
+            self.assertEqual(data["plan_type"], "moves-file")
+            self.assertEqual(data["summary"]["actions"], 2)
+            self.assertEqual(data["summary"]["reference_scan"]["markdown_files_scanned"], 3)
+            self.assertEqual(
+                [(batch["source"], batch["target"], batch["actions"])
+                 for batch in data["summary"]["batches"]],
+                [("alpha", "10_alpha", 1), ("beta", "20_beta", 1)],
+            )
+            self.assertEqual(data["actions"][0]["incoming_refs"], ["refs.md"])
+            self.assertEqual(data["actions"][1]["incoming_refs"], ["refs.md"])
+            self.assertTrue((vault / "source/alpha/a.md").is_file())
+            self.assertFalse((vault / "archive/10_alpha/a.md").exists())
+
+    def test_moves_file_preserves_trailing_spaces_in_paths(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            source = vault / "source/name .md"
+            source.parent.mkdir()
+            source.write_text("# source\n", encoding="utf-8")
+            moves_file = vault / "moves.txt"
+            moves_file.write_text(
+                "source/name .md::archive/name .md\n", encoding="utf-8"
+            )
+
+            self.run_cmd(
+                vault,
+                "plan",
+                "--manifest", "manifest.json",
+                "--moves-file", str(moves_file),
+            )
+            data = json.loads((vault / "manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(data["actions"][0]["source"], "source/name .md")
+            self.assertEqual(data["actions"][0]["target"], "archive/name .md")
+
+    def test_tree_plan_recursively_maps_files_without_applying(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "source/nested").mkdir(parents=True)
+            (vault / "source/a.md").write_text("# a\n", encoding="utf-8")
+            (vault / "source/nested/image.png").write_bytes(b"png")
+            (vault / "index.md").write_text("[[source/a]]\n", encoding="utf-8")
+
+            self.run_cmd(
+                vault,
+                "tree-plan",
+                "--manifest", "manifest.json",
+                "--source-root", "source",
+                "--target-root", "archive/imported",
+            )
+            data = json.loads((vault / "manifest.json").read_text(encoding="utf-8"))
+
+            self.assertEqual(data["plan_type"], "tree")
+            self.assertEqual(data["summary"]["actions"], 2)
+            self.assertEqual(data["summary"]["source_root"], "source")
+            self.assertEqual(data["summary"]["target_root"], "archive/imported")
+            self.assertEqual(
+                [(item["source"], item["target"]) for item in data["actions"]],
+                [
+                    ("source/a.md", "archive/imported/a.md"),
+                    ("source/nested/image.png", "archive/imported/nested/image.png"),
+                ],
+            )
+            self.assertTrue((vault / "source/a.md").is_file())
+            self.assertTrue((vault / "source/nested/image.png").is_file())
+            self.assertFalse((vault / "archive").exists())
+
+    def test_tree_plan_rejects_overlapping_roots(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "source").mkdir()
+            (vault / "source/a.md").write_text("a\n", encoding="utf-8")
+            result = self.run_cmd(
+                vault,
+                "tree-plan",
+                "--manifest", "manifest.json",
+                "--source-root", "source",
+                "--target-root", "source/archive",
+                check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse((vault / "manifest.json").exists())
 
 
 if __name__ == "__main__":

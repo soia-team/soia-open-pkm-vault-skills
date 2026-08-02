@@ -1,4 +1,4 @@
 interface:
   display_name: "Query Vault"
-  short_description: "只读搜索 vault、需求与代码，并区分当前、稳定、证据与历史来源"
-  default_prompt: "Use $soia-pkm-query-vault to search my vault for this question, requirement, or code symbol with cited paths, without changing any files."
+  short_description: "只读搜索整个知识库或指定模块，并区分当前、稳定、证据与历史来源"
+  default_prompt: "Use $soia-pkm-query-vault to search the whole knowledge base or selected module for this question. Distinguish filename hits from extracted/OCR content hits, cite the source path, and never change files."

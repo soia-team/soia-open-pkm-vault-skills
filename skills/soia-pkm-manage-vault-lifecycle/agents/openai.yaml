@@ -1,4 +1,4 @@
 interface:
-  display_name: "Vault Lifecycle"
-  short_description: "先生成 manifest，再安全分流工作台、证据、知识与归档"
-  default_prompt: "Use $soia-pkm-manage-vault-lifecycle to plan this vault reorganization without deleting or moving anything until I confirm."
+  display_name: "知识库整理与治理"
+  short_description: "整理整个知识库或指定模块，先出清单再安全执行"
+  default_prompt: "Use $soia-pkm-manage-vault-lifecycle to plan this knowledge-base or selected-module reorganization; do not delete, rename, or move anything until I confirm the manifest."

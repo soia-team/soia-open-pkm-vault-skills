@@ -1,6 +1,6 @@
 ---
 name: soia-pkm-clip-drive
-description: 把云盘/本地的存量资料（PDF/Word/文档）批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理。Triggers：「导入云盘资料」「把这批 PDF 导进来」「clip 这个文档」「整理云盘」
+description: 把云盘/本地的存量资料（PDF/Word/表格/演示文稿/文档）批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理；图片正文需显式 OCR。Triggers：「导入云盘资料」「把这批 PDF 导进来」「clip 这个文档」「整理云盘」「OCR 这批图片」
 version: 1.0.1
 created_at: 2026-07-02 17:57:11
 updated_at: 2026-07-22 21:01:25
@@ -16,7 +16,7 @@ updated_by: gpt-5
 
 ### 这个技能可以做什么
 
-把云盘/本地的存量资料（PDF/Word/文档）批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理
+把云盘/本地的存量资料（PDF/Word/表格/演示文稿/文档）批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理。图片不能仅凭文件名当作正文，需用户明确要求并具备 OCR 后端。
 
 | 客户想要 | 技能会做 | 客户能看到 |
 |---|---|---|
@@ -83,8 +83,9 @@ SOIA_PKM_CLIP_DRIVE_CONFIG_FILE=<custom-config-path>
 
 ## 处理
 
-- 输入：文件路径 / 目录（PDF、DOCX、TXT、Markdown）
-- 提取：`pypdf` / `pdfplumber`（PDF）、`python-docx`（Word）提取文本；原文件留到 `_附件/`。
+- 输入：文件路径 / 目录（PDF、DOC/DOCX、PPT/PPTX、XLS/XLSX、TXT、Markdown；图片需显式 OCR）
+- 提取：PDF 用 `pypdf`/`pdfplumber` 或等价工具，DOCX 用 `python-docx` 或等价工具，Office 旧格式先转换；原文件留到 `_附件/`。图片 OCR 结果必须标记 `ocr`、工具和人工核对状态。
+- 输出给查询技能：提取稿保留 `source`、`original_path`、`source_sha256`、`extraction_method`；然后由 `soia-pkm-query-vault` 搜索提取稿，不直接解析二进制正文。
 - 大批量：目录批处理，每个文件 → 一篇笔记。
 - 提取与落地当前由 agent 按本节流程手工执行（专用批量导入脚本待补充到本 skill 的 `scripts/`）。
 

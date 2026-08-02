@@ -1,4 +1,4 @@
 interface:
   display_name: "提炼长期知识"
   short_description: "安全提炼可复用知识，同时保留原始证据、来源链接和审计边界"
-  default_prompt: "Use $soia-pkm-extract-vault-knowledge to extract reusable knowledge from these vault sources without moving or rewriting the evidence."
+  default_prompt: "Use $soia-pkm-extract-vault-knowledge to extract reusable knowledge from the whole knowledge base or selected sources without moving or rewriting the evidence."
