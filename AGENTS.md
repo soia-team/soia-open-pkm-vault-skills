@@ -52,3 +52,14 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g --all
 技能契约、调试安装、新增/改名/拆分/删除的完整流程，以及插件市场发布步骤，统一见
 元仓的 [CONTRIBUTING.md](https://github.com/soia-team/soia-open-skills/blob/main/CONTRIBUTING.md)。
 本文件只保留本仓特有的用途、边界与验证命令。
+
+## Git Workflow
+
+- `dev` is the default integration branch: open PRs against `dev`, wait for the
+  `audit` check, then merge. Do not push directly to `dev` or `main`.
+- `main` always equals the latest formal release and only accepts release PRs
+  from `dev`, driven by `soia-meta-skill-release`. Never open feature PRs
+  against `main`.
+- Plugin manifests on `dev` carry a `-SNAPSHOT` version naming the next release
+  target. Do not change manifest versions in feature PRs; versions move only in
+  release PRs.
