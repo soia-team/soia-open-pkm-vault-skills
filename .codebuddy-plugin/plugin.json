@@ -23,6 +23,7 @@
     "./skills/soia-pkm-clip-wechat-account",
     "./skills/soia-pkm-clip-wechat-article",
     "./skills/soia-pkm-clip-x",
+    "./skills/soia-pkm-clip-x-profile",
     "./skills/soia-pkm-distill-article-opinion",
     "./skills/soia-pkm-extract-vault-knowledge",
     "./skills/soia-pkm-interpret-article-analysis",
