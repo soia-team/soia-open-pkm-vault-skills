@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-manage-vault-lifecycle
 description: 规划并安全执行整个 Markdown/Obsidian 知识库，或知识库中指定模块的盘点、整理、改名、迁移、归档与清理。触发：「整理知识库」「整理知识库的某个模块」「治理资料库」「整理工作台/资料库/日志/归档」
-version: 1.3.1
+version: 1.4.0
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-02 09:35:00
+updated_at: 2026-08-02 10:05:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -89,7 +89,14 @@ manifest 可保存 vault 相对路径和哈希，不保存正文、凭据或环�
    ```
 
 8. 按 manifest 的 `incoming_refs` 精确修复路径 wikilink；不要改历史日志里的纯文本路径快照。
-9. 用健康技能复查死链与地图，把执行回执冻结到 30 区。
+9. 只要发生目录或文件路径变化，必须立即调用健康技能重建 [[20_资料库/OB知识库地图|OB知识库地图]]，再逐条验证目标区 `.base` 的 `file.inFolder` 范围；把地图统计、Base 范围和 lint 结果写入 30 区回执。没有“地图已重建 + Base 已验证”不能宣称完成。
+
+   ```bash
+   python3 scripts/vault_index_verify.py \
+     --vault <vault-path> \
+     --base '20_资料库/资料库.base' \
+     --map '20_资料库/OB知识库地图.md'
+   ```
 
 ## 结构整理与编号规范
 
@@ -121,10 +128,10 @@ python3 scripts/vault_structure_plan.py verify \
 结构规划器的固定规则：
 
 - 同一父目录下的语义目录使用唯一编号；优先 `10/20/.../90`，重复编号保留 `99_本地补录`，溢出使用 `98..91`，不再产生第二个相同数字前缀。
-- `1.主题`、`2.主题` 等旧样式规范化为 `10_主题`、`20_主题`；年份、月份、日期、`_resources`、`_image`、`images`、`attachments` 和隐藏目录是例外，不机械加编号。
+- `1.主题`、`2.主题` 等旧样式规范化为 `10_主题`、`20_主题`；所有知识语义目录（包括精选区二级/三级模块）都必须编号。只有年份、月份、日期、明确的 `_resources`、`_image`、`images`、`attachments` 等资源目录和隐藏插件状态目录是例外。
 - 只删除 manifest 中明确列出的 `.DS_Store`、无正文 Markdown 和最终为空的目录；无正文笔记一旦有入链就阻断计划，生成地图的自动入链不作为阻断依据。
 - 隐藏插件状态目录/文件（例如 `.metion`、`.icon.png`）随所属语义目录一起移动，不单独编号；含这些状态或资源文件的目录不是“空目录”，不会被清理。`--cleanup-file` 仅允许显式存在的 `.DS_Store`。
-- 文件内容按 SHA-256 守恒移动；该工具不改正文、不覆盖目标。链接修复必须作为单独、可审计的后续动作。
+- 文件内容按 SHA-256 守恒移动；该工具不改正文、不覆盖目标。链接修复、地图重建和 Base 验证必须作为单独、可审计的后续动作。
 
 ## Rollback
 
@@ -149,7 +156,8 @@ python3 scripts/vault_lifecycle.py rollback --vault <vault-path> --manifest <rel
 
 - manifest 路径、source/target、size、SHA-256、open_items、status、incoming_refs 完整。
 - apply 后源不存在、目标存在且哈希守恒；verify 通过。
-- 链接和 Bases 复核后无新增死链；地图按授权重建。
+- 链接和 Bases 复核后无新增死链；地图必须在路径变化后重建，所有 `.base` 的 `file.inFolder` 路径必须存在且覆盖目标模块。
+- `vault_index_verify.py` 必须通过；它核对地图的文件/目录统计与当前 vault，并核对 Base 的每个 `file.inFolder` 根路径。
 - rollback 在临时 fixture 中验证，不在客户真实 vault 上为了演示来回搬动。
 - 目录编号验收：没有重复一级 `10_`；历史导入一级分类均为目标编号；若 legacy 路径存在，必须有清晰迁移状态，完成后应由 verify 证明路径不存在。
 - 批量 dry-run 验收：manifest 包含 `plan_type`、`summary.batches`、总字节、引用扫描统计和 blocker；tree-plan 未改变源树。

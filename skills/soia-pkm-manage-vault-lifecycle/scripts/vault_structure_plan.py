@@ -67,7 +67,10 @@ def rel(path: Path, root: Path) -> str:
 
 
 def is_resource_or_temporal(name: str) -> bool:
-    return name.startswith((".", "_", "@")) or name in RESOURCE_NAMES or bool(TEMPORAL.fullmatch(name))
+    # Only hidden state, explicitly-known resource folders, and temporal buckets
+    # are exceptions.  Ordinary semantic folders (including technical/module
+    # names such as "AI安全" or "技术组件") must receive a numeric prefix.
+    return name.startswith(".") or name in RESOURCE_NAMES or bool(TEMPORAL.fullmatch(name))
 
 
 def has_visible_file(path: Path) -> bool:
