@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-organize-article-moc
 description: 将 Obsidian 文章库按元数据、主题双链、月份和两级 MOC 规范化整理。触发：「整理文章库」「重建 MOC」「收藏归类」
-version: 2.0.2
+version: 2.0.3
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-07-23 07:17:12
+updated_at: 2026-08-02 15:20:00
 created_by: claude opus 4.6
 updated_by: gpt-5.6-luna
 ---
@@ -94,6 +94,7 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 3. **建 / 更新 MOC**：跑 `rebuild_moc.py` 重建两级主题地图（一级分类 → 二级 topic）。
 4. **按月归位**：`clip` 原生落 `<年>/`，把文章按文件名日期归到 `<年>/<月>/`。
 5. **补双链**：文章间、文章 ↔ 书 ↔ 日志的关联。
+6. **索引同步**：只要新建、移动、改名或删除文件/目录，按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建叶级地图；写入 `20_资料库/` 时再验证相关 `.base`。文章内容-only 修改不刷新统计地图，但 MOC 本身仍需验证链接。
 
 ## 底层脚本（机械层，organize 调用）
 
@@ -110,7 +111,7 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 
 ## 回执
 
-整理后告知：处理了多少篇、补了哪些 topics、MOC 更新情况、归位了多少文件。
+整理后告知：处理了多少篇、补了哪些 topics、MOC 更新情况、归位了多少文件，以及地图 `updated`、统计和 Base 验证结果。
 
 ## 闭环位置
 

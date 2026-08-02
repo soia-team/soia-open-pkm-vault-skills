@@ -9,9 +9,9 @@ dependencies:
     - name: huashu-weread-advisor
       required: false
       install: "npx skills add alchaincyf/huashu-weread -g -y"
-version: 2.2.0
+version: 2.2.1
 created_at: 2026-07-02 16:45:19
-updated_at: 2026-08-01 12:00:00
+updated_at: 2026-08-02 15:20:00
 created_by: claude opus 4.6
 updated_by: gpt-5
 ---
@@ -84,10 +84,10 @@ python3 scripts/init_vault.py --print-default-config
 {
   "schema_version": 2,
   "extends_default": true,
-  "directories": {"add": ["20_资料库/主题"], "remove": []},
+  "directories": {"add": ["20_资料库/10_主题知识/40_扩展主题"], "remove": []},
   "files": {
     "add": [
-      {"path": "20_资料库/主题/AGENTS.md", "mode": "create_only", "content": "# 规则\n"}
+      {"path": "20_资料库/10_主题知识/40_扩展主题/AGENTS.md", "mode": "create_only", "content": "# 规则\n"}
     ]
   }
 }
@@ -95,6 +95,7 @@ python3 scripts/init_vault.py --print-default-config
 
 - 所有目标必须是 vault 相对路径；绝对路径、`..` 和 symlink 逃逸立即失败。
 - `mode: create_only`：存在即跳过；`managed`：check 时报告内容漂移，但仍不自动覆盖。
+- 自定义配置新增 `20_资料库/` 语义目录时必须使用唯一数字前缀；不要用 `20_资料库/主题` 这类无编号路径。已有目录改名应转生命周期 manifest，并在完成后刷新地图、验证 Base。
 - CLI > custom config > bundled defaults。配置扩展不要求改公开脚本。
 - schema v1 仍可读取一个兼容周期，并在合并后按 v2 行为执行。
 

@@ -3,9 +3,9 @@ name: soia-pkm-maintain-vault-health
 description: 只读检查整个 Markdown/Obsidian 知识库或指定模块的健康状态，审计死链、歧义文件名、标签策略与过期内容，并按授权重建地图或健康简报。触发：「检查知识库健康」「检查知识库某个模块」「维护知识库」「重建知识库地图」「vault 周维护」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.1.1
+version: 1.1.2
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-02 09:50:00
+updated_at: 2026-08-02 15:20:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -68,7 +68,7 @@ python3 scripts/lint_vault.py --vault <vault-path> --json \
 
 ### 20 区结构检查
 
-健康回执必须额外报告：精选一级目录是否只有 `10_主题知识`、`20_规范与手册`、`30_学习指南`；是否仍存在 legacy `10_融合分类`；历史导入一级分类是否使用 `10_保险`、`20_读书`、`30_工作`、`40_技术`、`50_日记`、`60_生活`、`70_写作`、`80_学习`、`90_资源`。发现重复 `10_` 或无编号分类时只生成整改清单，不在健康检查中自动改名。
+健康回执必须额外报告：精选一级目录是否只有 `10_主题知识`、`20_规范与手册`、`30_学习指南`；这三个目录下所有语义二级/三级模块的未编号数、重复编号数；是否仍存在 legacy `10_融合分类`；历史导入一级分类是否使用 `10_保险`、`20_读书`、`30_工作`、`40_技术`、`50_日记`、`60_生活`、`70_写作`、`80_学习`、`90_资源`。年份/月份/日期、明确资源目录和隐藏插件状态目录应单独列为例外，不计入未编号。发现重复或无编号时只生成整改清单，不在健康检查中自动改名，转 `soia-pkm-manage-vault-lifecycle`。
 
 ## 工作流 B：重建地图
 
@@ -78,7 +78,7 @@ python3 scripts/lint_vault.py --vault <vault-path> --json \
 python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-preview.md>
 ```
 
-用户确认后才省略 `--output`，写入 `SOIA_VAULT_MAP_OUTPUT` 或默认 `<vault>/20_资料库/OB知识库地图.md`。写后重新运行 lint，并确认地图中的文件/目录统计与实际扫描一致。
+用户确认后才省略 `--output`，写入 `SOIA_VAULT_MAP_OUTPUT` 或默认 `<vault>/20_资料库/OB知识库地图.md`。写后重新运行 lint，并确认地图中的文件/目录统计与实际扫描一致；若 vault 有 `20_资料库/资料库.base`，再运行生命周期技能的 `vault_index_verify.py` 核对 `file.inFolder` 根路径。完整门禁见 [index-sync-contract.md](references/index-sync-contract.md)。
 
 ## 工作流 C：周维护
 
@@ -99,6 +99,7 @@ python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-previe
 ## 验收
 
 - 只读运行前后除用户授权产物外的树哈希不变。
-- JSON 可解析，包含 `tag_policy_configured`、四类发现与 unreadable 汇总。
+- JSON 可解析，包含 `tag_policy_configured`、五类发现与 unreadable 汇总。
 - 地图预览不触碰 vault；正式地图仅在明确授权后写入。
 - 最终回执列出真实运行的命令和结果，不把“脚本 exit 0”当作唯一证据。
+- 若重建地图涉及 20 区，回执必须同时列出 Base 是否存在、每个根路径是否存在以及地图统计；未配置 Base 时明确写“未配置”，不冒充验证通过。

@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-drive
 description: 把云盘/本地的存量资料（PDF/Word/表格/演示文稿/文档）批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理；图片正文需显式 OCR。Triggers：「导入云盘资料」「把这批 PDF 导进来」「clip 这个文档」「整理云盘」「OCR 这批图片」
-version: 1.0.1
+version: 1.0.2
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-07-22 21:01:25
+updated_at: 2026-08-02 15:20:00
 created_by: claude opus 4.6
 updated_by: gpt-5
 ---
@@ -91,9 +91,9 @@ SOIA_PKM_CLIP_DRIVE_CONFIG_FILE=<custom-config-path>
 
 ## 落地
 
-- 资料 / 参考类 → `<vault-resources-dir>/<主题>/`；文章类 → `<vault-articles-dir>/`（由配置或 CLI 参数决定）。
+- 资料 / 参考类 → `<vault-resources-dir>/<主题>/`；文章类 → `<vault-articles-dir>/`（由配置或 CLI 参数决定）。落到 `20_资料库/` 时，目标语义目录必须带唯一编号，不能把新资料直接堆在根目录；不确定分类先停在 Inbox 或交生命周期技能生成 manifest。
 - frontmatter：`tags:[资料]` 或 `[文章摘抄]`、`source: 云盘/pdf`、`original_path`、`captured_at`、`topics:[]`。
-- 导入后**必走 `organize`**：云盘资料通常量大又杂，靠 organize 分类 / 建 MOC / 去重。
+- 导入后**必走 `organize`**：云盘资料通常量大又杂，靠 organize 分类 / 建 MOC / 去重。只要新建了 20 区文件，必须按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建 `OB知识库地图.md`，并用 `vault_index_verify.py` 验证相关 Base；附件正文提取不等于索引已更新。
 
 ## 闭环位置
 
@@ -111,3 +111,4 @@ SOIA_PKM_CLIP_DRIVE_CONFIG_FILE=<custom-config-path>
 1. **做了什么** — 一句话总结完成的工作。
 2. **文件变更** — 列出新建 / 修改 / 移动的文件（完整路径）；未改动文件则说明"未改动文件"。
 3. **下一步** — 可选的后续建议（如衔接的下一个 skill）。
+4. **索引同步** — 若写入 20 区，列出地图 `updated`、文件/目录统计、Base 根路径验证；没有 Base 时明确记录未配置。

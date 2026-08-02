@@ -4,9 +4,9 @@ description: 从整个 Markdown/Obsidian 知识库或指定模块的工作台、
 dependencies:
   hard: [soia-pkm-query-vault]
   optional: [soia-pkm-manage-vault-lifecycle, soia-pkm-maintain-vault-health]
-version: 1.0.1
+version: 1.0.2
 created_at: 2026-08-01 16:30:00
-updated_at: 2026-08-02 09:45:00
+updated_at: 2026-08-02 15:20:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -60,11 +60,14 @@ updated_by: gpt-5
    ```
 
 5. 检查 `ready_to_write` 并让客户确认；create-only 写入目标。目标已存在时停止并比较，不覆盖、不生成“最终版/新版”副本。
-6. 用脚本验证来源未漂移、目标 schema、精确来源 wikilink、开放项、私有绝对路径和秘密值候选，再按授权更新 Base 或地图：
+6. 用脚本验证来源未漂移、目标 schema、精确来源 wikilink、开放项、私有绝对路径和秘密值候选。只要目标在 `20_资料库/` 或本次创建了新文件，立即按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建地图；目标落在已有 Base 范围内时运行 `vault_index_verify.py`，不要为了单个文件重复维护列表：
 
    ```bash
    python3 scripts/knowledge_manifest.py verify --vault <vault-path> \
      --manifest <vault-relative-manifest.json>
+
+   python3 <health-skill>/scripts/gen_vault_map.py --vault <vault-path>
+   python3 <lifecycle-skill>/scripts/vault_index_verify.py --vault <vault-path>
    ```
 
 详细判定和字段合同见 [references/knowledge-contract.md](references/knowledge-contract.md)。
@@ -102,3 +105,4 @@ updated_by: gpt-5
 - 正文没有当前任务状态、开放待办或可识别秘密值。
 - 同主题已有笔记已合并或明确说明为何并存。
 - 自动 fixture 前向测试“30 区审计 → 20 区指南”：原证据不变、目标新建、目标冲突和来源漂移均停止。
+- 若创建了 20 区文件，回执包含地图 `updated`、文件/目录统计和相关 Base 验证；没有 Base 时明确记录未配置，不把跳过写成通过。

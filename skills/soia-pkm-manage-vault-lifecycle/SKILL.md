@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-manage-vault-lifecycle
 description: 规划并安全执行整个 Markdown/Obsidian 知识库，或知识库中指定模块的盘点、整理、改名、迁移、归档与清理。触发：「整理知识库」「整理知识库的某个模块」「治理资料库」「整理工作台/资料库/日志/归档」
-version: 1.4.0
+version: 1.4.1
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-02 10:05:00
+updated_at: 2026-08-02 15:20:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -89,7 +89,7 @@ manifest 可保存 vault 相对路径和哈希，不保存正文、凭据或环�
    ```
 
 8. 按 manifest 的 `incoming_refs` 精确修复路径 wikilink；不要改历史日志里的纯文本路径快照。
-9. 只要发生目录或文件路径变化，必须立即调用健康技能重建 [[20_资料库/OB知识库地图|OB知识库地图]]，再逐条验证目标区 `.base` 的 `file.inFolder` 范围；把地图统计、Base 范围和 lint 结果写入 30 区回执。没有“地图已重建 + Base 已验证”不能宣称完成。
+9. 只要发生目录或文件路径变化，或在 `20_资料库/` 新建/删除文件，必须立即调用健康技能重建 [[20_资料库/OB知识库地图|OB知识库地图]]，再逐条验证目标区 `.base` 的 `file.inFolder` 范围；把地图统计、Base 范围和 lint 结果写入 30 区回执。内容-only 修改且路径未变时可不重建统计地图，但涉及 MOC、导航或 Base 定义仍必须复核。完整门禁见 `soia-pkm-maintain-vault-health/references/index-sync-contract.md`。没有“地图已重建 + Base 已验证（或明确记录未配置 Base）”不能宣称完成。
 
    ```bash
    python3 scripts/vault_index_verify.py \
@@ -156,7 +156,7 @@ python3 scripts/vault_lifecycle.py rollback --vault <vault-path> --manifest <rel
 
 - manifest 路径、source/target、size、SHA-256、open_items、status、incoming_refs 完整。
 - apply 后源不存在、目标存在且哈希守恒；verify 通过。
-- 链接和 Bases 复核后无新增死链；地图必须在路径变化后重建，所有 `.base` 的 `file.inFolder` 路径必须存在且覆盖目标模块。
+- 链接和 Bases 复核后无新增死链；地图必须在路径变化或 20 区新增/删除文件后重建，所有相关 `.base` 的 `file.inFolder` 路径必须存在且覆盖目标模块。
 - `vault_index_verify.py` 必须通过；它核对地图的文件/目录统计与当前 vault，并核对 Base 的每个 `file.inFolder` 根路径。
 - rollback 在临时 fixture 中验证，不在客户真实 vault 上为了演示来回搬动。
 - 目录编号验收：没有重复一级 `10_`；历史导入一级分类均为目标编号；若 legacy 路径存在，必须有清晰迁移状态，完成后应由 verify 证明路径不存在。
