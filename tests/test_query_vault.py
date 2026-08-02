@@ -135,6 +135,31 @@ class QueryVaultTests(unittest.TestCase):
             other = self.run_query(vault, "--mode", "backlinks", "--query", "b/同名")
             self.assertEqual(other["matches"][0]["path"], "链接.md")
 
+    def test_requirement_and_code_files_are_searchable(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            requirement = vault / "20_资料库/20_规范与手册/接口需求.yaml"
+            source = vault / "60_开源项目/示例项目/PolicyController.java"
+            unusual = vault / "60_开源项目/示例项目/验收.feature"
+            requirement.parent.mkdir(parents=True)
+            source.parent.mkdir(parents=True)
+            requirement.write_text("acceptance: policy detail returns R.SUCC\n", encoding="utf-8")
+            source.write_text("@RequestMapping(\"/policy\")\nclass PolicyController {}\n", encoding="utf-8")
+            unusual.write_text("Scenario: policy detail\n", encoding="utf-8")
+
+            yaml_result = self.run_query(vault, "--mode", "content", "--query", "R.SUCC")
+            self.assertEqual(yaml_result["matches"][0]["path"], "20_资料库/20_规范与手册/接口需求.yaml")
+
+            java_result = self.run_query(vault, "--mode", "content", "--query", "@RequestMapping")
+            self.assertEqual(java_result["matches"][0]["path"], "60_开源项目/示例项目/PolicyController.java")
+
+            feature_result = self.run_query(
+                vault, "--mode", "content", "--query", "Scenario", "--include-ext", ".feature"
+            )
+            self.assertEqual(feature_result["matches"][0]["path"], "60_开源项目/示例项目/验收.feature")
+            self.assertIn(".java", feature_result["searchable_extensions"])
+            self.assertIn(".feature", feature_result["searchable_extensions"])
+
 
 if __name__ == "__main__":
     unittest.main()

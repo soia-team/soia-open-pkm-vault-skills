@@ -13,7 +13,17 @@ from pathlib import Path
 
 
 SKIP_DIRS = {".git", ".obsidian", ".trash", "node_modules", ".claude", ".codex", ".agents"}
-TEXT_EXTS = {".md", ".base"}
+# Text formats that are safe to inspect as UTF-8. Attachments such as PDF and
+# images remain filename-searchable but are never decoded as note content.
+TEXT_EXTS = {
+    ".md", ".base", ".canvas", ".txt", ".csv",
+    ".json", ".jsonc", ".yaml", ".yml", ".toml", ".ini", ".conf",
+    ".properties", ".xml", ".html", ".css",
+    ".sql", ".sh", ".bash", ".zsh", ".fish",
+    ".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".kt", ".kts",
+    ".go", ".rs", ".rb", ".php", ".swift", ".c", ".h", ".cc",
+    ".cpp", ".hpp", ".cs", ".gradle", ".proto", ".graphql",
+}
 WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 FIELD_RE = re.compile(r"^([A-Za-z0-9_.-]+):[ \t]*(.*?)$", re.MULTILINE)
 LIST_ITEM_RE = re.compile(r"^[ \t]+-[ \t]+(.*?)$")
@@ -52,6 +62,15 @@ def normalize_prefix(raw: str) -> str:
     if any(part in {"", ".", ".."} for part in parts):
         raise ValueError(f"unsafe path prefix: {raw!r}")
     return "/".join(parts)
+
+
+def normalize_extension(raw: str) -> str:
+    value = raw.strip().lower()
+    if not value.startswith("."):
+        value = "." + value
+    if not re.fullmatch(r"\.[a-z0-9][a-z0-9+_-]*", value):
+        raise ValueError(f"invalid text extension: {raw!r}")
+    return value
 
 
 def prefix_match(rel: str, prefix: str) -> bool:
@@ -147,6 +166,7 @@ def search(root: Path, args: argparse.Namespace) -> dict:
     inventory_zone = collections.Counter()
     inventory_ext = collections.Counter()
     query = (args.query or "").casefold()
+    text_exts = TEXT_EXTS | set(args.include_ext)
 
     def output_snippet(value: str) -> str | None:
         return None if args.no_snippets else value
@@ -157,7 +177,7 @@ def search(root: Path, args: argparse.Namespace) -> dict:
         if args.mode == "inventory":
             scanned += 1
             continue
-        if path.suffix.lower() not in TEXT_EXTS:
+        if path.suffix.lower() not in text_exts:
             if args.mode in {"all", "filename"} and query in path.name.casefold():
                 rank, source_layer = zone(rel)
                 matches.append({"path": rel, "layer": source_layer, "kind": "filename", "line": None, "snippet": output_snippet(path.name), "_rank": rank})
@@ -204,6 +224,7 @@ def search(root: Path, args: argparse.Namespace) -> dict:
         "path_prefix": args.path_prefix,
         "exclude_prefix": args.exclude_prefix,
         "snippets": not args.no_snippets,
+        "searchable_extensions": sorted(text_exts),
         "scanned_files": scanned,
         "matches": matches,
         "match_count": total,
@@ -242,6 +263,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--limit", type=int, default=50)
     parser.add_argument("--path-prefix", action="append", default=[], help="include only this vault-relative path (repeatable)")
     parser.add_argument("--exclude-prefix", action="append", default=[], help="exclude this vault-relative path (repeatable)")
+    parser.add_argument("--include-ext", action="append", default=[], help="add a UTF-8 text extension for content search, e.g. .feature (repeatable)")
     parser.add_argument("--no-snippets", action="store_true", help="return paths and match metadata without matched text")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
@@ -252,6 +274,7 @@ def parse_args() -> argparse.Namespace:
     try:
         args.path_prefix = [normalize_prefix(value) for value in args.path_prefix]
         args.exclude_prefix = [normalize_prefix(value) for value in args.exclude_prefix]
+        args.include_ext = [normalize_extension(value) for value in args.include_ext]
     except ValueError as exc:
         parser.error(str(exc))
     return args

@@ -1,12 +1,12 @@
 ---
 name: soia-pkm-extract-vault-knowledge
-description: 从工作台、冻结证据、文章、项目研究或历史导入语料中提炼去状态、可复用且带来源的长期知识，同时保留原始证据并隔离敏感信息。触发：「提炼到资料库」「沉淀长期知识」「整理 20 区」「从这份报告抽方法」
+description: 从整个 Markdown/Obsidian 知识库或指定模块的工作台、冻结证据、文章、项目研究与历史语料中，提炼去状态、可复用且带来源的长期知识，同时保留原始证据并隔离敏感信息。触发：「从知识库提炼长期知识」「把这份材料沉淀为知识」「从指定模块提炼」「从这份报告抽方法」
 dependencies:
   hard: [soia-pkm-query-vault]
   optional: [soia-pkm-manage-vault-lifecycle, soia-pkm-maintain-vault-health]
-version: 1.0.0
+version: 1.0.2
 created_at: 2026-08-01 16:30:00
-updated_at: 2026-08-01 16:30:00
+updated_at: 2026-08-02 15:20:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -23,6 +23,7 @@ updated_by: gpt-5
 - 删除当前进度、责任人、下一步和一次性环境值，保留适用边界、反例、时效说明与来源 wikilink。
 - 在写入前识别账号、密码、token、cookie、个人路径、客户数据等敏感内容；知识笔记只保留抽象方法，不复制秘密值。
 - 盘点 20 区时区分“精选长期知识”和“历史导入/来源语料”，不把旧语料的目录位置当成可信度。
+- 处理 PDF、Word、表格或图片来源时，先标记原始附件类型和提取/OCR 状态；没有正文提取证据时只能引用文件名/路径，不能把附件标题当成结论。
 
 ### 客户如何使用
 
@@ -59,11 +60,14 @@ updated_by: gpt-5
    ```
 
 5. 检查 `ready_to_write` 并让客户确认；create-only 写入目标。目标已存在时停止并比较，不覆盖、不生成“最终版/新版”副本。
-6. 用脚本验证来源未漂移、目标 schema、精确来源 wikilink、开放项、私有绝对路径和秘密值候选，再按授权更新 Base 或地图：
+6. 用脚本验证来源未漂移、目标 schema、精确来源 wikilink、开放项、私有绝对路径和秘密值候选。只要目标在 `20_资料库/` 或本次创建了新文件，立即按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建地图；目标落在已有 Base 范围内时运行 `vault_index_verify.py`，不要为了单个文件重复维护列表：
 
    ```bash
    python3 scripts/knowledge_manifest.py verify --vault <vault-path> \
      --manifest <vault-relative-manifest.json>
+
+   python3 <health-skill>/scripts/gen_vault_map.py --vault <vault-path>
+   python3 <lifecycle-skill>/scripts/vault_index_verify.py --vault <vault-path>
    ```
 
 详细判定和字段合同见 [references/knowledge-contract.md](references/knowledge-contract.md)。
@@ -92,6 +96,8 @@ updated_by: gpt-5
 
 不得用 move 把 30 区冻结证据迁到 20；应保留 30 原件并新建 20 区提炼稿。
 
+20 区目标目录遵循 `10_主题知识/`、`20_规范与手册/`、`30_学习指南/`；历史导入迁移目标为 `90_历史导入/`，其分类使用编号目录。目录改名属于生命周期迁移，不由本技能直接执行。
+
 ## 验收
 
 - 来源保留且 SHA-256 与计划一致。
@@ -99,3 +105,4 @@ updated_by: gpt-5
 - 正文没有当前任务状态、开放待办或可识别秘密值。
 - 同主题已有笔记已合并或明确说明为何并存。
 - 自动 fixture 前向测试“30 区审计 → 20 区指南”：原证据不变、目标新建、目标冲突和来源漂移均停止。
+- 若创建了 20 区文件，回执包含地图 `updated`、文件/目录统计和相关 Base 验证；没有 Base 时明确记录未配置，不把跳过写成通过。

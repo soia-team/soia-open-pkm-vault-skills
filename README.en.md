@@ -6,13 +6,13 @@
 
 **Stop hoarding links you never reopen — turn scattered material into usable knowledge**
 
-Local Markdown, no platform lock-in; 30 skills covering the full knowledge lifecycle
+Local Markdown, no platform lock-in; 31 skills covering the full knowledge lifecycle
 
 [中文](README.md) · English · [Ecosystem portal](https://github.com/soia-team/soia-open-skills)
 
 <p align="center">
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
-  <img alt="skills" src="https://img.shields.io/badge/skills-30-brightgreen">
+  <img alt="skills" src="https://img.shields.io/badge/skills-31-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/hosts-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
   <img alt="always-on cost" src="https://img.shields.io/badge/always--on-~2.8k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
@@ -35,7 +35,7 @@ flowchart LR
     C -.periodic.-> F["Health audit<br/>links · tags · vault map"]
 ```
 
-## 30 skills
+## 31 skills
 
 ### 01 Build and maintain　`Requirements and conventions → local vault structure`
 
@@ -47,7 +47,7 @@ flowchart LR
 | [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | Read-only health checks, vault maps and weekly reports | ✅ |
 | [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | Workbench, Inbox, evidence and archive lifecycle | ✅ |
 | [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | Minimal AI session change snapshots | ✅ |
-| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | Read-only queries across current, stable and historical knowledge | ✅ |
+| [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | Read-only search across Markdown, requirements, code and attachments; distinguishes filename, extracted-text and OCR hits with source ranking | ✅ |
 
 ### 02 Multi-source capture　`Links · accounts · files → structured material in the vault`
 
@@ -57,10 +57,11 @@ flowchart LR
 | [`soia-pkm-clip-wechat-article`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-article.md) | Archives a single WeChat Official Account article | ✅ |
 | [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | Bulk-archives published articles from your own account | 🟡 |
 | [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | Archives an X post, thread or Article | 🟡 |
+| [`soia-pkm-clip-x-profile`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x-profile.md) | Researches a public X profile with time/topic/media filters, producing summaries or an explicitly requested image Prompt Deck | 🟡 |
 | [`soia-pkm-clip-rednote`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-rednote.md) | Archives a Rednote text or video note | ✅ |
 | [`soia-pkm-clip-douyin`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-douyin.md) | Archives a Douyin video and keeps a local media index | ✅ |
 | [`soia-pkm-clip-github-repo`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-github-repo.md) | Archives a GitHub repo as a project card and research note | ✅ |
-| [`soia-pkm-clip-drive`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-drive.md) | Bulk-imports existing PDFs and Word files from cloud or local storage | ✅ |
+| [`soia-pkm-clip-drive`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-drive.md) | Bulk-imports PDFs, Word, spreadsheet and presentation files; images require explicit OCR | ✅ |
 | [`soia-pkm-alipan-curator`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-curator.md) | Plans and organizes Alipan resources into a reviewable catalog index | 🟡 |
 | [`soia-pkm-alipan-drive-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-alipan-drive-ops.md) | Alipan login, browsing and file operations | 🟡 |
 | [`soia-pkm-baidu-netdisk-ops`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-baidu-netdisk-ops.md) | Baidu Netdisk atomic operations and read-only scanning | 🟡 |
@@ -96,7 +97,7 @@ flowchart LR
 
 ## Install
 
-Any of three hosts. Installing the domain plugin brings all 30 skills at once.
+Any of three hosts. Installing the domain plugin brings all 31 skills at once.
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia

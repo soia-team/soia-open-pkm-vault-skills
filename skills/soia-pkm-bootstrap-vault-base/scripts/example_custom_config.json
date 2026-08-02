@@ -2,12 +2,12 @@
   "schema_version": 2,
   "extends_default": true,
   "directories": {
-    "add": ["20_资料库/自定义主题"]
+    "add": ["20_资料库/10_主题知识/40_自定义主题"]
   },
   "files": {
     "add": [
       {
-        "path": "20_资料库/自定义主题/AGENTS.md",
+        "path": "20_资料库/10_主题知识/40_自定义主题/AGENTS.md",
         "mode": "create_only",
         "content": "# 自定义主题规则\n\n先读根 AGENTS.md；本区只保存稳定知识。\n"
       }
