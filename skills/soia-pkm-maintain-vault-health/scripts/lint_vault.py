@@ -339,6 +339,55 @@ def clean_wikilink_target(raw):
     return target.strip()
 
 
+TAXONOMY_LINK_FIELDS = {"topics", "people"}
+
+
+def strip_taxonomy_links(text):
+    """Mask taxonomy/person labels in frontmatter before scanning wikilinks.
+
+    ``topics`` and ``people`` are controlled vocabularies, not necessarily
+    notes.  A vault may use ``[[RAG]]`` as a stable label even when there is no
+    ``RAG.md`` page.  Other frontmatter fields (for example ``book`` or
+    ``source``) still participate in dead-link checks.
+    """
+    if not text.startswith("---"):
+        return text
+    end = text.find("\n---", 3)
+    if end == -1:
+        return text
+    block = text[:end + 4]
+    lines = block.splitlines(keepends=True)
+    masked = False
+    output = []
+    for line in lines:
+        field = re.match(r"^([A-Za-z0-9_.-]+):", line)
+        if field:
+            masked = field.group(1) in TAXONOMY_LINK_FIELDS
+            output.append("\n" if line.endswith("\n") else "") if masked else output.append(line)
+            continue
+        if masked:
+            output.append("\n" if line.endswith("\n") else "")
+        else:
+            output.append(line)
+    return "".join(output) + text[end + 4:]
+
+
+def _path_hit(normalized, rel, all_set):
+    """Resolve a path-style wikilink against files and relative source dir."""
+    candidates = [normalized]
+    if not normalized.lower().endswith(".md"):
+        candidates.append(normalized + ".md")
+    for candidate in candidates:
+        if candidate in all_set or any(path.endswith("/" + candidate) for path in all_set):
+            return True
+        resolved = os.path.normpath(
+            os.path.join(os.path.dirname(rel), candidate)
+        ).replace(os.sep, "/")
+        if resolved in all_set:
+            return True
+    return False
+
+
 def check_dead_links(vault, scan_files, index_files):
     all_set = set(index_files)
     name_index = {}
@@ -355,36 +404,24 @@ def check_dead_links(vault, scan_files, index_files):
         text = read_text(vault, rel)
         if text is None:
             continue
-        for raw in WIKILINK_RE.findall(strip_code_spans(text)):
+        searchable = strip_code_spans(strip_taxonomy_links(text))
+        for raw in WIKILINK_RE.findall(searchable):
             target = clean_wikilink_target(raw)
             if not target:
                 continue  # 纯锚点/同文件标题链接（如 [[#某标题]]），不检查
             normalized = target.replace("\\", "/").lstrip("/")
-            _, ext = os.path.splitext(normalized)
-            if ext and ext.lower() != ".md":
-                if "/" in normalized:
-                    cand = normalized
-                    hit = cand in all_set or any(p.endswith("/" + cand) for p in all_set)
-                    if not hit:
-                        resolved = os.path.normpath(
-                            os.path.join(os.path.dirname(rel), cand)
-                        ).replace(os.sep, "/")
-                        hit = resolved in all_set
-                else:
-                    hit = normalized in attachment_name_index
-            elif "/" in normalized:
-                cand = normalized if normalized.lower().endswith(".md") else normalized + ".md"
-                hit = cand in all_set or any(p.endswith("/" + cand) for p in all_set)
-                if not hit:
-                    # Obsidian 的 newLinkFormat 可设为 relative，此时 [[../foo]]
-                    # 是合法写法，必须按源文件所在目录解析后再判定。
-                    resolved = os.path.normpath(
-                        os.path.join(os.path.dirname(rel), cand)
-                    ).replace(os.sep, "/")
-                    hit = resolved in all_set
+            if "/" in normalized:
+                # Do not infer an extension from a final dot: notes such as
+                # ``持续交付2.0`` and ``Fastjson-1.2.83`` are valid names.
+                hit = _path_hit(normalized, rel, all_set)
             else:
-                stem = normalized[:-3] if normalized.lower().endswith(".md") else normalized
-                hit = stem in name_index
+                # Try the exact filename before treating a dot as an
+                # extension.  This keeps dotted note names distinct from
+                # attachment paths while still checking [[missing.pdf]].
+                hit = normalized in attachment_name_index
+                if not hit:
+                    stem = normalized[:-3] if normalized.lower().endswith(".md") else normalized
+                    hit = stem in name_index
             if not hit:
                 findings.append((rel, target))
     return findings
