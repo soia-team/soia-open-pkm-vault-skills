@@ -47,6 +47,41 @@ class DirectDeadLinkTests(unittest.TestCase):
             dead = check_dead_links(str(vault), markdown, targets)
             self.assertEqual(dead, [("阅读.md", "缺失.pdf")])
 
+    def test_dotted_note_names_are_not_treated_as_attachment_extensions(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "持续交付2.0.md").write_text("book\n", encoding="utf-8")
+            (vault / "Fastjson-1.2.83.md").write_text("article\n", encoding="utf-8")
+            (vault / "v1.0.md").write_text("release\n", encoding="utf-8")
+            (vault / "阅读.md").write_text(
+                "[[持续交付2.0]] [[Fastjson-1.2.83]] [[v1.0]] [[missing.pdf]]\n",
+                encoding="utf-8",
+            )
+            dead = check_dead_links(
+                str(vault), collect_md_files(str(vault)), collect_all_files(str(vault))
+            )
+            self.assertEqual(dead, [("阅读.md", "missing.pdf")])
+
+    def test_topics_and_people_are_taxonomy_labels_but_book_links_are_checked(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "note.md").write_text(
+                "---\n"
+                "topics: [\"[[RAG]]\"]\n"
+                "people:\n  - \"[[某作者]]\"\n"
+                "book: \"[[missing book]]\"\n"
+                "---\n"
+                "正文 [[missing body]]\n",
+                encoding="utf-8",
+            )
+            dead = check_dead_links(
+                str(vault), collect_md_files(str(vault)), collect_all_files(str(vault))
+            )
+            self.assertEqual(
+                dead,
+                [("note.md", "missing book"), ("note.md", "missing body")],
+            )
+
     def test_hidden_paths_and_external_symlinks_are_skipped(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
