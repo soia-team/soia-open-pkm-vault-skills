@@ -96,6 +96,17 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 5. **补双链**：文章间、文章 ↔ 书 ↔ 日志的关联。
 6. **索引同步**：只要新建、移动、改名或删除文件/目录，按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建叶级地图；写入 `20_资料库/` 时再验证相关 `.base`。文章内容-only 修改不刷新统计地图，但 MOC 本身仍需验证链接。
 
+## 单篇归档后的自动整理合同
+
+`clip-web`、`clip-wechat-article` 归档单篇文章后，默认继续调用本技能完成该文件的最小整理闭环：
+
+1. 仅把刚归档的文件作为 scope，补齐摘要、`topics`、`captured_at`、`author`（无法核实时保留空值并报告）。
+2. 按文件名日期确认 `<年>/<月>/` 位置，生成 source/target/SHA-256 清单后再移动。
+3. 重建文章 MOC；若路径变化，立即重建 `OB知识库地图`，并在写入 20 区时验证相关 Base。
+4. 回执同时给出归档路径、整理路径、MOC/地图/Base 验证和未完成项。
+
+用户明确说“仅归档”“不要整理”时只执行 clip；批量账号/云盘导入默认先收集清单，必须获得整理确认后再批量调用本技能。整理失败不能把“已归档”包装成“已整理”。
+
 ## 底层脚本（机械层，organize 调用）
 
 - `scripts/rebuild_moc.py`：扫全部文章 topics，重建 `_MOC/` 两级地图。支持 `--vault`/`OBSIDIAN_VAULT` 指定库路径，分类表可用 `_MOC/.categories.json` 按库覆盖默认值（见脚本 `--help`）。
