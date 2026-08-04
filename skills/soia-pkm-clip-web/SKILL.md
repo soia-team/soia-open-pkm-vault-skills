@@ -104,7 +104,11 @@ SOIA_PKM_CLIP_WEB_CONFIG_FILE=<custom-config-path>
 
 - 路径：`<vault-articles-dir>/<年>/YYYY-MM-DD-<来源>-<作者>-<标题>.md`（来源如 博客 / Substack / Medium）
 - frontmatter 同 clip 家族；正文 `## 摘要 / 原文 / 我的看法 / 关联`。
-- 归档后补摘要 + topics；走 `organize` 归位。
+- 单篇归档默认不是终点：归档写入成功且正文质量复核通过后，自动把该文件交给 `soia-pkm-organize-article-moc` 做最小整理（摘要/topics、年月归位、MOC 与索引门禁）。只有用户明确说“仅归档/不要整理”才停在 clip 结果；批量网页必须先列清单，再确认是否批量整理。
+
+### 单篇归档完成门禁
+
+归档回执必须拆开报告：`captured`（文件已落盘）、`organized`（单篇整理是否成功）、`moc_synced`、`map_synced`、`base_verified`。任一后置步骤失败，只能说“已归档、整理未完成”，并给出可重试的文件路径；不能把 clip 成功等同于知识库整理完成。
 
 ## 归档后导出 PDF
 

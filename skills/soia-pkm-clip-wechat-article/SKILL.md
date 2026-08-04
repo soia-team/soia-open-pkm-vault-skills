@@ -103,7 +103,8 @@ python3 scripts/archive_wechat.py <url> \
 - 路径：`<vault-articles-dir>/<年>/<月>/YYYY-MM-DD-公众号-<作者>-<标题>.md`
 - frontmatter：`tags:[文章摘抄]`、`source: 公众号`、`url`、`author`、`publisher`、`published_at`、`captured_at`、`topics:[]`、`content_complete`
 - 正文段：`## 摘要`（AI 补）、`## 原文`、`## 我的看法`（留空）、`## 关联`
-- 归档后 AI 补摘要 + topics；脚本已按发布月份归位。
+- 单篇归档默认继续调用 `soia-pkm-organize-article-moc` 做最小整理：补摘要/topics、确认年月目录、重建 MOC，并按路径变化触发地图/Base 门禁。只有用户明确说“仅归档/不要整理”才停在 clip；批量公众号归档先列清单，再确认是否批量整理。
+- 归档回执必须分别报告 `captured`、`organized`、`moc_synced`、`map_synced`、`base_verified`；后置失败时只能说“已归档、整理未完成”。
 - 回执必须包含实际落盘目录；若未配置 `--articles-dir` 或 `OBSIDIAN_ARTICLES` 而走了 `Articles/` 兜底，必须显式标注警告，并建议配置正式 articles 目录后归位。
 
 ## 验证
