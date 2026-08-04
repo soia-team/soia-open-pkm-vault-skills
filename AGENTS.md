@@ -55,11 +55,13 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g --all
 
 ## Git Workflow
 
-- `dev` is the default integration branch: open PRs against `dev`, wait for the
-  `audit` check, then merge. Do not push directly to `dev` or `main`.
-- `main` always equals the latest formal release and only accepts release PRs
-  from `dev`, driven by `soia-meta-skill-release`. Never open feature PRs
-  against `main`.
+- **Branch off `main`** (the latest formal release), then open the PR against
+  `dev` and wait for the `audit` check. `main` is always an ancestor of `dev`,
+  so such a branch always merges cleanly. Branch off `dev` only when your change
+  genuinely builds on unreleased work, and say so in the PR body.
+- `main` never receives PRs. It moves only by **fast-forward from `dev`** during
+  a formal release driven by `soia-meta-skill-release`, so `main` and `dev` then
+  point at the same commit. Never push directly to `main` or `dev`.
 - Plugin manifests on `dev` carry a `-SNAPSHOT` version naming the next release
-  target. Do not change manifest versions in feature PRs; versions move only in
-  release PRs.
+  target. Do not change manifest versions in feature PRs; versions move only
+  during a release.
