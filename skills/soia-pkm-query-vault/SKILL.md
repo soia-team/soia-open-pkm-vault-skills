@@ -3,7 +3,7 @@ name: soia-pkm-query-vault
 description: 以只读方式搜索整个 Markdown/Obsidian 知识库或指定模块，检索文件名、正文、frontmatter、标签、反向链接、代码与附件，并按来源层级返回可核验结果。触发：「搜索知识库」「搜索知识库某个模块」「在知识库里找」「从知识库回答」「查需求/代码/PDF/Word/图片」「查反向链接」
 version: 1.6.0
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-02 09:45:00
+updated_at: 2026-08-04 12:00:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -21,6 +21,7 @@ updated_by: gpt-5
 - 查某个笔记的 wikilink 入链。
 - 统计分区和文件类型，帮助 AI 先缩小范围再读取正文。
 - 以 `10 当前 → 20 精选长期知识 → 30 证据 → 40/50/60 专项 → 20 历史导入 → 90 历史` 为默认排序，并明确标记来源层；20 区只有 `10_主题知识/`、`20_规范与手册/`、`30_学习指南/` 标为 `stable`，`90_历史导入/` 标为 `imported`，不因路径自动获得可信度。
+- `90_系统归档/60_整理与迁移记录/` 再细分为 `history/evidence`：先读该区导航识别 canonical 版本和 `superseded_by`，旧报告、机器清单和旧路径只用于解释当时过程。
 
 ### 客户如何使用
 
@@ -94,7 +95,7 @@ python3 scripts/query_vault.py --vault <vault-path> --mode content --query '<ext
 
 ### 2. 再按层级排序，不按命中数量排序
 
-`10 当前状态 → 20 精选长期知识 → 30 冻结证据 → 40/50/60 专项 → 20 历史导入 → 90 归档`。`20_资料库/90_历史导入` 默认只作为 imported 线索，不能因为命中次数多就升级为稳定结论。
+`10 当前状态 → 20 精选长期知识 → 30 冻结证据 → 40/50/60 专项 → 20 历史导入 → 90 归档`。`20_资料库/90_历史导入` 默认只作为 imported 线索，不能因为命中次数多就升级为稳定结论；90 区整理记录还要按 canonical/历史版本链排序。
 
 ### 3. 需求和代码的具体步骤
 
@@ -130,6 +131,7 @@ python3 scripts/query_vault.py --vault <vault-path> --mode content --query '<ext
 
 - `layer=current/stable/evidence/specialized/imported/history` 是来源层，不是事实真伪的自动证明。
 - `needs_review`、`deprecated`、`superseded_by`、旧日期或历史路径必须在回答中明确提示。
+- 命中 `90_系统归档/60_整理与迁移记录` 时，结果必须附 `evidence_class`（迁移/重组/资源引用/核对清理/交接/历史版本）和“仅代表当时状态”提示；v1/v2/v3 同时命中时优先给 canonical 版本，再列被取代版本。
 - 涉及历史导入、安全、账号或私人语料时使用 `--no-snippets`，先只返回路径和元数据。
 - 本技能的确定性后端默认是关键词/结构检索；不上传内容、不启用 RAG。只有用户明确启用本地语义检索时，才增加 QMD/Smart Connections 等独立索引层，并把向量结果降级为候选召回。
 - 搜索永远只读，不移动、删除、改 frontmatter、更新地图或创建待办。
