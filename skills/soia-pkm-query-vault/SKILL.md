@@ -10,7 +10,7 @@ updated_by: gpt-5
 
 # soia-pkm-query-vault
 
-面向 AI 和用户的 vault **只读查询层**。它找证据、排序和引用，不整理目录、不维护索引、不改状态；隐藏配置目录及所有文件/目录 symlink 均跳过，避免越出 vault 读取私密内容。
+面向 AI 和用户的 vault **只读查询层**。它找证据、排序和引用，不整理目录、不维护索引、不改状态；隐藏配置目录及所有文件/目录 symlink 均跳过，避免越出 vault 读取私密内容。查询结果若涉及入库状态，必须区分 `captured`、`organized` 与五段合同的完整回执；搜索命中本身不是整理完成证明。
 
 ## 客户可读说明
 
@@ -133,6 +133,7 @@ python3 scripts/query_vault.py --vault <vault-path> --mode content --query '<ext
 - 涉及历史导入、安全、账号或私人语料时使用 `--no-snippets`，先只返回路径和元数据。
 - 本技能的确定性后端默认是关键词/结构检索；不上传内容、不启用 RAG。只有用户明确启用本地语义检索时，才增加 QMD/Smart Connections 等独立索引层，并把向量结果降级为候选召回。
 - 搜索永远只读，不移动、删除、改 frontmatter、更新地图或创建待办。
+- 查询“是否已整理/归档”时，读取管理技能生成的五段回执；缺少 `MOC/导航`、`map` 或 `Base` 证据时，只能报告为部分完成或未知，不能推断已完成。
 - 目录编号或 legacy 路径迁移转 `soia-pkm-manage-vault-lifecycle`；不得在查询时自行重命名目录。
 
 ## AI 读取流程

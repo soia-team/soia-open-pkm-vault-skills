@@ -10,7 +10,7 @@ updated_by: gpt-5
 
 # soia-pkm-manage-vault-lifecycle
 
-把 vault 内容从“临时捕获”推进到“活跃控制面、冻结证据、稳定知识或历史归档”。默认只生成 manifest；移动前必须确认，绝不自动删除，删除只能由用户确认的结构 manifest 执行。
+把 vault 内容从“临时捕获”推进到“活跃控制面、冻结证据、稳定知识或历史归档”。任何文件或对象都必须遵循 `captured → organized → MOC/导航 → map → Base` 五段入库合同；详细状态、对象路由与回执格式见 [references/knowledge-intake-five-stage-contract.md](references/knowledge-intake-five-stage-contract.md)。默认只生成 manifest；移动前必须确认，绝不自动删除，删除只能由用户确认的结构 manifest 执行。
 
 ## 客户可读说明
 
@@ -54,6 +54,8 @@ manifest 可保存 vault 相对路径和哈希，不保存正文、凭据或环�
 “去状态后可复用”表示应当**提炼出新知识**，不是把 30 区冻结证据直接搬进 20。来源需保留时转 `soia-pkm-extract-vault-knowledge`；只有文件本身已经是稳定知识、仅路径放错时才用本技能 move。
 
 ## 执行流程
+
+0. 为每个对象建立五段状态回执。MOC 或 Base 没有适用对象时必须写 `not_applicable` 及理由，不能省略字段或把上游技能调用当作完成证明。
 
 1. 读取根 `AGENTS.md` 与所有目标区 `AGENTS.md`。
 2. 搜索同名文件、现行控制面、frontmatter、开放 checkbox、wikilink 入链和替代关系。

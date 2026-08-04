@@ -60,6 +60,8 @@ SOIA_PKM_CLIP_X_CONFIG_FILE=<custom-config-path>
 
 ### 日志与完成回执
 
+抓取完成只代表 `captured`；单对象默认继续走生命周期管理的 `organized → MOC/导航 → map → Base` 五段合同，逐项回执，不适用阶段写 `not_applicable`。
+
 每次执行都要让客户看见过程和结果。最低回执格式：
 
 ```markdown
