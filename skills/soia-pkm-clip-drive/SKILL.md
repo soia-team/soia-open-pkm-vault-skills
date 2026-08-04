@@ -60,6 +60,8 @@ SOIA_PKM_CLIP_DRIVE_CONFIG_FILE=<custom-config-path>
 
 ### 日志与完成回执
 
+捕获只是五段入库合同的 `captured` 阶段；单文件默认继续交给 `soia-pkm-manage-vault-lifecycle` 完成 `organized → MOC/导航 → map → Base`，并在回执中逐项给出 `pass` 或 `not_applicable`。合同详见生命周期技能的 `references/knowledge-intake-five-stage-contract.md`。
+
 每次执行都要让客户看见过程和结果。最低回执格式：
 
 ```markdown

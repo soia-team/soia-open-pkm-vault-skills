@@ -61,6 +61,8 @@ SOIA_PKM_CLIP_GITHUB_REPO_CONFIG_FILE=<custom-config-path>
 
 ### 日志与完成回执
 
+项目卡落盘只证明 `captured`；随后必须交给生命周期管理完成 `organized → MOC/导航 → map → Base`。合同详见生命周期技能的 `references/knowledge-intake-five-stage-contract.md`，不适用阶段也要显式写 `not_applicable`。
+
 每次执行都要让客户看见过程和结果。最低回执格式：
 
 ```markdown

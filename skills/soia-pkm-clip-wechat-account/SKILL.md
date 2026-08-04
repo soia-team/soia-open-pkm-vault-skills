@@ -61,6 +61,8 @@ SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE=<custom-config-path>
 
 ### 日志与完成回执
 
+批量抓取只代表 `captured`；落盘后按生命周期管理技能逐对象完成 `organized → MOC/导航 → map → Base`，不适用阶段显式写 `not_applicable`，不能以批量成功数代替闭环证据。
+
 每次执行都要让客户看见过程和结果。最低回执格式：
 
 ```markdown

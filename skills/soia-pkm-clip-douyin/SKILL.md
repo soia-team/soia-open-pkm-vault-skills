@@ -75,6 +75,8 @@ SOIA_PKM_CLIP_DOUYIN_CONFIG_FILE=<custom-config-path>
 
 ### 日志与完成回执
 
+视频文件落盘只代表 `captured`；随后必须完成 `organized → MOC/导航 → map → Base`，并对转写/OCR 等正文可检索性单独报告。合同详见生命周期管理技能。
+
 ```markdown
 完成：<一句话说明本次归档了什么>。
 
