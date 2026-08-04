@@ -92,7 +92,7 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 1. **补 frontmatter**：缺 `topics` / `captured_at` / `author` 的补上。
 2. **主题归类**：读文章内容，判断该挂哪些 `topics`（双链）；**优先复用已有主题**（查 `_MOC/`），避免造重复主题。
 3. **建 / 更新 MOC**：跑 `rebuild_moc.py` 重建两级主题地图（一级分类 → 二级 topic）。
-4. **按月归位**：`clip` 原生落 `<年>/`，把文章按文件名日期归到 `<年>/<月>/`。
+4. **按月归位**：`clip` 原生落 `<年>/`，把文章按文件名日期归到 `<年>/<月>/`；执行前先生成逐文件 source/target/SHA-256 清单，禁止用裸 `mv` 猜目标。
 5. **补双链**：文章间、文章 ↔ 书 ↔ 日志的关联。
 6. **索引同步**：只要新建、移动、改名或删除文件/目录，按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建叶级地图；写入 `20_资料库/` 时再验证相关 `.base`。文章内容-only 修改不刷新统计地图，但 MOC 本身仍需验证链接。
 
@@ -106,7 +106,10 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 
 ## 分类原则
 
-- topic 优先复用已有（查 `_MOC/`），不轻易造新主题。
+- topic 优先复用已有（查 `_MOC/`），不轻易造新主题；没有对应 MOC 笔记时使用纯文本分类或列入 unknown-topic 报告，不创建空占位笔记。
+- `people` 是来源署名词表，只有人物笔记确实存在时才使用 wikilink；否则保留纯文本并注明未建人物页。
+- 附件缺失不能伪造文件或补假链接：保留原文件名与“附件缺失”证据，区分正文缺失、文件名命中和 OCR/提取命中。
+- 带小数点的文件名先按完整文件名解析；需要消除重名或路径歧义时才改成带 `.md` 的完整路径 wikilink，并保留 alias。
 - 映射写死在 `rebuild_moc.py` 的分类表（不靠 AI 每次猜）——改归类就改表再重跑。
 
 ## 回执
