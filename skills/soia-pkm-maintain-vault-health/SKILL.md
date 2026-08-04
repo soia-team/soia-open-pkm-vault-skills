@@ -5,7 +5,7 @@ dependencies:
   optional: [soia-pkm-organize-article-moc]
 version: 1.1.2
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-02 15:20:00
+updated_at: 2026-08-04 12:00:00
 created_by: gpt-5
 updated_by: gpt-5
 ---
@@ -93,7 +93,8 @@ python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-previe
 2. 明确区分：可确定的结构问题、设计性重复、需要用户判断的内容问题。
 3. 仅在用户要求保存时写周简报；路径由客户 vault 规则或配置决定。
 4. 简报固定包含：范围与时间、近 7 天变化、健康发现、已执行修复、人工处理项、验证。
-5. 本技能不移动 Inbox/工作台内容；生命周期分流转 `soia-pkm-manage-vault-lifecycle`。
+5. 若检查范围包含 `90_系统归档/60_整理与迁移记录`，额外报告：直属混放文件数、无编号语义子目录、版本链（canonical/被取代）、引用到不存在路径的机器清单，以及敏感字段候选；只报告，不自动移动、脱敏或删除。
+6. 本技能不移动 Inbox/工作台内容；生命周期分流转 `soia-pkm-manage-vault-lifecycle`。
 
 ## 边界
 
