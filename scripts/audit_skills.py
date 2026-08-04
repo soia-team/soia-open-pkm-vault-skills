@@ -102,7 +102,7 @@ KNOWN_SECRET_RE = re.compile(
 PRIVATE_CONTEXT_RE = re.compile(r"(老大|二宝|三宝|宝宝|真实家庭结构|孩子昵称|私有 memory|成绩\s*\d{2,3})")
 VAULT_SPECIFIC_RE = re.compile(
     r"(40_图书视频馆/10_文章摘抄|40_图书视频馆/40_孩子书库|50_写作与发布/10_草稿|"
-    r"50_写作与发布/30_转化输出|10_工作台/00_Inbox)"
+    r"50_写作与发布/30_转化输出)"
 )
 # Desensitization gate: real private capture data must never reach the public
 # skills repo. Placeholders (<...>, 示例*, example, YOUR_) never match these.
