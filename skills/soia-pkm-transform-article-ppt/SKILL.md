@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-transform-article-ppt
 description: 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包，并支持外置固定模板与机密内容本地隔离。触发：「做 PPT」「生成 PPTX」「转成课件」「按公司模板做周报」
-version: 2.3.1
+version: 2.3.2
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-05 14:40:00
 created_by: claude opus 4.6
 updated_by: claude-opus-5
 dependencies:

@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-translate-article-zh
 description: 将外文文章按 quick、normal 或 refined 模式翻译成独立中文稿，保持术语一致且不覆盖原文。触发：「翻译这篇」「精翻」「继续润色」
-version: 2.0.2
+version: 2.0.3
 created_at: 2026-07-09 20:56:44
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-05 14:40:00
 created_by: claude opus 4.6
 updated_by: claude-opus-5
 ---

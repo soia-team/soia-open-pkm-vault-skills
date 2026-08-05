@@ -6,9 +6,9 @@ dependencies:
     - name: baidu-drive
       required: true
       install: "npx skills add https://github.com/baidu-netdisk/bdpan-storage/skills --skill baidu-drive"
-version: 2.1.6
+version: 2.1.7
 created_at: 2026-07-15 18:27:15
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-05 14:40:00
 created_by: claude opus 4.6
 updated_by: claude-opus-5
 ---
