@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-alipan-drive-ops
 description: 执行阿里云盘登录、浏览与文件操作，并为资源整理提供底层能力。触发：「登录阿里云盘」「下载阿里云盘文件」「全盘扫描阿里云盘」
-version: 2.2.4
+version: 2.2.5
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-07-27 10:47:17
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-sol
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-alipan-drive-ops — 阿里云盘原子操作层

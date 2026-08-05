@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-query-vault
 description: 以只读方式搜索整个 Markdown/Obsidian 知识库或指定模块，检索文件名、正文、frontmatter、标签、反向链接、代码与附件，并按来源层级返回可核验结果。触发：「搜索知识库」「搜索知识库某个模块」「在知识库里找」「从知识库回答」「查需求/代码/PDF/Word/图片」「查反向链接」
-version: 1.6.0
+version: 1.6.1
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-04 12:00:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-query-vault

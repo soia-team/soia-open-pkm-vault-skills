@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-github-repo
 description: 将 GitHub 开源仓库归档为 Obsidian vault 的项目卡和调研笔记。触发：「归档这个项目 URL」「clip 这个 repo」「刷新项目卡」
-version: 2.0.3
+version: 2.0.4
 created_at: 2026-07-07 15:58:57
-updated_at: 2026-07-23 07:16:14
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-clip-github-repo

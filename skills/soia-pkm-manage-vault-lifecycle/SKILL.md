@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-manage-vault-lifecycle
 description: 规划并安全执行整个 Markdown/Obsidian 知识库，或知识库中指定模块的盘点、整理、改名、迁移、归档与清理。触发：「整理知识库」「整理知识库的某个模块」「治理资料库」「整理工作台/资料库/日志/归档」
-version: 1.4.1
+version: 1.4.2
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-04 12:00:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-manage-vault-lifecycle

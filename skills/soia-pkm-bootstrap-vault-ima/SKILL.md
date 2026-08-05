@@ -3,11 +3,11 @@ name: soia-pkm-bootstrap-vault-ima
 description: 把已有本地 Markdown vault 接入腾讯 ima 知识库消费端：安装客户端、建立目录映射、用 ima 官方 Skills 配置本地文件夹监控同步并验证检索。Triggers：「接入 ima」「同步到 ima 知识库」「配置 ima」「让 ima 监控 vault」
 dependencies:
   hard: [soia-pkm-bootstrap-vault-base, soia-pkm-query-vault]
-version: 1.1.1
+version: 1.1.2
 created_at: 2026-07-16 16:00:31
-updated_at: 2026-08-02 15:20:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5.6-luna
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-bootstrap-vault-ima

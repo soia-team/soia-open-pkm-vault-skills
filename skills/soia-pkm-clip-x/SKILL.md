@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-x
 description: 将单条 X/Twitter 推文、thread 或 Article 归档到 Obsidian vault。触发：「归档这条 X」「clip 这条推文」「整理这条 thread」
-version: 1.1.4
+version: 1.1.5
 created_at: 2026-07-02 03:51:43
-updated_at: 2026-08-01 15:00:00
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-sol
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-clip-x

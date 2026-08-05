@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-log-agent-sessions
 description: 为 Claude Code、Codex 等本地 AI 接入最小化 vault 会话改动快照，支持去重、dry-run、既有 notify 合并和安全卸载。触发：「接入 AI 会话日志」「记录 Codex 改动」「配置 SessionEnd 日志」
-version: 1.1.0
+version: 1.1.1
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-01 12:00:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-log-agent-sessions

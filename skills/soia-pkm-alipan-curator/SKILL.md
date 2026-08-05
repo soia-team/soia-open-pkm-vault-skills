@@ -3,11 +3,11 @@ name: soia-pkm-alipan-curator
 description: 规划并整理阿里云盘资源，产出可复核的馆藏索引与学习规划。触发：「整理阿里云盘资源」「更新阿里云盘索引」「用网盘资源做学习计划」
 dependencies:
   hard: [soia-pkm-alipan-drive-ops]
-version: 1.6.2
+version: 1.6.3
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-07-27 10:47:17
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-sol
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-alipan-curator — 云盘资源顾问

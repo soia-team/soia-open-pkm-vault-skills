@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-transform-article-notebooklm
 description: 用 NotebookLM 将文章转换为学习材料。触发：「NotebookLM 生成试卷」「NotebookLM 做闪卡」「NotebookLM 生成播客」
-version: 1.1.1
+version: 1.1.2
 created_at: 2026-07-16 11:30:32
-updated_at: 2026-07-27 10:47:17
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-sol
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-transform-article-notebooklm

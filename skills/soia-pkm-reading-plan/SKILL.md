@@ -9,11 +9,11 @@ dependencies:
     - name: huashu-weread-advisor
       required: false
       install: "npx skills add alchaincyf/huashu-weread -g -y"
-version: 1.0.2
+version: 1.0.3
 created_at: 2026-07-02 03:14:56
-updated_at: 2026-07-23 07:17:12
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-reading-plan

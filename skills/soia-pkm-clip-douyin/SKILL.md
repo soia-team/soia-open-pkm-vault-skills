@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-douyin
 description: 归档单条抖音视频到 Obsidian vault，并保留本地媒体索引。触发：「归档这条抖音」「clip 这个抖音视频」「只要抖音文案」
-version: 1.0.2
+version: 1.0.3
 created_at: 2026-07-24 15:52:29
-updated_at: 2026-07-23 07:16:14
+updated_at: 2026-08-05 13:30:00
 created_by: claude fable 5
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-clip-douyin

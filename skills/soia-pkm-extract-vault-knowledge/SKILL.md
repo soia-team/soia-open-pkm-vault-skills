@@ -4,11 +4,11 @@ description: 从整个 Markdown/Obsidian 知识库或指定模块的工作台、
 dependencies:
   hard: [soia-pkm-query-vault]
   optional: [soia-pkm-manage-vault-lifecycle, soia-pkm-maintain-vault-health]
-version: 1.0.2
+version: 1.0.3
 created_at: 2026-08-01 16:30:00
-updated_at: 2026-08-02 15:20:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-extract-vault-knowledge

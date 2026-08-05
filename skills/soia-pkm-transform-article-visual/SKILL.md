@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-transform-article-visual
 description: 把文章转换为长图、信息图、海报、封面、插画等视觉产物。HTML/CSS 截图为本地默认方案，可选 Open Design 或 Codex 图生成。Triggers：「生成长图」「做成信息图」「转成海报」「生成封面」「做成图片」「export visual」「make infographic」
-version: 1.2.2
+version: 1.2.3
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-07-23 17:46:00
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 dependencies:
   optional: [soia-dev-open-design-ops]
 ---

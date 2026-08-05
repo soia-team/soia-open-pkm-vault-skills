@@ -9,11 +9,11 @@ dependencies:
     - name: huashu-weread-advisor
       required: false
       install: "npx skills add alchaincyf/huashu-weread -g -y"
-version: 2.2.1
+version: 2.2.2
 created_at: 2026-07-02 16:45:19
-updated_at: 2026-08-02 15:20:00
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-bootstrap-vault-base

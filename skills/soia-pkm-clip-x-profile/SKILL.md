@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-x-profile
 description: 面向公开 X 账号的有限范围检索与研究：采集帖子窗口，按时间、关键词、主题、媒体、模型线索和内容条件筛选，输出账号概览、时间段总结、主题分析与可审计结果，并支持将明确选定的结果交给下游技能继续处理。
-version: 0.3.0
+version: 0.3.1
 created_at: 2026-08-02 12:00:00
-updated_at: 2026-08-02 14:00:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5.6-sol
-updated_by: gpt-5.6-sol
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-clip-x-profile
