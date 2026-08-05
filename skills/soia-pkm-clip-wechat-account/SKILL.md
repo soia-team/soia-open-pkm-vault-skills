@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-wechat-account
 description: 批量归档用户自己管理的微信公众号已发文章到 Obsidian vault。支持官方 API、公众号后台接口、登录态 Cookie 三条路线，并按 url 去重。Triggers：「同步我的公众号」「批量拉取我公众号历史文章」「批量归档我的公众号」「导入公众号已发文章」「clip 我的公众号」
-version: 2.0.3
+version: 2.0.4
 created_at: 2026-07-08 14:30:37
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-05 14:40:00
 created_by: claude opus 4.6
 updated_by: claude-opus-5
 ---
@@ -140,7 +140,7 @@ SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE=<custom-config-path>
 ### 凭据与限制
 
 - `WECHAT_APP_ID` / `WECHAT_APP_SECRET`：获取路径、IP 白名单配置同 `soia-pkm-publish-wechat-draft` SKILL.md「如何获取并配置微信公众号 AppID / AppSecret」一节，不重复贴——两个 skill 用同一套公众号开发凭据。
-- 私有配置自动探测：`$SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE`（兼容别名 `$SOIA_PKM_CLIP_GZH_CONFIG_FILE`，以及原有 `$SOIA_PKM_CLIP_GZH_ENV_FILE`）> `~/.config/soia-skills/soia-pkm-clip-wechat-account/config.yml`。配置文件使用 YAML `env:` 映射，示例见 `config.example.yml`；秘钥不进 vault、不进这个开源 skill 仓库。
+- 私有配置自动探测：`$SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE`（兼容别名 `$SOIA_PKM_CLIP_GZH_CONFIG_FILE`，以及原有 `$SOIA_PKM_CLIP_GZH_ENV_FILE`）> `~/.config/soia-skills/soia-pkm-clip-wechat-account/config.yml`。配置文件使用 YAML `env:` 映射，示例见 `assets/config.example.yml`；秘钥不进 vault、不进这个开源 skill 仓库。
 
 ### 用法
 
@@ -195,7 +195,7 @@ python3 scripts/fetch_api.py [--out <vault内相对目录>] [--limit N] [--dry-r
 
 ### 凭据获取
 
-登录 `mp.weixin.qq.com` 后台，随便打开一篇文章编辑页或文章列表页，F12 打开浏览器开发者工具「网络」面板，从**地址栏 URL** 里复制 `token` 参数、从请求头复制完整 `Cookie` 字符串。按 `config.example.yml` 填进私有 `config.yml` 的 `env.WECHAT_MP_TOKEN` / `env.WECHAT_MP_COOKIE`。
+登录 `mp.weixin.qq.com` 后台，随便打开一篇文章编辑页或文章列表页，F12 打开浏览器开发者工具「网络」面板，从**地址栏 URL** 里复制 `token` 参数、从请求头复制完整 `Cookie` 字符串。按 `assets/config.example.yml` 填进私有 `config.yml` 的 `env.WECHAT_MP_TOKEN` / `env.WECHAT_MP_COOKIE`。
 
 ⚠️ 注意 `token` 要取地址栏 URL 里的那个（数字串），**不是**「网络」面板里某个请求参数名叫 `appmsg_token` 的那个票据——两者是不同的票据，`appmsgpublish` 认的是地址栏 `token`。
 
@@ -249,7 +249,7 @@ general_msg_list 解析后：
 
 ### 凭据获取
 
-登录 `mp.weixin.qq.com` 后台，打开该公众号任意一篇历史文章（或 `profile_ext?action=home`），在浏览器开发者工具「网络」面板里找同域请求，从请求 URL 里复制 `__biz`/`key`/`pass_ticket`/`appmsg_token`，从请求头复制完整 `Cookie` 字符串。按 `config.example.yml` 填进私有 `config.yml`。
+登录 `mp.weixin.qq.com` 后台，打开该公众号任意一篇历史文章（或 `profile_ext?action=home`），在浏览器开发者工具「网络」面板里找同域请求，从请求 URL 里复制 `__biz`/`key`/`pass_ticket`/`appmsg_token`，从请求头复制完整 `Cookie` 字符串。按 `assets/config.example.yml` 填进私有 `config.yml`。
 
 ### 用法
 

@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-translate-article-zh
 description: 将外文文章按 quick、normal 或 refined 模式翻译成独立中文稿，保持术语一致且不覆盖原文。触发：「翻译这篇」「精翻」「继续润色」
-version: 2.0.2
+version: 2.0.3
 created_at: 2026-07-09 20:56:44
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-05 14:40:00
 created_by: claude opus 4.6
 updated_by: claude-opus-5
 ---
@@ -68,7 +68,7 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transl
 SOIA_PKM_TRANSLATE_ARTICLE_ZH_CONFIG_FILE=<custom-config-path>
 ```
 
-- 样例见 [config.example.yml](config.example.yml)：`target_language` / `mode` / `audience` / `style` / `chunk_threshold` / `chunk_max_words` / `glossary`（内联术语表）都是明文偏好，不含任何秘密。
+- 样例见 [config.example.yml](assets/config.example.yml)：`target_language` / `mode` / `audience` / `style` / `chunk_threshold` / `chunk_max_words` / `glossary`（内联术语表）都是明文偏好，不含任何秘密。
 - 如果客户不需要自定义偏好，可以不创建 `config.yml`，本技能会用内置默认值（`zh-CN` / `normal` / `general` / `storytelling` / 4000 / 5000）。
 - 优先级：CLI 参数（客户本次明确说的目标语言/模式/受众/术语）> 进程环境变量 > 私有 `config.yml` > 本技能内置默认值。
 - 不需要、也不应该读取任何 API key、cookie、session、账号凭据——本技能只处理客户提供的文本文件。

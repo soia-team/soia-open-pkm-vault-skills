@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-transform-article-ppt
 description: 把文章、提纲或主题转换为以可编辑 PPTX 为正式母版的演示媒体包，并支持外置固定模板与机密内容本地隔离。触发：「做 PPT」「生成 PPTX」「转成课件」「按公司模板做周报」
-version: 2.3.1
+version: 2.3.2
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-05 14:40:00
 created_by: claude opus 4.6
 updated_by: claude-opus-5
 dependencies:
@@ -77,7 +77,7 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 ~/.config/soia-skills/soia-open-pkm-vault-skills/soia-pkm/soia-pkm-transform-article-ppt/config.yml
 ```
 
-配置文件选择顺序是 `--config` > `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` > 上述默认路径；字段值按“显式 CLI > 私有 config > 内置默认”解析。配置示例见 `config.example.yml`。
+配置文件选择顺序是 `--config` > `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` > 上述默认路径；字段值按“显式 CLI > 私有 config > 内置默认”解析。配置示例见 `assets/config.example.yml`。
 
 **WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
 

@@ -84,7 +84,7 @@ def load_private_env(required: bool = False) -> Path | None:
         if required:
             raise SystemExit(
                 f"Missing private config file: {path}\n"
-                f"Copy config.example.yml there and fill required values."
+                f"Copy assets/config.example.yml there and fill required values."
             )
         return None
 

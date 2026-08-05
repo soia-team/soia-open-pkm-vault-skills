@@ -1199,7 +1199,7 @@ published_at: 2026-07-22 09:37
 
     def test_config_uses_validator_host_enum(self):
         config = (
-            ROOT / "skills" / "soia-pkm-transform-article-ppt" / "config.example.yml"
+            ROOT / "skills" / "soia-pkm-transform-article-ppt" / "assets" / "config.example.yml"
         ).read_text(encoding="utf-8")
         self.assertIn("apple_keynote", config)
         self.assertNotIn("| keynote |", config)

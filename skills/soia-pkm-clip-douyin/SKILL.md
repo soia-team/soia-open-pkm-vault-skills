@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-douyin
 description: 归档单条抖音视频到 Obsidian vault，并保留本地媒体索引。触发：「归档这条抖音」「clip 这个抖音视频」「只要抖音文案」
-version: 1.0.3
+version: 1.0.4
 created_at: 2026-07-24 15:52:29
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-05 14:40:00
 created_by: claude fable 5
 updated_by: claude-opus-5
 ---
@@ -62,7 +62,7 @@ SOIA_PKM_CLIP_DOUYIN_CONFIG_FILE=<custom-config-path>
 ```
 
 - 如果只是偶尔归档、不想固定 vault 路径，可以不建 `config.yml`，每次用 `--vault` 传参即可。
-- 支持变量名：`OBSIDIAN_VAULT`、`OBSIDIAN_ARTICLES`。真实路径只写在私有 `config.yml` 里，参考 [config.example.yml](config.example.yml)。
+- 支持变量名：`OBSIDIAN_VAULT`、`OBSIDIAN_ARTICLES`。真实路径只写在私有 `config.yml` 里，参考 [config.example.yml](assets/config.example.yml)。
 - 优先级：`--vault`/`--articles-dir` CLI 参数 > `OBSIDIAN_VAULT`/`OBSIDIAN_ARTICLES` 进程环境变量 > `SOIA_PKM_CLIP_DOUYIN_CONFIG_FILE` 指向的私有 `config.yml` > 从当前工作目录向上自动发现 vault（找 `AGENTS.md` / `.obsidian`）> 通用兜底 `Articles/`（并向 stderr 打印警告）。
 
 **WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
