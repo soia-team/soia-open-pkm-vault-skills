@@ -33,6 +33,21 @@ updated_by: gpt-5
 
 需要 soia-pkm-query-vault 做查重与来源定位。移动误放文件时转 soia-pkm-manage-vault-lifecycle；完成后可用 soia-pkm-maintain-vault-health 检查链接和地图。推荐安装整个 soia-pkm-vault@soia 插件。
 
+装整个域（Claude Code 与 Codex 共用同一份域插件）：
+
+```bash
+claude plugin marketplace add soia-team/soia-open-skills
+claude plugin install soia-pkm-vault@soia
+```
+
+只装这一个技能：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-extract-vault-knowledge -y
+```
+
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 私密信息与中间数据
 
 默认不把历史导入语料的正文片段写进终端或会话日志；先用路径过滤和 --no-snippets 找候选，再只读必要文件。不得把凭据、真实账号、私有绝对路径、客户身份或家庭信息复制到知识笔记、manifest 或公开 skill 仓库。

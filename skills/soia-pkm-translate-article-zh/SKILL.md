@@ -73,6 +73,8 @@ SOIA_PKM_TRANSLATE_ARTICLE_ZH_CONFIG_FILE=<custom-config-path>
 - 优先级：CLI 参数（客户本次明确说的目标语言/模式/受众/术语）> 进程环境变量 > 私有 `config.yml` > 本技能内置默认值。
 - 不需要、也不应该读取任何 API key、cookie、session、账号凭据——本技能只处理客户提供的文本文件。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 每次执行都要让客户看见判定、确认、分块和产出全过程。最低回执格式：

@@ -28,6 +28,21 @@ updated_by: gpt-5
 
 只需 Python 3。建议安装整个 `soia-pkm-vault@soia` 插件。本技能不读取私有配置；vault 与 manifest 路径均由 CLI 显式传入。
 
+装整个域（Claude Code 与 Codex 共用同一份域插件）：
+
+```bash
+claude plugin marketplace add soia-team/soia-open-skills
+claude plugin install soia-pkm-vault@soia
+```
+
+只装这一个技能：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-manage-vault-lifecycle -y
+```
+
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 私密信息与中间数据
 
 manifest 可保存 vault 相对路径和哈希，不保存正文、凭据或环境变量。含私人文件名的 manifest 应留在客户 vault 的受控证据区，不进入公开仓库。

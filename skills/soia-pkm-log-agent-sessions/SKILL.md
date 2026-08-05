@@ -37,6 +37,21 @@ updated_by: gpt-5
 SOIA_PKM_AGENT_SESSION_CONFIG_FILE=<custom-config-path>
 ```
 
+装整个域（Claude Code 与 Codex 共用同一份域插件）：
+
+```bash
+claude plugin marketplace add soia-team/soia-open-skills
+claude plugin install soia-pkm-vault@soia
+```
+
+只装这一个技能：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-log-agent-sessions -y
+```
+
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 私密信息与中间数据
 
 - 默认日志只写时间、agent、变更数量、按顶层分区统计和验证结果；不写 diff、正文、prompt、事件 JSON 或环境变量。

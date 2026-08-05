@@ -65,3 +65,18 @@ python3 scripts/profile_x.py https://x.com/<handle> \
 ## 私密信息与中间数据
 
 run bundle 放在客户指定的临时或正式输出目录，不放入仓库、vault 根或 `~/.codex/generated_images`。公共仓库只提交脚本、契约和离线测试，不提交真实账号抓取结果、ALT、provider 缓存或生成图片。
+
+装整个域（Claude Code 与 Codex 共用同一份域插件）：
+
+```bash
+claude plugin marketplace add soia-team/soia-open-skills
+claude plugin install soia-pkm-vault@soia
+```
+
+只装这一个技能：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-clip-x-profile -y
+```
+
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。

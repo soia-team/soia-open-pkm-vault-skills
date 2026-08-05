@@ -58,6 +58,8 @@ SOIA_PKM_ALIPAN_DRIVE_OPS_CONFIG_FILE=<custom-config-path>
 - 如果需要 API key、cookie、session、provider home 或本机路径，只能放进私有 `config.yml`、进程环境或 provider 自己的登录态里，不能写进仓库、vault 正文或日志。
 - 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 私有配置加载与命令入口
 
 以下命令从本 skill 目录执行；若当前目录不同，请将 `scripts/run_with_env.py` 换成 `<skill-dir>/scripts/run_with_env.py`。运行 `aliyunpan` 时，优先使用本技能的包装器加载私有配置，再执行命令：

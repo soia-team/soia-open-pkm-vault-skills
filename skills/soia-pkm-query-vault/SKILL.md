@@ -31,6 +31,21 @@ updated_by: gpt-5
 
 本地确定性后端只需 Python 3；它不建立持久索引。附件全文后端推荐 Obsidian 的 Omnisearch + Text Extractor；AI 接入可选 `obsidian-mcp-server`。语义召回可选 QMD，但不能代替精确搜索。
 
+装整个域（Claude Code 与 Codex 共用同一份域插件）：
+
+```bash
+claude plugin marketplace add soia-team/soia-open-skills
+claude plugin install soia-pkm-vault@soia
+```
+
+只装这一个技能：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-query-vault -y
+```
+
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 私密信息与中间数据
 
 默认跳过所有隐藏目录、`.git`、`.obsidian`、凭据/配置目录和二进制正文。附件正文优先报告外部后端的命中；若后端不可用，必须明确回退为文件名/路径命中，再按需在临时运行目录提取并保留来源与哈希。普通结果输出匹配行短片段；历史导入、账号、安全或其他敏感语料先加 `--no-snippets`，只返回路径与匹配元数据。脚本不写持久缓存。
