@@ -68,7 +68,7 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transl
 SOIA_PKM_TRANSLATE_ARTICLE_ZH_CONFIG_FILE=<custom-config-path>
 ```
 
-- 样例见 [config.example.yml](config.example.yml)：`target_language` / `mode` / `audience` / `style` / `chunk_threshold` / `chunk_max_words` / `glossary`（内联术语表）都是明文偏好，不含任何秘密。
+- 样例见 [config.example.yml](assets/config.example.yml)：`target_language` / `mode` / `audience` / `style` / `chunk_threshold` / `chunk_max_words` / `glossary`（内联术语表）都是明文偏好，不含任何秘密。
 - 如果客户不需要自定义偏好，可以不创建 `config.yml`，本技能会用内置默认值（`zh-CN` / `normal` / `general` / `storytelling` / 4000 / 5000）。
 - 优先级：CLI 参数（客户本次明确说的目标语言/模式/受众/术语）> 进程环境变量 > 私有 `config.yml` > 本技能内置默认值。
 - 不需要、也不应该读取任何 API key、cookie、session、账号凭据——本技能只处理客户提供的文本文件。

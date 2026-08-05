@@ -167,7 +167,7 @@ aliyunpan ls "$DIR" </dev/null 2>/dev/null | \
 2. **删除/覆盖前先看**：`rm` 前先 `ls` 确认内容；同名冲突会自动加 `(1)` 后缀——移动前查目标是否已存在，避免产生 `xxx(1)` 重复目录。
 3. **高危操作留人**：清空目录、批量删除、跨盘手动迁移，列清单请用户确认或亲手操作。
 4. **凭据**：登录态属于 aliyunpan provider，默认在 `~/.config/aliyunpan/`，不要搬进 skill，也不要 cat 打印 token。若需要改登录态目录，只把 `ALIYUNPAN_CONFIG_DIR` 这个 override 放进本技能私有配置：
-   `~/.config/soia-skills/soia-pkm-alipan-drive-ops/config.yml`（见 `config.example.yml`）。
+   `~/.config/soia-skills/soia-pkm-alipan-drive-ops/config.yml`（见 `assets/config.example.yml`）。
    运行命令优先使用 `python3 scripts/run_with_env.py -- aliyunpan <command>` 加载该 override；任何日志、诊断输出和最终回执都不得打印 token 或 env 值。
 5. **删除/移动/重命名前先确认**：命中路径、显式技能调用、任何默认配置都只是推荐输入，不构成跳过确认的理由；唯一跳过条件是客户当前这句话明确说"直接删/不用确认"，跳过后要在回执里说明本次沿用的范围假设。
 6. **批量前先小样本探测**：批量 `mv`/`rm`/`rename` 前，先用最小样本（如 1 条）跑一遍并汇报预计总量，客户确认规模无误后再放开全量执行，不要对着未知规模的目录直接下手。

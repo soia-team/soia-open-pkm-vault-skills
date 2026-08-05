@@ -82,7 +82,7 @@ npx skills add https://github.com/baidu-netdisk/bdpan-storage/skills --skill bai
   ~/.config/soia-skills/soia-pkm-baidu-netdisk-ops/config.yml
   ```
 
-  可用 `SOIA_PKM_BAIDU_NETDISK_OPS_CONFIG_FILE=<custom-config-path>` 覆盖。复制本技能的 [config.example.yml](config.example.yml) 后按所选后端填写；不要把私有 `config.yml` 放回仓库。
+  可用 `SOIA_PKM_BAIDU_NETDISK_OPS_CONFIG_FILE=<custom-config-path>` 覆盖。复制本技能的 [config.example.yml](assets/config.example.yml) 后按所选后端填写；不要把私有 `config.yml` 放回仓库。
 - 配置选项只有 `provider: official|community` 和可选 `binary: bdpan|baidupan-cli`。`binary` 仅用于选择 CLI；缺省按 `provider` 选择。
 - 官方 provider 配置由 `bdpan` 自己维护在 `~/.config/bdpan/config.json`。Agent 不读取、不打印、不复制该文件，也不主动设置 `BDPAN_CONFIG_PATH`、`BDPAN_BIN` 或 `BDPAN_INSTALL_DIR`。
 - 社区 provider 只从私有配置的 `env:` 读取 `BAIDUPAN_APP_KEY`、`BAIDUPAN_APP_SECRET`、`BAIDUPAN_APP_NAME` 和可选的 `BAIDUPAN_CRYPTO_PASSPHRASE`；进程环境优先于配置文件。包装器不会执行 shell 插值，也不会打印这些值。

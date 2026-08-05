@@ -65,7 +65,7 @@ SOIA_PKM_CLIP_REDNOTE_CONFIG_FILE=<custom-config-path>
 
 - 如果不需要私有配置（大多数公开笔记），可以不创建 `config.yml`。
 - `XHS_COOKIE` 只能放进私有 `config.yml`、进程环境，不能写进仓库、vault 正文或日志；脚本从不打印其值。为防止配了 `XHS_COOKIE` 后被恶意/伪造链接骗去发给第三方主机，脚本只接受 `xiaohongshu.com`/`xhslink.com` 域名下的链接，其余一律拒绝。
-- 参考 [config.example.yml](config.example.yml)。
+- 参考 [config.example.yml](assets/config.example.yml)。
 
 **WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
 

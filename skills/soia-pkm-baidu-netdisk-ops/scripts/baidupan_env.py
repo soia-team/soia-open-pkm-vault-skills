@@ -75,7 +75,7 @@ def load_private_config(required: bool = False) -> dict[str, object]:
         if required:
             raise SystemExit(
                 f"Missing private config file: {path}\n"
-                "Copy config.example.yml there and fill the selected provider values."
+                "Copy assets/config.example.yml there and fill the selected provider values."
             )
         return {"env": {}}
     try:
