@@ -59,6 +59,8 @@ SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE=<custom-config-path>
 - 如果需要 API key、cookie、session、provider home 或本机路径，只能放进私有 `config.yml`、进程环境或 provider 自己的登录态里，不能写进仓库、vault 正文或日志。
 - 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 批量抓取只代表 `captured`；落盘后按生命周期管理技能逐对象完成 `organized → MOC/导航 → map → Base`，不适用阶段显式写 `not_applicable`，不能以批量成功数代替闭环证据。

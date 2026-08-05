@@ -40,6 +40,21 @@ updated_by: gpt-5
 
 Python 3 是强依赖，JSON 配置零第三方依赖；YAML 配置额外需要 PyYAML。推荐安装整个 `soia-pkm-vault@soia` 插件。
 
+装整个域（Claude Code 与 Codex 共用同一份域插件）：
+
+```bash
+claude plugin marketplace add soia-team/soia-open-skills
+claude plugin install soia-pkm-vault@soia
+```
+
+只装这一个技能：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-bootstrap-vault-base -y
+```
+
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 私密信息与中间数据
 
 默认资产不含个人资料、账号、凭据、绝对路径或私有项目事实。自定义配置由客户自行保管；含私人内容时不要提交到公开技能仓。

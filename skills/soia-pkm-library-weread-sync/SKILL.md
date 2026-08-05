@@ -78,6 +78,8 @@ env:
 
 为兼容旧调用方式，脚本仍接受 `SOIA_PKM_LIBRARY_CONFIG_FILE` 和 `SOIA_PKM_LIBRARY_ENV_FILE` 作为配置路径环境变量；新配置优先使用上面的新名称。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 终端日志会说明开始阶段、处理数量、写入类别、跳过/失败原因和下一步建议。不得输出 API key、cookie、token 或私有配置内容。缺少依赖或 key 时必须停止 API 调用，并给出安装命令或官方获取地址。

@@ -79,6 +79,8 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 
 配置文件选择顺序是 `--config` > `SOIA_PKM_ARTICLE_PPT_CONFIG_FILE` > 上述默认路径；字段值按“显式 CLI > 私有 config > 内置默认”解析。配置示例见 `config.example.yml`。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 ```markdown

@@ -59,6 +59,8 @@ OBSIDIAN_ARTICLES=<vault-relative-articles-dir>
 - 当前 stdlib 脚本不解析 YAML `config.yml`，也不需要 API key、cookie 或其他凭据；不要创建一个不会生效的配置文件。
 - 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 每次执行都要让客户看见过程和结果。最低回执格式：

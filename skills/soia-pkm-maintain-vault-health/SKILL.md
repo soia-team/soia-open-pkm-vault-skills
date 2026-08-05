@@ -41,6 +41,21 @@ updated_by: gpt-5
 SOIA_PKM_VAULT_HEALTH_CONFIG_FILE=<custom-config-path>
 ```
 
+装整个域（Claude Code 与 Codex 共用同一份域插件）：
+
+```bash
+claude plugin marketplace add soia-team/soia-open-skills
+claude plugin install soia-pkm-vault@soia
+```
+
+只装这一个技能：
+
+```bash
+npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-maintain-vault-health -y
+```
+
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 私密信息与中间数据
 
 扫描只读取目标 vault；默认跳过 `.git`、`.obsidian`、`.trash`、隐藏目录与所有 symlink。报告不得打印文件正文、凭据或环境变量值。临时预览放系统临时目录，完成后可删除；默认地图输出若经 symlink 逃出 vault 会拒绝写入。

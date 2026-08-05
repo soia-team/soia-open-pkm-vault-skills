@@ -60,6 +60,8 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-bootst
 - Obsidian 下载：https://obsidian.md/download
 - 版本建议：1.9+，以当前官方版本和本机系统支持为准。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 回执至少说明：运行模式、备份类别、Bases/CSS/link format 的 create/update/skip/drift、`--check` 结果和客户端手动验证。不要打印账号、token 或 JSON 私有值。

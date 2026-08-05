@@ -67,6 +67,8 @@ SOIA_PKM_INTERPRET_ARTICLE_ANALYSIS_CONFIG_FILE=<custom-config-path>
 - 本技能是纯文档 / 纯 prompt 技能，不带脚本，通常不需要 `config.yml`；如果客户想固定"默认深度"或"批量确认阈值"等偏好，可以建这个文件，字段与本文一致。
 - 不需要、也不应该读取任何 API key、cookie、session、账号凭据——本技能只读取客户提供的文本文件。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 每次执行都要让客户看见判定、深度、批量确认和产出全过程。最低回执格式：

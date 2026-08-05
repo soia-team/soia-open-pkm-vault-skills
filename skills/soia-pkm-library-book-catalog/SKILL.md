@@ -69,6 +69,8 @@ env:
 
 为兼容旧调用方式，脚本也接受 `SOIA_PKM_LIBRARY_CONFIG_FILE` 和 `SOIA_PKM_LIBRARY_ENV_FILE`；新配置优先使用上面的 catalog 专用名称。配置只保存本机路径，不提交私密数据。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 每次运行都会输出扫描范围、创建/更新/跳过/失败数量、输出类别和下一步建议。涉及 vault 的日志只报告泛化位置和资源类别，不打印密钥或不必要的本机绝对路径。结束时必须说明实际文件变化和验证方式。

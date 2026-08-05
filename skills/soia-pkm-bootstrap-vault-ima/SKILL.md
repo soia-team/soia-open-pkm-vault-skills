@@ -64,6 +64,8 @@ SOIA_PKM_BOOTSTRAP_VAULT_IMA_CONFIG_FILE=<custom-config-path>
 - ima 官网与客户端下载入口：https://ima.qq.com/
 - ima 的 Skills、本地文件夹监控和知识库界面会随客户端版本变化；未实测部分标注为“以 ima 客户端实际界面为准，首次执行时校正本文档”。
 
+**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+
 ### 日志与完成回执
 
 回执至少包含：客户端登录检查、目标知识库和本地 allowlist（只写相对目录）、首次同步范围、成功/跳过/失败数量、检索验证结果和仍需用户手动校正的 UI 步骤。不得打印账号、token、私有文件内容或本机绝对路径。
