@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-web
 description: 归档网页或博客文章到 Obsidian vault，并按统一规范落地。触发：「归档这个网页」「clip 这个链接」「存这篇博客」
-version: 1.0.2
+version: 1.0.3
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-07-23 07:16:14
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-clip-web

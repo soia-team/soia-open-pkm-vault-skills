@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-library-book-catalog
 description: 纯本地、幂等、可重复运行地维护 Obsidian 书库：补建待读记录并重新生成图书馆、阅读记录和按类型总览，不依赖微信读书。Triggers：「重新生成图书馆总览」「更新阅读记录总览」「补建待读记录」「书库整理」
-version: 1.0.2
+version: 1.0.3
 created_at: 2026-07-16 18:01:32
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5.6-luna
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-library-book-catalog

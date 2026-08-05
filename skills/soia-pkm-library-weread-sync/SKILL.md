@@ -6,11 +6,11 @@ dependencies:
     - name: weread-skills
       required: true
       install: "npx skills add Tencent/WeChatReading -g -y"
-version: 2.0.2
+version: 2.0.3
 created_at: 2026-07-06 11:12:07
-updated_at: 2026-07-22 21:05:00
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-library-weread-sync

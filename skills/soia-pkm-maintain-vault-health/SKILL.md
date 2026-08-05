@@ -3,11 +3,11 @@ name: soia-pkm-maintain-vault-health
 description: 只读检查整个 Markdown/Obsidian 知识库或指定模块的健康状态，审计死链、歧义文件名、标签策略与过期内容，并按授权重建地图或健康简报。触发：「检查知识库健康」「检查知识库某个模块」「维护知识库」「重建知识库地图」「vault 周维护」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.1.2
+version: 1.1.3
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-04 12:00:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-maintain-vault-health

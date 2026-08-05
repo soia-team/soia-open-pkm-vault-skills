@@ -3,11 +3,11 @@ name: soia-pkm-bootstrap-vault-obsidian
 description: 以 dry-run 和保留未知配置的结构化合并方式，把已有 Markdown vault 配置为 Obsidian 消费端，启用 Bases 与可选宽页 CSS。触发：「配置 Obsidian vault」「启用 Obsidian Bases」「接入 Obsidian 消费端」
 dependencies:
   hard: [soia-pkm-bootstrap-vault-base]
-version: 2.1.0
+version: 2.1.1
 created_at: 2026-07-16 16:00:31
-updated_at: 2026-08-01 12:00:00
+updated_at: 2026-08-05 13:30:00
 created_by: gpt-5.6-luna
-updated_by: gpt-5
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-bootstrap-vault-obsidian

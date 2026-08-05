@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-distill-article-opinion
 description: 通过苏格拉底式逐问，把用户对 vault 文章的回答整理成其本人观点，并写入「我的看法」或主题综述。触发：「补我的看法」「炼成观点」「主题观点综述」
-version: 2.0.1
+version: 2.0.2
 created_at: 2026-07-02 16:41:13
-updated_at: 2026-07-23 07:17:12
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-distill-article-opinion

@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-organize-article-moc
 description: 将 Obsidian 文章库按元数据、主题双链、月份和两级 MOC 规范化整理。触发：「整理文章库」「重建 MOC」「收藏归类」
-version: 2.0.3
+version: 2.0.4
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-02 15:20:00
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-organize-article-moc

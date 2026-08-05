@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-interpret-article-analysis
 description: 为 vault 长文或论文生成独立 AI 解读，帮助判断是否值得深挖，且不改原文或代写用户观点。触发：「解读这篇」「精读这篇」「值得细读吗」
-version: 2.0.1
+version: 2.0.2
 created_at: 2026-07-10 09:10:23
-updated_at: 2026-07-23 07:17:12
+updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
-updated_by: gpt-5.6-luna
+updated_by: claude-opus-5
 ---
 
 # soia-pkm-interpret-article-analysis
