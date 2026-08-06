@@ -31,6 +31,16 @@ DOT_NUMBERED = re.compile(r"^(\d{1,2})[.]\s*(.+)$")
 DASH_NUMBERED = re.compile(r"^(\d{1,2})[-]\s*(.+)$")
 WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 GENERATED_REFERENCE_SOURCES = {"20_资料库/OB知识库地图.md"}
+PREFERRED_SEMANTIC_ORDER = {
+    # Stable top-level order for the historical snapshot namespace.  The
+    # fallback remains lexical, so callers do not need to provide a taxonomy
+    # for every private module.
+    "工作": 10,
+    "技术": 20,
+    "日记": 30,
+    "生活": 40,
+    "写作": 50,
+}
 
 
 def fingerprint(root: Path) -> str:
@@ -180,11 +190,36 @@ def desired_name(name: str) -> tuple[str, int | None, bool]:
     return name, None, True
 
 
+def semantic_sort_key(path: Path) -> tuple[int, int, str]:
+    """Sort existing numeric names first, then known semantic order, then name."""
+    name = path.name
+    numbered = NUMBERED.fullmatch(name)
+    if numbered:
+        return (0, int(numbered.group(1)), name)
+    dotted = DOT_NUMBERED.fullmatch(name) or DASH_NUMBERED.fullmatch(name)
+    if dotted:
+        return (0, int(dotted.group(1)) * 10, name)
+    return (1, PREFERRED_SEMANTIC_ORDER.get(name, 1000), name)
+
+
 def build_directory_map(root: Path, scope: Path) -> dict[str, str]:
     mapping: dict[str, str] = {}
     directories = sorted(iter_dirs(scope), key=lambda p: (len(p.relative_to(scope).parts), p.as_posix()))
     for parent in sorted({p.parent for p in directories}, key=lambda p: p.as_posix()):
-        children = sorted((p for p in parent.iterdir() if p.is_dir()), key=lambda p: p.name)
+        # Hidden archive/state trees are path-attached implementation details,
+        # not semantic vault modules.  In particular, historical snapshots may
+        # contain note-package directories such as ``.Archive/2021-08-11.md``;
+        # treating those as modules exhausts the finite numbering slots and can
+        # make an otherwise valid plan fail with ``no free two-digit directory
+        # number``.  Keep the whole hidden subtree opaque and let its parent
+        # move with the files unchanged.
+        try:
+            parent_rel = parent.relative_to(scope)
+        except ValueError:
+            parent_rel = parent.relative_to(root)
+        if any(part.startswith(".") for part in parent_rel.parts):
+            continue
+        children = sorted((p for p in parent.iterdir() if p.is_dir()), key=semantic_sort_key)
         if not children:
             continue
         planned: list[tuple[Path, str, int | None, bool]] = []
@@ -301,20 +336,23 @@ def plan(args: argparse.Namespace) -> int:
     deleted = {item["path"] for item in delete_files}
     final_files = {mapped_path(rel(path, root), mapping) for path in all_files if rel(path, root) not in deleted}
     delete_dirs = []
-    all_dirs = list(cleanup_roots)
-    for cleanup_root in cleanup_roots:
-        all_dirs.extend(iter_dirs(cleanup_root))
-    for path in sorted(all_dirs, key=lambda p: (len(p.relative_to(root).parts), p.as_posix()), reverse=True):
-        path_rel = rel(path, root)
-        if path == scope:
-            continue
-        prefix = path_rel.rstrip("/") + "/"
-        if not any(value.startswith(prefix) for value in final_files):
-            delete_dirs.append(path_rel)
+    if not args.preserve_empty_dirs:
+        all_dirs = list(cleanup_roots)
+        for cleanup_root in cleanup_roots:
+            all_dirs.extend(iter_dirs(cleanup_root))
+        for path in sorted(all_dirs, key=lambda p: (len(p.relative_to(root).parts), p.as_posix()), reverse=True):
+            path_rel = rel(path, root)
+            if path == scope:
+                continue
+            prefix = path_rel.rstrip("/") + "/"
+            if not any(value.startswith(prefix) for value in final_files):
+                delete_dirs.append(path_rel)
     actions = move_actions + [{"action": "delete_file", **item} for item in delete_files] + [{"action": "delete_dir", "path": path} for path in delete_dirs]
+    move_bytes = sum(item["size"] for item in move_actions)
     payload = {
         "schema_version": 1,
         "tool": "soia-pkm-manage-vault-lifecycle/vault_structure_plan",
+        "plan_type": "directory-numbering",
         "created_at": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
         "vault_fingerprint": fingerprint(root),
         "scope": rel(scope, root),
@@ -324,7 +362,25 @@ def plan(args: argparse.Namespace) -> int:
         "blockers": blockers,
         "directory_renames": [{"source": source, "target": mapped_path(source, mapping)} for source in sorted(mapping)],
         "actions": actions,
-        "summary": {"directory_renames": len(mapping), "move_files": len(move_actions), "delete_files": len(delete_files), "delete_dirs": len(delete_dirs), "blockers": len(blockers)},
+        "summary": {
+            "directory_renames": len(mapping),
+            "move_files": len(move_actions),
+            "move_bytes": move_bytes,
+            "delete_files": len(delete_files),
+            "delete_dirs": len(delete_dirs),
+            "blockers": len(blockers),
+            "batches": [{
+                "scope": rel(scope, root),
+                "directory_renames": len(mapping),
+                "move_files": len(move_actions),
+                "move_bytes": move_bytes,
+            }],
+        },
+        "reference_scan": {
+            "incoming_refs": sum(len(item.get("incoming_refs", [])) for item in move_actions),
+            "moves_with_incoming_refs": sum(bool(item.get("incoming_refs")) for item in move_actions),
+            "generated_sources_excluded": sorted(GENERATED_REFERENCE_SOURCES),
+        },
     }
     manifest.parent.mkdir(parents=True, exist_ok=True)
     manifest.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -428,6 +484,7 @@ def main() -> int:
     parser.add_argument("--scope", default="20_资料库/90_历史导入")
     parser.add_argument("--cleanup-root", action="append", default=[], help="additional vault-relative root for empty-object cleanup (repeatable)")
     parser.add_argument("--cleanup-file", action="append", default=[], help="explicit .DS_Store metadata file to delete (repeatable)")
+    parser.add_argument("--preserve-empty-dirs", action="store_true", help="plan renames/moves without deleting empty directories")
     args = parser.parse_args()
     if args.command == "plan":
         return plan(args)

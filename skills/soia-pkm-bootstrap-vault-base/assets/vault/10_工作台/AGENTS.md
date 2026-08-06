@@ -1,6 +1,6 @@
 # 10_工作台 · AGENTS.md
 
-固定结构：`00_收件箱/` 临时捕获，`10_总控/` 唯一总入口，`20_活跃项目/<项目>/` 当前项目控制面。已有 vault 可通过自定义 config 保留自己的 Inbox 命名。
+固定结构：`00_Inbox/` 临时捕获，`10_总控/` 唯一总入口，`20_活跃项目/<项目>/` 当前项目控制面。已有 vault 可通过自定义 config 保留自己的 Inbox 命名。
 
 工作台 Markdown 必填：`tags` 首项 `工作台`、`title`、`type`、`status`、`project`、`priority`、`created`、`updated`。
 

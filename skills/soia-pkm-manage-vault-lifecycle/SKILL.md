@@ -134,6 +134,13 @@ python3 scripts/vault_structure_plan.py plan \
   --scope '20_资料库/90_历史导入' \
   --cleanup-root '20_资料库/10_融合分类'
 
+# 只做编号/迁移预演，保留所有空目录；空目录清理必须另列清单并单独授权
+python3 scripts/vault_structure_plan.py plan \
+  --vault <vault-path> \
+  --manifest '<manifest>' \
+  --scope '<scope>' \
+  --preserve-empty-dirs
+
 # 只删除一个已经核对过的 OS 元数据文件；不会扫描并删除其他正文
 python3 scripts/vault_structure_plan.py plan \
   --vault <vault-path> \
@@ -156,6 +163,7 @@ python3 scripts/vault_structure_plan.py verify \
 - `1.主题`、`2.主题` 等旧样式规范化为 `10_主题`、`20_主题`；所有知识语义目录（包括精选区二级/三级模块）都必须编号。只有年份、月份、日期、明确的 `_resources`、`_image`、`images`、`attachments` 等资源目录和隐藏插件状态目录是例外。
 - 只删除 manifest 中明确列出的 `.DS_Store`、无正文 Markdown 和最终为空的目录；无正文笔记一旦有入链就阻断计划，生成地图的自动入链不作为阻断依据。
 - 隐藏插件状态目录/文件（例如 `.metion`、`.icon.png`）随所属语义目录一起移动，不单独编号；含这些状态或资源文件的目录不是“空目录”，不会被清理。`--cleanup-file` 仅允许显式存在的 `.DS_Store`。
+- 隐藏目录及其整棵子树（例如 `.Archive` 下的历史笔记包目录，即使目录名带 `.md`）视为路径附着的历史/状态对象，不参与语义编号，也不消耗同级编号槽位；可见父目录迁移时原样随行。
 - 文件内容按 SHA-256 守恒移动；该工具不改正文、不覆盖目标。链接修复、地图重建和 Base 验证必须作为单独、可审计的后续动作。
 
 ### 30/40/50 分区整理接缝
