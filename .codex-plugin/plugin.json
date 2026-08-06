@@ -1,6 +1,6 @@
 {
   "name": "soia-pkm-vault",
-  "version": "1.9.1-SNAPSHOT",
+  "version": "1.10.0-SNAPSHOT",
   "description": "知识库技能：初始化、检索、生命周期、健康维护、整理与转换",
   "author": {
     "name": "soia-team"
