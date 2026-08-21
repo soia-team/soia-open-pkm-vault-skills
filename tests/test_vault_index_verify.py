@@ -55,6 +55,22 @@ class VaultIndexVerifyTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("base_root_missing", result.stdout)
 
+    def test_tag_only_base_fails_with_path_boundary_error(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "20_资料库").mkdir(parents=True)
+            (vault / "20_资料库/资料库.base").write_text(
+                'filters:\n  and:\n    - file.hasTag("资料库")\n', encoding="utf-8"
+            )
+            (vault / "20_资料库/OB知识库地图.md").write_text(
+                "---\nupdated: 2026-08-21\n---\n\n> 全库约 2 文件 / 1 目录 / 0.0GB。\n",
+                encoding="utf-8",
+            )
+            result = self.run_tool(vault)
+            self.assertNotEqual(result.returncode, 0)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["errors"], ["base_has_no_file_inFolder"])
+
 
 if __name__ == "__main__":
     unittest.main()

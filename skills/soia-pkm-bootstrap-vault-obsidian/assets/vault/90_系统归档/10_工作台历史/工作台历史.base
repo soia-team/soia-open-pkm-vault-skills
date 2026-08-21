@@ -1,5 +1,6 @@
 filters:
   and:
+    - file.inFolder("90_系统归档/10_工作台历史")
     - file.hasTag("工作台归档")
 properties:
   file.name:
