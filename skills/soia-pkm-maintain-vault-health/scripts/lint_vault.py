@@ -2,7 +2,7 @@
 """
 lint_vault.py — Markdown vault 只读体检脚本（soia-pkm-maintain-vault-health）
 
-五类检查（全部只读，不修改 vault 里任何文件，可重复运行）：
+六类检查（全部只读，不修改 vault 里任何文件，可重复运行）：
   a) 死链 wikilink   —— [[target]] 剥离 |别名 和 #锚点后，在全库 .md 文件名/
                          相对路径索引里找不到对应文件
   b) 重复文件名      —— 同名 .md 出现在多个目录
@@ -11,6 +11,7 @@ lint_vault.py — Markdown vault 只读体检脚本（soia-pkm-maintain-vault-he
   d) 过期文章        —— frontmatter time_sensitive: true 且 review_after
                          早于当前年月
   e) 20 区结构        —— 精选/历史导入语义目录的未编号、重复编号与 legacy 路径
+  f) 50 区结构        —— 写作生命周期根目录与语义子目录的未编号、重复编号
 
 用法：
   python3 lint_vault.py --vault /path/to/vault
@@ -59,6 +60,14 @@ RESOURCE_DIR_NAMES = {
 ALLOWED_20_ROOT_DIRS = {
     "10_主题知识", "20_规范与手册", "30_学习指南", "90_历史导入",
 }
+WRITING_ZONE_ROOT = "50_写作与发布"
+WRITING_LIFECYCLE_DIRS = (
+    "10_草稿", "15_待审核", "20_发布", "90_归档",
+)
+ALLOWED_50_ROOT_DIRS = set(WRITING_LIFECYCLE_DIRS)
+WRITING_ROOTS = tuple(
+    f"{WRITING_ZONE_ROOT}/{name}" for name in WRITING_LIFECYCLE_DIRS
+)
 
 WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 FENCED_CODE_RE = re.compile(r"^[ \t]*(?:```|~~~).*?^[ \t]*(?:```|~~~)[ \t]*$", re.MULTILINE | re.DOTALL)
@@ -185,32 +194,30 @@ def is_excluded(rel, exclude_set):
     return any(rel.startswith(ex.rstrip("/") + "/") for ex in exclude_set)
 
 
-def check_20_structure(vault):
-    """Return read-only numbering findings for the governed 20 zone.
+def _check_numbered_structure(vault, zone_root, allowed_root_dirs, governed_roots):
+    """Return read-only numbering findings for a governed vault zone.
 
     Resource and temporal trees are skipped as a whole. Ordinary semantic
-    directories under curated roots and history import must carry a two-digit
-    prefix; duplicate prefixes are reported per parent without guessing a
-    rename.
+    directories below governed roots must carry a two-digit prefix; duplicate
+    prefixes are reported per parent without guessing a rename.
     """
     unnumbered = []
     duplicate_prefixes = []
     unexpected_roots = []
-    root20 = os.path.join(vault, "20_资料库")
-    if os.path.isdir(root20):
+    root_path = os.path.join(vault, zone_root.replace("/", os.sep))
+    if os.path.isdir(root_path):
         try:
-            for name in sorted(os.listdir(root20)):
-                child = os.path.join(root20, name)
+            for name in sorted(os.listdir(root_path)):
+                child = os.path.join(root_path, name)
                 if not os.path.isdir(child) or os.path.islink(child) or name.startswith("."):
                     continue
-                if name not in ALLOWED_20_ROOT_DIRS and name not in RESOURCE_DIR_NAMES:
-                    unexpected_roots.append(f"20_资料库/{name}")
+                if name not in allowed_root_dirs and name not in RESOURCE_DIR_NAMES:
+                    unexpected_roots.append(f"{zone_root}/{name}")
         except OSError:
             pass
-    governed_roots = [*CURATED_ROOTS, HISTORY_ROOT]
     for rel_root in governed_roots:
-        root_path = os.path.join(vault, rel_root.replace("/", os.sep))
-        if not os.path.isdir(root_path):
+        governed_path = os.path.join(vault, rel_root.replace("/", os.sep))
+        if not os.path.isdir(governed_path):
             continue
 
         def walk(path, rel):
@@ -239,14 +246,36 @@ def check_20_structure(vault):
             for child, child_rel in next_dirs:
                 walk(child, child_rel)
 
-        walk(root_path, rel_root)
-    legacy = os.path.isdir(os.path.join(vault, "20_资料库/10_融合分类"))
+        walk(governed_path, rel_root)
     return {
         "unexpected_roots": unexpected_roots,
         "unnumbered": sorted(set(unnumbered)),
         "duplicate_prefixes": duplicate_prefixes,
-        "legacy_10_融合分类": legacy,
     }
+
+
+def check_20_structure(vault):
+    """Return read-only numbering findings for the governed 20 zone."""
+    findings = _check_numbered_structure(
+        vault,
+        "20_资料库",
+        ALLOWED_20_ROOT_DIRS,
+        [*CURATED_ROOTS, HISTORY_ROOT],
+    )
+    findings["legacy_10_融合分类"] = os.path.isdir(
+        os.path.join(vault, "20_资料库/10_融合分类")
+    )
+    return findings
+
+
+def check_50_structure(vault):
+    """Return read-only numbering findings for the governed writing zone."""
+    return _check_numbered_structure(
+        vault,
+        WRITING_ZONE_ROOT,
+        ALLOWED_50_ROOT_DIRS,
+        WRITING_ROOTS,
+    )
 
 
 UNREADABLE_FILES = []  # 编码异常等无法读取的文件（相对路径），运行结束汇总提示
@@ -481,7 +510,10 @@ def check_stale_articles(vault, scan_files):
     return stale
 
 
-def render_markdown(vault, dead_links, dup_names, tag_drift, untagged, stale, structure, unreadable):
+def render_markdown(
+    vault, dead_links, dup_names, tag_drift, untagged, stale,
+    structure20, structure50, unreadable,
+):
     lines = []
     lines.append("# Vault Lint 报告")
     lines.append("")
@@ -536,19 +568,35 @@ def render_markdown(vault, dead_links, dup_names, tag_drift, untagged, stale, st
 
     lines.append("## e. 20 区目录编号")
     lines.append("")
-    if structure["legacy_10_融合分类"]:
+    if structure20["legacy_10_融合分类"]:
         lines.append("- legacy 路径仍存在：`20_资料库/10_融合分类`")
-    if structure["unexpected_roots"]:
+    if structure20["unexpected_roots"]:
         lines.append("- 未约定的 20 区一级目录：")
-        lines.extend(f"  - `{item}`" for item in structure["unexpected_roots"])
-    if structure["unnumbered"]:
+        lines.extend(f"  - `{item}`" for item in structure20["unexpected_roots"])
+    if structure20["unnumbered"]:
         lines.append("- 未编号语义目录：")
-        lines.extend(f"  - `{item}`" for item in structure["unnumbered"])
-    if structure["duplicate_prefixes"]:
+        lines.extend(f"  - `{item}`" for item in structure20["unnumbered"])
+    if structure20["duplicate_prefixes"]:
         lines.append("- 重复编号：")
-        for item in structure["duplicate_prefixes"]:
+        for item in structure20["duplicate_prefixes"]:
             lines.append(f"  - `{item['parent']}` 下 `{item['prefix']}`：{', '.join(item['paths'])}")
-    if not structure["unexpected_roots"] and not structure["legacy_10_融合分类"] and not structure["unnumbered"] and not structure["duplicate_prefixes"]:
+    if not structure20["unexpected_roots"] and not structure20["legacy_10_融合分类"] and not structure20["unnumbered"] and not structure20["duplicate_prefixes"]:
+        lines.append("无")
+    lines.append("")
+
+    lines.append("## f. 50 区目录编号")
+    lines.append("")
+    if structure50["unexpected_roots"]:
+        lines.append("- 未约定的 50 区一级目录：")
+        lines.extend(f"  - `{item}`" for item in structure50["unexpected_roots"])
+    if structure50["unnumbered"]:
+        lines.append("- 未编号语义目录：")
+        lines.extend(f"  - `{item}`" for item in structure50["unnumbered"])
+    if structure50["duplicate_prefixes"]:
+        lines.append("- 重复编号：")
+        for item in structure50["duplicate_prefixes"]:
+            lines.append(f"  - `{item['parent']}` 下 `{item['prefix']}`：{', '.join(item['paths'])}")
+    if not structure50["unexpected_roots"] and not structure50["unnumbered"] and not structure50["duplicate_prefixes"]:
         lines.append("无")
     lines.append("")
 
@@ -558,12 +606,15 @@ def render_markdown(vault, dead_links, dup_names, tag_drift, untagged, stale, st
     lines.append(f"- 重复文件名：{len(dup_names)} 组")
     lines.append(f"- 主标签漂移：{len(tag_drift)}（未打标 {len(untagged)}，不计入漂移）")
     lines.append(f"- 过期文章：{len(stale)}")
-    lines.append(f"- 20 区未编号语义目录：{len(structure['unnumbered'])}")
-    lines.append(f"- 20 区重复编号：{len(structure['duplicate_prefixes'])}")
-    lines.append(f"- 20 区未约定一级目录：{len(structure['unexpected_roots'])}")
-    lines.append(f"- legacy 10_融合分类：{'是' if structure['legacy_10_融合分类'] else '否'}")
+    lines.append(f"- 20 区未编号语义目录：{len(structure20['unnumbered'])}")
+    lines.append(f"- 20 区重复编号：{len(structure20['duplicate_prefixes'])}")
+    lines.append(f"- 20 区未约定一级目录：{len(structure20['unexpected_roots'])}")
+    lines.append(f"- legacy 10_融合分类：{'是' if structure20['legacy_10_融合分类'] else '否'}")
+    lines.append(f"- 50 区未编号语义目录：{len(structure50['unnumbered'])}")
+    lines.append(f"- 50 区重复编号：{len(structure50['duplicate_prefixes'])}")
+    lines.append(f"- 50 区未约定一级目录：{len(structure50['unexpected_roots'])}")
     if unreadable:
-        lines.append(f"- 读取失败（编码异常等，已跳过，不计入以上四类）：{len(unreadable)}")
+        lines.append(f"- 读取失败（编码异常等，已跳过，不计入以上检查）：{len(unreadable)}")
         for rel in unreadable:
             lines.append(f"  - `{rel}`")
     return "\n".join(lines) + "\n"
@@ -599,7 +650,8 @@ def main():
     dup_names = check_duplicate_filenames(scan_files)
     tag_drift, untagged = check_tag_drift(vault, scan_files, whitelist)
     stale = check_stale_articles(vault, scan_files)
-    structure = check_20_structure(vault)
+    structure20 = check_20_structure(vault)
+    structure50 = check_50_structure(vault)
     unreadable = sorted(set(UNREADABLE_FILES))
 
     if args.json:
@@ -613,7 +665,8 @@ def main():
             "tag_drift": [{"file": rel, "tag": t} for rel, t in tag_drift],
             "untagged": untagged,
             "stale_articles": [{"file": rel, "review_after": r} for rel, r in stale],
-            "20_structure": structure,
+            "20_structure": structure20,
+            "50_structure": structure50,
             "unreadable_files": unreadable,
             "summary": {
                 "dead_links": len(dead_links),
@@ -621,16 +674,22 @@ def main():
                 "tag_drift": len(tag_drift),
                 "untagged": len(untagged),
                 "stale_articles": len(stale),
-                "20_unnumbered_dirs": len(structure["unnumbered"]),
-                "20_duplicate_prefixes": len(structure["duplicate_prefixes"]),
-                "20_unexpected_roots": len(structure["unexpected_roots"]),
-                "20_legacy_10_融合分类": int(structure["legacy_10_融合分类"]),
+                "20_unnumbered_dirs": len(structure20["unnumbered"]),
+                "20_duplicate_prefixes": len(structure20["duplicate_prefixes"]),
+                "20_unexpected_roots": len(structure20["unexpected_roots"]),
+                "20_legacy_10_融合分类": int(structure20["legacy_10_融合分类"]),
+                "50_unnumbered_dirs": len(structure50["unnumbered"]),
+                "50_duplicate_prefixes": len(structure50["duplicate_prefixes"]),
+                "50_unexpected_roots": len(structure50["unexpected_roots"]),
                 "unreadable_files": len(unreadable),
             },
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        print(render_markdown(vault, dead_links, dup_names, tag_drift, untagged, stale, structure, unreadable))
+        print(render_markdown(
+            vault, dead_links, dup_names, tag_drift, untagged, stale,
+            structure20, structure50, unreadable,
+        ))
 
 
 if __name__ == "__main__":

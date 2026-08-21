@@ -21,7 +21,7 @@ from pathlib import Path, PurePosixPath
 SKIP_DIRS = {".git", ".obsidian", ".trash", "node_modules"}
 RESOURCE_NAMES = {
     "images", "image", "_image", "_images", "resources", "_resources",
-    "attachments", "_attachments", "@resources", "help_images",
+    "attachments", "_attachments", "@resources", "help_images", "assets",
 }
 TEMPORAL = re.compile(
     r"^(?:\d{4}|\d{1,2}月|第.+周|\d{4}[-_.]\d{1,2}(?:[-_.]\d{1,2})?)$"

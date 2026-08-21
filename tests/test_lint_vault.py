@@ -16,6 +16,7 @@ from lint_vault import (  # noqa: E402
     DEFAULT_EXCLUDE,
     check_dead_links,
     check_20_structure,
+    check_50_structure,
     clean_wikilink_target,
     collect_all_files,
     collect_md_files,
@@ -212,6 +213,23 @@ class LintConfigurationTests(unittest.TestCase):
             self.assertEqual(payload["unnumbered"], ["20_资料库/10_主题知识/未编号"])
             self.assertEqual(len(payload["duplicate_prefixes"]), 1)
             self.assertFalse(payload["legacy_10_融合分类"])
+
+    def test_50_structure_reports_lifecycle_and_semantic_numbering(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "50_写作与发布/10_草稿/未编号专题").mkdir(parents=True)
+            (vault / "50_写作与发布/10_草稿/10_重复甲").mkdir()
+            (vault / "50_写作与发布/10_草稿/10_重复乙").mkdir()
+            (vault / "50_写作与发布/10_草稿/assets/任意层").mkdir(parents=True)
+            (vault / "50_写作与发布/20_发布/2026/任意层").mkdir(parents=True)
+            (vault / "50_写作与发布/未约定").mkdir()
+            payload = check_50_structure(str(vault))
+            self.assertEqual(payload["unexpected_roots"], ["50_写作与发布/未约定"])
+            self.assertEqual(
+                payload["unnumbered"],
+                ["50_写作与发布/10_草稿/未编号专题"],
+            )
+            self.assertEqual(len(payload["duplicate_prefixes"]), 1)
 
 
 if __name__ == "__main__":
