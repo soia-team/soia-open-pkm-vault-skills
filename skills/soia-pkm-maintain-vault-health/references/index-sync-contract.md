@@ -29,3 +29,9 @@ python3 <lifecycle-skill>/scripts/vault_index_verify.py \
 若目标 vault 没有该 Base，回执必须明确记录“未配置 Base”，不能把跳过写成验证通过。回执至少记录地图 `updated`、文件/目录统计、Base 根路径存在性和脚本退出结果；不要只报告“命令成功”。
 
 查询技能是只读例外：它不得刷新地图、修改 Base 或改变 vault。
+
+## MOC 全量重建门禁
+
+- 单篇归档、单文件移动或单篇 topics 修改必须使用 `rebuild_moc.py --article <path>`，只同步受影响的 MOC。
+- 全量任务先运行 `rebuild_moc.py --full-rebuild --dry-run`。unknown topic 非零时默认阻断；不得把未知主题静默丢弃后宣称索引完整。
+- 无 dry-run 证据、未明确授权或预计出现非目标大规模删除时，不得运行 `--full-rebuild`。正式全量重建必须先在同盘暂存目录完整生成，再原子替换旧 `_MOC/`；健康检查只报告风险，不代替用户授权执行重建。

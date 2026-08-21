@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-manage-vault-lifecycle
 description: 规划并安全执行整个 Markdown/Obsidian 知识库，或知识库中指定模块的盘点、整理、改名、迁移、归档与清理。触发：「整理知识库」「整理知识库的某个模块」「治理资料库」「整理工作台/资料库/日志/归档」
-version: 1.4.2
+version: 1.4.3
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 11:41:42
 created_by: gpt-5
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-manage-vault-lifecycle
@@ -169,7 +169,7 @@ python3 scripts/vault_structure_plan.py verify \
 ### 30/40/50 分区整理接缝
 
 - 30 区只保留按日期冻结的证据；Agent 日志按自动快照、精选复盘、历史导入分层，历史/运行时附件可保留在资料包内，但空壳目录必须单独列入清单，不因 Git 不跟踪就当作已删除。
-- 40 区文章按 `<年>/<月>/` 归位；文章路径变化后必须重跑 MOC，再重建地图并验证 Base。主题/署名词没有对应笔记时用纯文本，不批量造占位页。
+- 40 区文章按 `<年>/<月>/` 归位；文章路径变化后必须对该文件运行 `rebuild_moc.py --article <path>` 增量同步，再重建地图并验证 Base。只有范围本身就是全库重建且已审阅 dry-run/unknown-topic 报告时才能执行 `--full-rebuild`。主题/署名词没有对应笔记时用纯文本，不批量造占位页。
 - 50 区按 `10_草稿 → 15_待审核 → 20_发布 → 90_归档` 流转；目录与 `status` 冲突时只报告冲突，除非用户明确指定真实状态，不凭目录名改 frontmatter。
 - 派生物缺失附件时保留缺失证据，不创建假资源；完成声明必须同时给出迁移清单、SHA-256 守恒、地图统计、Base 验证和剩余空目录/冲突。
 

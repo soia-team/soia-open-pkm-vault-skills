@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-drive
 description: 把云盘/本地的存量资料（PDF/Word/表格/演示文稿/文档）批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理；图片正文需显式 OCR。Triggers：「导入云盘资料」「把这批 PDF 导进来」「clip 这个文档」「整理云盘」「OCR 这批图片」
-version: 1.0.3
+version: 1.0.4
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 11:41:42
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-clip-drive
@@ -97,7 +97,7 @@ SOIA_PKM_CLIP_DRIVE_CONFIG_FILE=<custom-config-path>
 
 - 资料 / 参考类 → `<vault-resources-dir>/<主题>/`；文章类 → `<vault-articles-dir>/`（由配置或 CLI 参数决定）。落到 `20_资料库/` 时，目标语义目录必须带唯一编号，不能把新资料直接堆在根目录；不确定分类先停在 Inbox 或交生命周期技能生成 manifest。
 - frontmatter：`tags:[资料]` 或 `[文章摘抄]`、`source: 云盘/pdf`、`original_path`、`captured_at`、`topics:[]`。
-- 导入后**必走 `organize`**：云盘资料通常量大又杂，靠 organize 分类 / 建 MOC / 去重。只要新建了 20 区文件，必须按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建 `OB知识库地图.md`，并用 `vault_index_verify.py` 验证相关 Base；附件正文提取不等于索引已更新。
+- 导入后**必走 `organize`**：单文件归入文章库时用 `rebuild_moc.py --article <path>` 增量同步；批量导入也应逐篇增量，不能把无门禁的全量清空当作收尾捷径。确需全量重建时，先运行 `--full-rebuild --dry-run` 并解决 unknown-topic 报告，再经明确授权执行。只要新建了 20 区文件，必须按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建 `OB知识库地图.md`，并用 `vault_index_verify.py` 验证相关 Base；附件正文提取不等于索引已更新。
 
 ## 闭环位置
 
