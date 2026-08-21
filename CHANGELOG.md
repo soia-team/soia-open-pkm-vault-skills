@@ -3,6 +3,16 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.11.1 — 2026-08-21
+
+为 Obsidian Bases 补齐可验证的目录边界，并同步初始化、书库与馆藏技能规范。
+
+## 修复
+- fix(pkm): scope Bases to vault directories (#71)
+
+## 维护
+- chore(release): open next train after v1.11.0 (#70)
+
 ## v1.11.0 — 2026-08-21
 
 新增可在 Obsidian 内直接播放的播客归档，并为 MOC 单篇增量与全量重建增加安全门禁。
