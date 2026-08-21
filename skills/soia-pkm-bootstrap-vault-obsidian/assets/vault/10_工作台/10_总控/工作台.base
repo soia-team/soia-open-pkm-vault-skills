@@ -1,5 +1,6 @@
 filters:
   and:
+    - file.inFolder("10_工作台")
     - file.hasTag("工作台")
 properties:
   file.name:

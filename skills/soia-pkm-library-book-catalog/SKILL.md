@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-library-book-catalog
 description: 纯本地、幂等、可重复运行地维护 Obsidian 书库：补建待读记录并重新生成图书馆、阅读记录和按类型总览，不依赖微信读书。Triggers：「重新生成图书馆总览」「更新阅读记录总览」「补建待读记录」「书库整理」
-version: 1.0.3
+version: 1.0.4
 created_at: 2026-07-16 18:01:32
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 12:54:10
 created_by: gpt-5.6-luna
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-library-book-catalog
@@ -109,8 +109,10 @@ python3 gen_genre_library_md.py --vault <vault-path> --base <vault-book-library-
 ```text
 <base>/
 ├── 00_图书馆/
+│   ├── 图书馆.base
 │   └── 书目/<分类目录>/<书名>.md
 └── 阅读记录/
+    ├── 阅读记录.base
     ├── 想读/  待读/  计划读/  在读/
     ├── 暂停/  搁置/  完成/
     └── 阅读记录-总览.md
@@ -126,6 +128,7 @@ python3 gen_genre_library_md.py --vault <vault-path> --base <vault-book-library-
 - 三个 `gen_*` 脚本支持 `--output <path>` 预览，避免直接覆盖总览文件。
 - `backfill_reading_records.py` 只在目标记录不存在时创建，已有文件跳过，不覆盖用户记录。
 - 脚本不创建网络缓存、不写外部状态、不调用 provider；临时预览路径由用户通过 `--output` 传入，临时文件由调用方自行管理。
+- 若书库已有 `图书馆.base` 或 `阅读记录.base`，查询必须在同一个 `filters.and` 中同时保留对应目录的 `file.inFolder(...)` 与书库/阅读记录标签；tag-only Base 不能作为完成状态。新增或移动文件后按索引同步合同重建地图，并用 `vault_index_verify.py` 逐个验证 Base 根路径。
 
 ## 边界与异常
 
@@ -140,4 +143,4 @@ python3 gen_genre_library_md.py --vault <vault-path> --base <vault-book-library-
 
 ## 完成后回执
 
-完成后必须回报：本次运行的脚本和范围、扫描/创建/更新/跳过/失败数量、实际写入的资源类别、预览或写回验证结果，以及任何需要用户处理的问题。不要把“命令返回 0”单独当作内容正确的证据；至少检查输出存在且包含预期标题或统计。
+完成后必须回报：本次运行的脚本和范围、扫描/创建/更新/跳过/失败数量、实际写入的资源类别、预览或写回验证结果、地图统计，以及每个现有 Base 的目录根验证结果。没有 Base 时明确记录 `not_applicable`。不要把“命令返回 0”单独当作内容正确的证据；至少检查输出存在且包含预期标题或统计。

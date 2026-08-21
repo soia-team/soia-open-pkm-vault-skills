@@ -108,6 +108,8 @@ class BootstrapObsidianTests(unittest.TestCase):
             self.assertTrue((vault / "10_工作台/10_总控/工作台.base").is_file())
             self.assertTrue((vault / "20_资料库/资料库.base").is_file())
             self.assertTrue((vault / "90_系统归档/10_工作台历史/工作台历史.base").is_file())
+            for base in vault.rglob("*.base"):
+                self.assertIn("file.inFolder(\"", base.read_text(encoding="utf-8"), str(base))
             check = subprocess.run([sys.executable, str(OBSIDIAN), str(vault), "--link-format", "relative", "--check"], check=True, capture_output=True, text=True)
             self.assertTrue(json.loads(check.stdout)["check_passed"])
             linted = subprocess.run(

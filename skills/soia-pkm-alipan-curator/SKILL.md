@@ -3,11 +3,11 @@ name: soia-pkm-alipan-curator
 description: 规划并整理阿里云盘资源，产出可复核的馆藏索引与学习规划。触发：「整理阿里云盘资源」「更新阿里云盘索引」「用网盘资源做学习计划」
 dependencies:
   hard: [soia-pkm-alipan-drive-ops]
-version: 1.6.3
+version: 1.6.4
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 12:54:10
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-alipan-curator — 云盘资源顾问
@@ -222,7 +222,7 @@ Obsidian 馆藏 Markdown（inventory/catalog 的 md 产物）是 D 类——产�
 **图书馆建法（浏览/检索/策展 + 分类方案）**（精选资源沉淀为可查询馆藏时用，模板与字段详见 `references/library-method.md`）：
 1. **馆藏总览**：全盘索引 MOC。用 `scripts/gen_catalog.py --scan-dir <scan-dir> --out <catalog-output> --url-prefix <drive-url-prefix> [--moves f --deletes f --roots f --heading-pattern REGEX --section-icons JSON --max-heading-depth N]` 生成。`--url-prefix` 必须显式提供或由 `SOIA_ALIPAN_URL_PREFIX` 注入；可选 `--catalog-link/--cards-link/--classification-link` 由用户传入 vault-relative wikilink 目标。默认保守展示全部目录；需要折叠内部素材树时，用 `--heading-pattern` 声明业务目录规则，例如编号体系传 `^\d{2}[_.]`。公共默认只用中性文件夹图标，分区图标通过 `--section-icons` 可选注入。总览不铺单个文件；需要单文件检索时加 `--search-dir <search-output-dir> --junk <ignored-prefixes>`。
 2. **馆藏卡**：一卡对应云盘一个资源目录；最低字段为 `type/tags(馆藏)/drive_link`，其余字段和卡片分组路径由本次主分类轴与常用查询推导，不强制 `topic/medium/subject/stage/status`；实际体量字段若启用必须实测
-3. **Bases 数据库**（`.base`）：`filter: file.hasTag("馆藏")`；视图从用户确认的主分类轴和常用查找问题推导，例如全部馆藏/按主题/按受众/按媒介/卡片墙，不写死固定视图
+3. **Bases 数据库**（`.base`）：用 `file.inFolder("<馆藏卡根目录>")` 锁定目录范围，再用 `file.hasTag("馆藏")` 细分内容；两者放在同一 `filters.and`，不能用 tag-only 查询代替路径边界。视图从用户确认的主分类轴和常用查找问题推导，例如全部馆藏/按主题/按受众/按媒介/卡片墙，不写死固定视图
 4. **分区深度分类方案文档**：每分区一份，含现状/N类结构/归类规则（供未来新增资源判断落位）/变更史/待办
 
 ### plan — 学习计划（高频主场景）
