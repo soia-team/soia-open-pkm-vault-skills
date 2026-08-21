@@ -3,6 +3,17 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.11.0 — 2026-08-21
+
+新增可在 Obsidian 内直接播放的播客归档，并为 MOC 单篇增量与全量重建增加安全门禁。
+
+## 新增
+- feat(pkm): archive playable podcasts and guard MOC rebuilds (#67)
+
+## 维护
+- chore(release): target pkm vault 1.11.0 (#68)
+- chore(release): open next train after release
+
 ## v1.10.0 — 2026-08-06
 
 bootstrap/lifecycle 规则对齐、归档证据生命周期、config 归位 assets、安装章节三宿主覆盖
