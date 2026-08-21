@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-organize-article-moc
 description: 将 Obsidian 文章库按元数据、主题双链、月份和两级 MOC 规范化整理。触发：「整理文章库」「重建 MOC」「收藏归类」
-version: 2.0.4
+version: 2.1.0
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 11:41:42
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-organize-article-moc
@@ -93,7 +93,7 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 
 1. **补 frontmatter**：缺 `topics` / `captured_at` / `author` 的补上。
 2. **主题归类**：读文章内容，判断该挂哪些 `topics`（双链）；**优先复用已有主题**（查 `_MOC/`），避免造重复主题。
-3. **建 / 更新 MOC**：跑 `rebuild_moc.py` 重建两级主题地图（一级分类 → 二级 topic）。
+3. **建 / 更新 MOC**：单篇默认用 `rebuild_moc.py --article <path>` 只增量更新受影响的一级/二级 MOC；全量重建必须显式走 `--full-rebuild` 门禁。
 4. **按月归位**：`clip` 原生落 `<年>/`，把文章按文件名日期归到 `<年>/<月>/`；执行前先生成逐文件 source/target/SHA-256 清单，禁止用裸 `mv` 猜目标。
 5. **补双链**：文章间、文章 ↔ 书 ↔ 日志的关联。
 6. **索引同步**：只要新建、移动、改名或删除文件/目录，按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建叶级地图；写入 `20_资料库/` 时再验证相关 `.base`。文章内容-only 修改不刷新统计地图，但 MOC 本身仍需验证链接。
@@ -104,14 +104,16 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 
 1. 仅把刚归档的文件作为 scope，补齐摘要、`topics`、`captured_at`、`author`（无法核实时保留空值并报告）。
 2. 按文件名日期确认 `<年>/<月>/` 位置，生成 source/target/SHA-256 清单后再移动。
-3. 重建文章 MOC；若路径变化，立即重建 `OB知识库地图`，并在写入 20 区时验证相关 Base。
+3. 用 `rebuild_moc.py --article <path>` 增量同步文章 MOC；若路径变化，立即重建 `OB知识库地图`，并在写入 20 区时验证相关 Base。
 4. 回执同时给出归档路径、整理路径、MOC/地图/Base 验证和未完成项。
 
 用户明确说“仅归档”“不要整理”时只执行 clip；批量账号/云盘导入默认先收集清单，必须获得整理确认后再批量调用本技能。整理失败不能把“已归档”包装成“已整理”。
 
 ## 底层脚本（机械层，organize 调用）
 
-- `scripts/rebuild_moc.py`：扫全部文章 topics，重建 `_MOC/` 两级地图。支持 `--vault`/`OBSIDIAN_VAULT` 指定库路径，分类表可用 `_MOC/.categories.json` 按库覆盖默认值（见脚本 `--help`）。
+- `scripts/rebuild_moc.py --article <path>`：单篇增量同步，只改该文章 topics 对应的一级/二级 MOC；未知 topic 会在写入前阻断。
+- `scripts/rebuild_moc.py --full-rebuild --dry-run`：全库预检，报告文章数、topic 对和未知 topic，不修改 `_MOC/`。
+- `scripts/rebuild_moc.py --full-rebuild`：显式全量重建。脚本先完成全库扫描，未知 topic 默认阻断；随后在同盘暂存目录完整生成并成功后原子替换，生成失败保留旧 `_MOC/`。只有核对报告后才能用 `--allow-unknown-topics` 接受遗漏。无 `--article`/`--full-rebuild` 时直接拒绝运行。
 - `soia-pkm-library-book-catalog/scripts/backfill_reading_records.py`：书库 → 阅读记录补齐（读书线的本地 catalog）。
 - 按月归位：`mv <年>/*.md <年>/<月>/`（按文件名日期）。
 
@@ -123,7 +125,7 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 - `people` 是来源署名词表，只有人物笔记确实存在时才使用 wikilink；否则保留纯文本并注明未建人物页。
 - 附件缺失不能伪造文件或补假链接：保留原文件名与“附件缺失”证据，区分正文缺失、文件名命中和 OCR/提取命中。
 - 带小数点的文件名先按完整文件名解析；需要消除重名或路径歧义时才改成带 `.md` 的完整路径 wikilink，并保留 alias。
-- 映射写死在 `rebuild_moc.py` 的分类表（不靠 AI 每次猜）——改归类就改表再重跑。
+- 映射来自 `rebuild_moc.py` 的默认分类表或 vault 内 `_MOC/.categories.json`；单篇新增主题应优先补分类表后增量同步，不以全量重建试错。
 
 ## 回执
 

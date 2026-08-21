@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-wechat-article
 description: 归档单篇微信公众号文章到 Obsidian vault：抓取静态 HTML，提取标题、作者、正文、发布时间和配图，按 clip 家族规范落地；需要 PDF 时优先用 Obsidian 导出。Triggers：「归档这篇公众号」「clip 这个公众号文章」「存这篇微信文章」
-version: 2.1.2
+version: 2.1.3
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 11:41:42
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-clip-wechat-article
@@ -105,7 +105,7 @@ python3 scripts/archive_wechat.py <url> \
 - 路径：`<vault-articles-dir>/<年>/<月>/YYYY-MM-DD-公众号-<作者>-<标题>.md`
 - frontmatter：`tags:[文章摘抄]`、`source: 公众号`、`url`、`author`、`publisher`、`published_at`、`captured_at`、`topics:[]`、`content_complete`
 - 正文段：`## 摘要`（AI 补）、`## 原文`、`## 我的看法`（留空）、`## 关联`
-- 单篇归档默认继续调用 `soia-pkm-organize-article-moc` 做最小整理：补摘要/topics、确认年月目录、重建 MOC，并按路径变化触发地图/Base 门禁。只有用户明确说“仅归档/不要整理”才停在 clip；批量公众号归档先列清单，再确认是否批量整理。
+- 单篇归档默认继续调用 `soia-pkm-organize-article-moc` 做最小整理：补摘要/topics、确认年月目录，并用 `rebuild_moc.py --article <path>` 增量同步受影响 MOC，再按路径变化触发地图/Base 门禁。不得为单篇归档调用 `--full-rebuild`。只有用户明确说“仅归档/不要整理”才停在 clip；批量公众号归档先列清单，再确认是否批量整理。
 - 归档回执必须分别报告 `captured`、`organized`、`moc_synced`、`map_synced`、`base_verified`；后置失败时只能说“已归档、整理未完成”。
 - 回执必须包含实际落盘目录；若未配置 `--articles-dir` 或 `OBSIDIAN_ARTICLES` 而走了 `Articles/` 兜底，必须显式标注警告，并建议配置正式 articles 目录后归位。
 

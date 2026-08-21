@@ -3,11 +3,11 @@ name: soia-pkm-maintain-vault-health
 description: 只读检查整个 Markdown/Obsidian 知识库或指定模块的健康状态，审计死链、歧义文件名、标签策略与过期内容，并按授权重建地图或健康简报。触发：「检查知识库健康」「检查知识库某个模块」「维护知识库」「重建知识库地图」「vault 周维护」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.1.3
+version: 1.1.4
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 11:41:42
 created_by: gpt-5
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-maintain-vault-health
@@ -32,6 +32,7 @@ updated_by: claude-opus-5
 
 - Python 3（纯 stdlib）是脚本强依赖。
 - `soia-pkm-organize-article-moc` 是可选后续：发现需要归类/MOC 合并时转交，不由本技能执行。
+- 健康检查发现 MOC 漂移时，只允许调用 organize 的 `rebuild_moc.py --full-rebuild --dry-run` 做只读预检；unknown topic 非零或预估大规模删改时必须报告并停止，不能在健康检查中直接清空 `_MOC/`。
 - 推荐安装整个 `soia-pkm-vault@soia` 插件；单技能可从本仓安装。
 
 私有配置：

@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-web
-description: 归档网页或博客文章到 Obsidian vault，并按统一规范落地。触发：「归档这个网页」「clip 这个链接」「存这篇博客」
-version: 1.0.3
+description: 归档网页、博客文章或公开播客节目到 Obsidian vault；可同时保留 shownotes 与本地音频。触发：「归档这个网页」「clip 这个链接」「存这篇博客或播客」
+version: 1.1.0
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-08-21 11:41:42
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: codex-gpt-5
 ---
 
 # soia-pkm-clip-web
@@ -16,7 +16,7 @@ updated_by: claude-opus-5
 
 ### 这个技能可以做什么
 
-把任意网页/博客文章一键归档到 Obsidian vault。用正文抽取（readability/trafilatura）提取标题/正文/作者，按 clip 家族统一规范落地。当用户说「归档并转 PDF」「归档并导出 PDF」「archive and export PDF」时，归档后在 Obsidian vault 内优先调用 Obsidian 自带 PDF...
+把网页/博客文章归档到 Obsidian vault；网页公开 `PodcastEpisode` 元数据时，也能同时保存 shownotes 与本地音频。文章继续用 readability/trafilatura 抽正文，播客用 JSON-LD 解析，二者都按 clip 家族统一规范落地。当用户说「归档并转 PDF」时，归档后在 Obsidian vault 内优先调用 Obsidian 自带 PDF。
 
 | 客户想要 | 技能会做 | 客户能看到 |
 |---|---|---|
@@ -83,13 +83,29 @@ SOIA_PKM_CLIP_WEB_CONFIG_FILE=<custom-config-path>
 - <缺 key / 缺依赖 / 需要客户确认 / 建议下一条命令；没有则写“无”>
 ```
 
+### 私密信息与中间数据
+
+- 分享 URL 只用于本次抓取；持久化前去掉 query/fragment，不把分享标识写进公开仓库、vault 或日志。
+- 带 query 的媒体地址只在进程内用于下载，笔记仅保存去参数地址和已下载文件的路径/哈希。
+- `.part` 属于临时下载文件；失败时清理，成功时原子替换为最终媒体文件。
+
 ## 抓取
 
 - 输入：任意文章 URL（博客 / Substack / Medium / 新闻 / 知乎等）
 - 正文抽取：`trafilatura` 或 `readability-lxml` 抽正文（去广告 / 导航），提取标题、作者、发布时间。
 - 抓不到正文 → `content_complete: false`，**绝不静默截断**。
-- 抓取与落地当前由 agent 按本节流程手工执行（专用归档脚本待补充到本 skill 的 `scripts/`）。
+- 普通文章仍由 agent 按本节流程执行；播客网页读取并执行 [播客网页归档](references/podcast-capture.md)，用 `scripts/archive_podcast.py` 确定性解析、下载和落地。
 - 手机端可用 Obsidian Web Clipper 落到 `<vault-inbox-dir>/`，再由本 skill 迁入。
+
+## 播客与音频
+
+- 页面公开 `PodcastEpisode` JSON-LD 且客户要求音频时，优先使用专用脚本；不针对单个平台写死私有接口。
+- shownotes 与逐字稿分开：页面 description 完整只能证明 `content_complete: true`，没有 transcript 时必须写 `transcript_status: not_provided_by_source`。
+- 播客音频默认落 `<vault>/_attachments/podcasts/<episode-id>/`，vault 笔记记录可播放嵌入、vault 相对路径、bytes 与 SHA-256；大文件是否进入 Git 由 vault 的本地 exclude、Git LFS 或独立备份策略决定。
+- 默认清除分享 query/fragment 后再持久化 canonical URL。带 query 的媒体 URL只在本次下载内存中使用，不写入 vault 或日志。
+- 只想核查解析能力或只收 shownotes 时用 `--metadata-only`；客户明确要求音频时，音频下载失败不得把正文笔记包装成完整交付。
+
+针对 JSON-LD、URL 去参数、时长解析、文件命名和 fake-IP/SSRF 门禁的 fixture 回归在 `tests/test_archive_podcast.py`；真实交付还必须用实际节目页和音频容器做端到端复核。
 
 ## 抓取质量强制复核
 
@@ -106,7 +122,8 @@ SOIA_PKM_CLIP_WEB_CONFIG_FILE=<custom-config-path>
 
 - 路径：`<vault-articles-dir>/<年>/YYYY-MM-DD-<来源>-<作者>-<标题>.md`（来源如 博客 / Substack / Medium）
 - frontmatter 同 clip 家族；正文 `## 摘要 / 原文 / 我的看法 / 关联`。
-- 单篇归档默认不是终点：归档写入成功且正文质量复核通过后，自动把该文件交给 `soia-pkm-organize-article-moc` 做最小整理（摘要/topics、年月归位、MOC 与索引门禁）。只有用户明确说“仅归档/不要整理”才停在 clip 结果；批量网页必须先列清单，再确认是否批量整理。
+- 单篇归档默认不是终点：归档写入成功且正文质量复核通过后，自动把该文件交给 `soia-pkm-organize-article-moc` 做最小整理（摘要/topics、年月归位、**只增量同步受影响的 MOC** 与索引门禁）。单篇任务不得调用会先清空整个 `_MOC` 的全量重建流程。只有用户明确说“仅归档/不要整理”才停在 clip 结果；批量网页必须先列清单，再确认是否批量整理。
+- 播客音频默认写入 vault 根的 `_attachments/podcasts/<episode-id>/`，归档笔记必须包含 `## 🎧 收听本地音频` 和 Obsidian 原生 `![[相对路径]]` 播放器。存在本地文件但笔记里只有绝对路径文本时，状态仍是 `audio_embedded: false`，不得宣称 Obsidian 内可听。
 
 ### 单篇归档完成门禁
 
