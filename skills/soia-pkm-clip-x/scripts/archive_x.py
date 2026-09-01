@@ -303,9 +303,7 @@ def render_article_blocks(
 def render_thread(chain: list[dict]) -> str:
     parts: list[str] = []
     for i, t in enumerate(chain, 1):
-        text = (
-            t.get("raw_text", {}).get("text") or t.get("text") or ""
-        ).strip()
+        text = expanded_tweet_text(t)
         media = t.get("media") or {}
         for m in (media.get("photos") or []):
             if isinstance(m, dict):
@@ -317,14 +315,31 @@ def render_thread(chain: list[dict]) -> str:
 
 
 def render_single(tweet: dict) -> str:
-    text = (
-        tweet.get("raw_text", {}).get("text") or tweet.get("text") or ""
-    ).strip()
+    text = expanded_tweet_text(tweet)
     media = tweet.get("media") or {}
     if isinstance(media, dict):
         for m in (media.get("photos") or []):
             if isinstance(m, dict):
                 text += f"\n\n![]({m.get('url','')})"
+    return text
+
+
+def expanded_tweet_text(tweet: dict) -> str:
+    """Return tweet text with FxTwitter facet short links expanded.
+
+    X stores link display text as ``t.co`` while exposing the canonical target
+    in ``raw_text.facets[].replacement``.  Prefer that replacement so archived
+    notes remain useful when the short-link redirect changes or expires.
+    """
+    raw = tweet.get("raw_text") or {}
+    text = (raw.get("text") or tweet.get("text") or "").strip()
+    for facet in raw.get("facets") or []:
+        if not isinstance(facet, dict) or facet.get("type") != "url":
+            continue
+        original = facet.get("original")
+        replacement = facet.get("replacement") or facet.get("expanded_url")
+        if original and replacement and original in text:
+            text = text.replace(original, replacement, 1)
     return text
 
 
@@ -442,6 +457,7 @@ def detect_language(text: str, hint: str | None) -> str:
 def find_existing_archive(article_root: Path, status_id: str) -> Path | None:
     if not article_root.exists():
         return None
+    matches: list[Path] = []
     for f in article_root.rglob("*.md"):
         if "_template" in f.parts or "_templates" in f.parts or "_MOC" in f.parts:
             continue
@@ -451,8 +467,14 @@ def find_existing_archive(article_root: Path, status_id: str) -> Path | None:
             continue
         m = re.search(r"^url:\s*(.+)$", text, re.MULTILINE)
         if m and f"/status/{status_id}" in m.group(1):
-            return f
-    return None
+            matches.append(f)
+    if not matches:
+        return None
+    # A translated companion inherits the source URL.  Prefer the canonical
+    # source card when both exist, so re-archive/skip reports point to the
+    # original rather than a derived ``-中文版`` file.
+    matches.sort(key=lambda p: ("中文版" in p.stem or "译文" in p.stem, str(p)))
+    return matches[0]
 
 
 def extract_preserved_fields(existing_path: Path | None) -> dict:
