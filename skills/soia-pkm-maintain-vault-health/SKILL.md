@@ -3,9 +3,9 @@ name: soia-pkm-maintain-vault-health
 description: 只读检查整个 Markdown/Obsidian 知识库或指定模块的健康状态，审计死链、歧义文件名、标签策略与过期内容，并按授权重建地图或健康简报。触发：「检查知识库健康」「检查知识库某个模块」「维护知识库」「重建知识库地图」「vault 周维护」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.1.6
+version: 1.2.0
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-21 14:12:09
+updated_at: 2026-09-01 12:00:00
 created_by: gpt-5
 updated_by: codex-gpt-5
 ---
@@ -99,6 +99,7 @@ python3 scripts/lint_vault.py --vault <vault-path> --json \
 
 ```bash
 python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-preview.md>
+python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-preview.md> --full   # 对 >40 文件目录逐条列出，供归档/迁移后人工核对
 ```
 
 用户确认后才省略 `--output`，写入 `SOIA_VAULT_MAP_OUTPUT` 或默认 `<vault>/20_资料库/OB知识库地图.md`。写后重新运行 lint，并确认地图中的文件/目录统计与实际扫描一致；若 vault 有 `20_资料库/资料库.base`，再运行生命周期技能的 `vault_index_verify.py` 核对 `file.inFolder` 根路径。完整门禁见 [index-sync-contract.md](references/index-sync-contract.md)。

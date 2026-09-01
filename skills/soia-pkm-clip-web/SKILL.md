@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-web
 description: 归档网页、博客文章或公开播客节目到 Obsidian vault；可同时保留 shownotes 与本地音频。触发：「归档这个网页」「clip 这个链接」「存这篇博客或播客」
-version: 1.1.0
+version: 1.1.1
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-21 11:41:42
+updated_at: 2026-09-01 12:00:00
 created_by: claude opus 4.6
 updated_by: codex-gpt-5
 ---
@@ -92,7 +92,7 @@ SOIA_PKM_CLIP_WEB_CONFIG_FILE=<custom-config-path>
 ## 抓取
 
 - 输入：任意文章 URL（博客 / Substack / Medium / 新闻 / 知乎等）
-- 正文抽取：`trafilatura` 或 `readability-lxml` 抽正文（去广告 / 导航），提取标题、作者、发布时间。
+- 正文抽取：`trafilatura` 或 `readability-lxml` 抽正文（去广告 / 导航），提取标题、作者、发布时间。两者不一定预装：`pip install` 常被 **PEP 668（externally-managed）** 拦截，按宿主规则用 `--break-system-packages` 或专用 `venv` 安装；宿主缺 `agent_browser`/无浏览器时，Cloudflare 类站点（如 Medium）可先用公开 reader 代理（如 `r.jina.ai`）取回 Markdown 作为回退，但要把该来源写进「抓取方式」并标注原站被防护。
 - 抓不到正文 → `content_complete: false`，**绝不静默截断**。
 - 普通文章仍由 agent 按本节流程执行；播客网页读取并执行 [播客网页归档](references/podcast-capture.md)，用 `scripts/archive_podcast.py` 确定性解析、下载和落地。
 - 手机端可用 Obsidian Web Clipper 落到 `<vault-inbox-dir>/`，再由本 skill 迁入。
@@ -122,6 +122,8 @@ SOIA_PKM_CLIP_WEB_CONFIG_FILE=<custom-config-path>
 
 - 路径：`<vault-articles-dir>/<年>/YYYY-MM-DD-<来源>-<作者>-<标题>.md`（来源如 博客 / Substack / Medium）
 - frontmatter 同 clip 家族；正文 `## 摘要 / 原文 / 我的看法 / 关联`。
+- **非中文正文（`language` 非 zh）**：在 `关联` 前补 `## 中文译文`，意译不直译、像人写的中文、专有名词/产品名/代码保留英文——这条是 clip-web 通用规则，不限于 X 通道。
+- **文章 → 长期知识**：若该文提炼出可跨项目复用的概念/模式，可再走 `soia-pkm-extract-vault-knowledge` 沉淀到 20 区（新编号子目录 + 更新主题导航 + 重建地图/验证 Base），回执分开报告「归档」与「已沉淀长期知识」，不得把归档当成已提炼。
 - 单篇归档默认不是终点：归档写入成功且正文质量复核通过后，自动把该文件交给 `soia-pkm-organize-article-moc` 做最小整理（摘要/topics、年月归位、**只增量同步受影响的 MOC** 与索引门禁）。单篇任务不得调用会先清空整个 `_MOC` 的全量重建流程。只有用户明确说“仅归档/不要整理”才停在 clip 结果；批量网页必须先列清单，再确认是否批量整理。
 - 播客音频默认写入 vault 根的 `_attachments/podcasts/<episode-id>/`，归档笔记必须包含 `## 🎧 收听本地音频` 和 Obsidian 原生 `![[相对路径]]` 播放器。存在本地文件但笔记里只有绝对路径文本时，状态仍是 `audio_embedded: false`，不得宣称 Obsidian 内可听。
 
