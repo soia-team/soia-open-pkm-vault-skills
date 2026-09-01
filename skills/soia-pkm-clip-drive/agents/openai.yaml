@@ -1,4 +1,4 @@
 interface:
   display_name: "PKM Clip Drive"
-  short_description: "把云盘/本地的 PDF、Word、表格和演示文稿提取为可搜索资料；图片正文需显式 OCR"
-  default_prompt: "Use soia-pkm-clip-drive to extract PDF, Word, spreadsheet, or presentation attachments into source-preserving searchable text; use explicit OCR for image content and report extraction status."
+  short_description: "把云盘/本地或受控 URL 的 PDF、Word、表格和演示文稿提取为可搜索资料；图片正文需显式 OCR"
+  default_prompt: "Use soia-pkm-clip-drive to archive local files or controlled HTTP(S) PDF URLs into source-preserving searchable text; verify PDF magic bytes, hashes, and extraction status, and use explicit OCR for image content."

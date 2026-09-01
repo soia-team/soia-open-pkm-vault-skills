@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-x
 description: 将单条 X/Twitter 推文、thread 或 Article 归档到 Obsidian vault。触发：「归档这条 X」「clip 这条推文」「整理这条 thread」
-version: 1.1.5
+version: 1.1.6
 created_at: 2026-07-02 03:51:43
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-09-01 14:08:33
 created_by: claude opus 4.6
 updated_by: claude-opus-5
 ---
@@ -126,6 +126,7 @@ X 的原生 UI 不利于长期回看：thread 散在时间线、Article 排版�
 | `tweet.text` / `tweet.raw_text.text` | 推文正文 |
 | `tweet.article.title` | X Article 标题 |
 | `tweet.article.content.blocks[]` | Article 长文 blocks |
+| `tweet.raw_text.facets[].replacement` | 把正文中的 `t.co` 短链展开为 canonical 目标 |
 | `tweet.article.media_entities[]` | X Article 图片/视频实体 |
 | `tweet.replying_to_status` | 上一条推文（thread 回溯） |
 | `tweet.quote` | 引用的推文 |
@@ -152,11 +153,14 @@ X 的原生 UI 不利于长期回看：thread 散在时间线、Article 排版�
 3. 脚本检查 vault 是否已归档（按 frontmatter `url:` 字段）
    - 已存在 → 输出 SKIP，退出
    - 否则 → 抓 fxtwitter，写入 vault
+   - 正文 URL 优先使用 FxTwitter facet 提供的 `replacement`；找不到展开目标时才保留短链，并在回执中标明未展开
 4. AI 之后补：
    - 1 句话中文 `## 摘要`
    - 1-3 个 `topics` 双链 + `people` 双链
    - **非中文内容（`language` 不是 zh）：默认把 `## 中文译文` 段补成完整译文**，不用用户额外说「翻译」。要求**意译不直译**——读起来要像人写的中文，不是机器翻译腔；专有名词、产品名、代码/命令/API 参数保留英文原文，只翻译叙述性文字和说明
 5. 「我的看法」段永远留空给用户
+
+如果正文里出现论文或附件 URL，`clip-x` 只负责把它们展开并保留为 canonical 链接；PDF 的深度发现、下载、哈希和文本提取交给 `soia-pkm-clip-drive/scripts/archive_pdf.py --deep`，避免在不同来源 skill 中重复实现二进制处理。
 
 ## 归档后导出 PDF
 
@@ -215,6 +219,8 @@ metrics:
 | 同日同作者文件名重复 | 末尾加 `-<status_id 后 6 位>` |
 | 视频媒体 | frontmatter `media[]` 记 mp4 直链，不内嵌 |
 | 归档目录 | 按发布时间写入 `<articles>/<YYYY>/<MM>/`，例如 `2026/08/` |
+
+离线 fixture 与 realistic forward test 覆盖 `t.co` facet 展开、原文/译文同 status ID 去重优先级和媒体保留；见仓库 `tests/test_archive_x.py`。
 
 ## 命令行参考（归档）
 

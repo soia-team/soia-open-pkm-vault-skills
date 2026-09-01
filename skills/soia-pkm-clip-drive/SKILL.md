@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-drive
-description: 把云盘/本地的存量资料（PDF/Word/表格/演示文稿/文档）批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理；图片正文需显式 OCR。Triggers：「导入云盘资料」「把这批 PDF 导进来」「clip 这个文档」「整理云盘」「OCR 这批图片」
-version: 1.0.4
+description: 把云盘/本地文件或受控 PDF URL 批量导入 Obsidian vault。提取文本、生成资料笔记，归入资料库或文章摘抄，再交给 organize 整理；图片正文需显式 OCR。Triggers：「导入云盘资料」「下载这些 PDF」「把这批 PDF 导进来」「clip 这个文档」「整理云盘」「OCR 这批图片」
+version: 1.1.0
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-21 11:41:42
+updated_at: 2026-09-01 14:08:33
 created_by: claude opus 4.6
 updated_by: codex-gpt-5
 ---
@@ -91,13 +91,33 @@ SOIA_PKM_CLIP_DRIVE_CONFIG_FILE=<custom-config-path>
 - 提取：PDF 用 `pypdf`/`pdfplumber` 或等价工具，DOCX 用 `python-docx` 或等价工具，Office 旧格式先转换；原文件留到 `_附件/`。图片 OCR 结果必须标记 `ocr`、工具和人工核对状态。
 - 输出给查询技能：提取稿保留 `source`、`original_path`、`source_sha256`、`extraction_method`；然后由 `soia-pkm-query-vault` 搜索提取稿，不直接解析二进制正文。
 - 大批量：目录批处理，每个文件 → 一篇笔记。
-- 提取与落地当前由 agent 按本节流程手工执行（专用批量导入脚本待补充到本 skill 的 `scripts/`）。
+- URL 批量下载：使用 `scripts/archive_pdf.py`，它会校验 HTTP(S) URL、限制响应大小、检查 `%PDF-` 魔数、原子落盘并返回 SHA-256；`--extract` 时调用 `pdftotext -layout` 生成 `-extracted.txt`。加 `--deep` 可从 arXiv `abs` 或论文 HTML 页发现 PDF（`citation_pdf_url`、`link[rel=alternate]`、PDF 锚点），但最终仍以魔数和哈希校验为准。
+
+```bash
+python3 scripts/archive_pdf.py \
+  --url-file <url-file> \
+  --output-dir <vault-relative-attachment-dir> \
+  --text-dir <vault-relative-extracted-text-dir> \
+  --deep --extract --dry-run --json
+```
+
+`--url-file` 每行一个 URL，也可用 `URL<TAB>filename` 指定稳定文件名；先 dry-run 检查冲突和响应，再去掉 `--dry-run` 写入。脚本默认拒绝覆盖，只有明确传 `--force` 才替换目标。失败项以逐条 `status/error` 返回，不把下载失败包装成完整归档。`--deep` 是来源无关能力：X、公众号、网页或手工论文清单都可以把 URL 交给它。
 
 ## 落地
 
 - 资料 / 参考类 → `<vault-resources-dir>/<主题>/`；文章类 → `<vault-articles-dir>/`（由配置或 CLI 参数决定）。落到 `20_资料库/` 时，目标语义目录必须带唯一编号，不能把新资料直接堆在根目录；不确定分类先停在 Inbox 或交生命周期技能生成 manifest。
 - frontmatter：`tags:[资料]` 或 `[文章摘抄]`、`source: 云盘/pdf`、`original_path`、`captured_at`、`topics:[]`。
 - 导入后**必走 `organize`**：单文件归入文章库时用 `rebuild_moc.py --article <path>` 增量同步；批量导入也应逐篇增量，不能把无门禁的全量清空当作收尾捷径。确需全量重建时，先运行 `--full-rebuild --dry-run` 并解决 unknown-topic 报告，再经明确授权执行。只要新建了 20 区文件，必须按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建 `OB知识库地图.md`，并用 `vault_index_verify.py` 验证相关 Base；附件正文提取不等于索引已更新。
+- URL 论文清单的**链接归档**与“全文归档”分开标记：非 PDF 页面可先进入 canonical 参考索引；只有实际下载并通过魔数、哈希和（可用时）`pdfinfo` 校验的文件，才标记为 PDF 已归档。不要把 arXiv `abs` 页面或 DOI 页面自动写成已经下载的 PDF。
+
+## 验证
+
+```bash
+python3 -m unittest discover -s tests -p 'test_archive_pdf.py'
+python3 skills/soia-pkm-clip-drive/scripts/archive_pdf.py --help
+```
+
+离线 fixture 与 realistic forward test 使用本地 HTTP server 模拟 PDF 响应，覆盖下载、魔数、哈希、dry-run、arXiv `abs` 解析和 HTML `citation_pdf_url` 发现；见仓库 `tests/test_archive_pdf.py`。
 
 ## 闭环位置
 
