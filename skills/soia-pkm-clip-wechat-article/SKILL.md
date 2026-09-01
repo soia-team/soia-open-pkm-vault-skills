@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-wechat-article
 description: 归档单篇微信公众号文章到 Obsidian vault：抓取静态 HTML，提取标题、作者、正文、发布时间和配图，按 clip 家族规范落地；需要 PDF 时优先用 Obsidian 导出。Triggers：「归档这篇公众号」「clip 这个公众号文章」「存这篇微信文章」
-version: 2.1.3
+version: 2.2.0
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-21 11:41:42
+updated_at: 2026-09-01 12:00:00
 created_by: claude opus 4.6
 updated_by: codex-gpt-5
 ---
@@ -89,7 +89,7 @@ OBSIDIAN_ARTICLES=<vault-relative-articles-dir>
 - 输入：`https://mp.weixin.qq.com/s/...`
 - 公众号文章是**静态 HTML**（比 X 好抓，不需 API）：stdlib `urllib.request` 拉页面 → 解析 `#js_content`（正文）、`#activity-name` / `og:title`（标题）、author meta（署名作者）、`#js_name`（公众号名）、`createTime` / `oriCreateTime`（发布时间 fallback）。
 - 图片：提取 `data-src` 并保留为远程链接；当前脚本不下载图片，离线化由后续流程处理。
-- 脚本：`scripts/archive_wechat.py <url> --vault <path>`（纯 Python 标准库；支持 `--dry-run`、`--json`、URL 去重、正文质量门和原子写）。
+- 脚本：`scripts/archive_wechat.py <url> --vault <path>`（纯 Python 标准库；支持 `--dry-run`、`--json`、URL 去重、正文质量门和原子写）。URL 去重已做归一化：`?click_id=`/`scene=`/`poc_token=` 等跟踪参数不影响身份，同一文章带 query 与不带会被识别为同一篇；`s?__biz=&mid=&idx=&sn=` 形态也保留身份参数。
 
 ```bash
 python3 scripts/archive_wechat.py <url> \
@@ -98,7 +98,7 @@ python3 scripts/archive_wechat.py <url> \
   --dry-run --json
 ```
 
-先 dry-run 核对标题、作者、发布时间、`body_chars`、图片数与 `content_complete`，再去掉 `--dry-run` 写入。找不到 `#js_content`、正文异常短或命中拦截页关键词时默认拒绝写入；只有客户明确接受不完整归档时才使用 `--allow-incomplete`。
+先 dry-run 核对标题、作者、发布时间、`body_chars`、图片数与 `content_complete`，再去掉 `--dry-run` 写入。找不到 `#js_content`、正文异常短或命中拦截页关键词时默认拒绝写入，并在回执给出 `block_reason`（`wechat_captcha` / `wechat_param_error` / `wechat_rate_limited` / `deleted` / `content_unavailable`）；命中验证码/参数错误时提示「用浏览器打开原文复制 /s/ 可读链接，或人工粘贴正文」。只有客户明确接受不完整归档时才使用 `--allow-incomplete`。
 
 ## 落地（clip 家族统一规范）
 

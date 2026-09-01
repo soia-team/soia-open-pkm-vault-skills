@@ -38,6 +38,10 @@ def parse_args():
         help=f"输出文件路径（默认 <vault>/{DEFAULT_RELATIVE_OUTPUT}；"
              "传入其他路径可干跑预览，不覆盖 vault 原文件）",
     )
+    ap.add_argument(
+        "--full", action="store_true",
+        help="对 >40 个文件的目录不再压缩显示，逐条列出全部文件（用于归档/迁移后人工核对）",
+    )
     return ap.parse_args()
 
 
@@ -47,7 +51,7 @@ def fmt_link(rel, name):
     return name
 
 
-def build_map(root):
+def build_map(root, full: bool = False):
     out = []
     stats = {"files": 0, "dirs": 0, "size": 0}
 
@@ -81,7 +85,7 @@ def build_map(root):
             nf = sum(len(fs) for _, _, fs in os.walk(sub))
             out.append(f"{ind}- **📂 {d}/** · {nf}项")
             walk(sub, f"{rel}{d}/", depth + 1)
-        if len(files) > 40:
+        if len(files) > 40 and not full:
             for f in files[:2]:
                 out.append(f"{ind}- {fmt_link(rel + f, f)}")
             out.append(f"{ind}- …（共{len(files)}个文件）")
@@ -137,7 +141,7 @@ def main():
         except ValueError as exc:
             raise ValueError("default map output escapes vault through a symlink") from exc
 
-    out, stats = build_map(vault)
+    out, stats = build_map(vault, full=args.full)
     today = datetime.date.today().isoformat()
     size_gb = stats["size"] / (1024 ** 3)
     header = f"""---

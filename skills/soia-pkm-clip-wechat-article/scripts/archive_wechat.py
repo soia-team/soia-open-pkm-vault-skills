@@ -59,7 +59,18 @@ BLOCK_PAGE_MARKERS = (
     "请先登录",
     "verify you are human",
     "操作频繁，请稍后再试",
+    "appmsgcaptcha",
+    "wappoc_appmsgcaptcha",
+    "参数错误",
+    "该内容已被发布者删除",
 )
+# Tracking / session query params that do not change which article it is.
+TRACKING_QUERY_PARAMS = frozenset(
+    {"click_id", "clickid", "scene", "poc_token", "chksm", "from",
+     "isappinstalled", "mpshare", "src", "k", "wx_header", "export", "version"}
+)
+# Query params that identify the article in the `s?__biz=&mid=&idx=&sn=` form.
+IDENTITY_QUERY_PARAMS = frozenset({"__biz", "mid", "idx", "sn"})
 
 
 @dataclass
@@ -74,6 +85,7 @@ class Article:
     body_chars: int
     image_count: int
     warnings: list[str]
+    block_reason: str = ""
 
 
 def looks_like_vault(path: Path) -> bool:
@@ -141,9 +153,39 @@ def validate_wechat_url(url: str) -> str:
     return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, parsed.query, ""))
 
 
+def _strip_tracking_query(url: str) -> str:
+    """Drop tracking/session query params, keep the article-identity ones."""
+    try:
+        parts = urllib.parse.urlsplit(url)
+    except ValueError:
+        return url
+    if not parts.query:
+        return url
+    query = urllib.parse.parse_qs(parts.query, keep_blank_values=True)
+    keep = {k: v for k, v in query.items() if k in IDENTITY_QUERY_PARAMS}
+    if keep:
+        new_query = urllib.parse.urlencode(keep, doseq=True)
+        return urllib.parse.urlunsplit((parts.scheme, parts.netloc, parts.path, new_query, ""))
+    return urllib.parse.urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
+
+
+def dedup_identity_url(url: str) -> str:
+    """Canonical identity used for deduplication (tracking-query-insensitive)."""
+    return _strip_tracking_query(url.strip())
+
+
 class _SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        validate_wechat_url(newurl)
+        try:
+            validate_wechat_url(newurl)
+        except ValueError:
+            # WeChat serves anti-bot/verification (captcha) or deleted pages on a
+            # non-/s path. Let those through so fetch_html returns the page and the
+            # block detector can classify it, instead of a confusing path error.
+            host = urllib.parse.urlsplit(newurl).hostname or ""
+            if host.lower() != "mp.weixin.qq.com":
+                raise
+            return super().redirect_request(req, fp, code, msg, headers, newurl)
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -375,10 +417,31 @@ def normalize_canonical_url(candidate: str, fallback: str) -> str:
                 and not fallback_parts.query
             ):
                 return fallback_url
-            return candidate_url
+            return _strip_tracking_query(candidate_url)
         except ValueError:
             pass
-    return fallback_url
+    return _strip_tracking_query(fallback_url)
+
+
+def _detect_block_reason(page_html: str, body: str, found: bool, warnings: list[str]) -> str:
+    """Classify why WeChat returned a blocked/unusable page (empty means ok)."""
+    if "blocked_page_marker" not in warnings and found:
+        return ""
+    head = page_html[:20000]
+    low_body = body[:1200].lower()
+    if "wappoc_appmsgcaptcha" in head or "appmsgcaptcha" in head:
+        return "wechat_captcha"
+    if "参数错误" in head:
+        return "wechat_param_error"
+    if "该内容已被发布者删除" in head:
+        return "deleted"
+    if "环境异常" in head or "访问过于频繁" in head:
+        return "wechat_rate_limited"
+    if any(m in low_body for m in ("环境异常", "请先登录", "verify you are human")):
+        return "wechat_challenge"
+    if not found:
+        return "content_unavailable"
+    return ""
 
 
 def parse_page(page_html: str, input_url: str) -> Article:
@@ -436,6 +499,7 @@ def parse_page(page_html: str, input_url: str) -> Article:
     if any(marker.lower() in lowered for marker in BLOCK_PAGE_MARKERS):
         warnings.append("blocked_page_marker")
     complete = body_parser.found and body_chars >= 200 and "blocked_page_marker" not in warnings
+    block_reason = _detect_block_reason(page_html, body, body_parser.found, warnings)
     return Article(
         title=title,
         author=author,
@@ -447,6 +511,7 @@ def parse_page(page_html: str, input_url: str) -> Article:
         body_chars=body_chars,
         image_count=image_count,
         warnings=warnings,
+        block_reason=block_reason,
     )
 
 
@@ -481,7 +546,7 @@ def find_existing_by_url(article_root: Path, url: str) -> Optional[Path]:
                 f"Cannot inspect existing archive for URL dedupe: {path}: {exc}"
             ) from exc
         match = re.search(r'^url:\s*"?(.+?)"?\s*$', text, re.MULTILINE)
-        if match and match.group(1).strip() == url:
+        if match and dedup_identity_url(match.group(1)) == dedup_identity_url(url):
             return path
     return None
 
@@ -535,7 +600,8 @@ def build_document(article: Article, captured_at: str) -> str:
         "## 原文",
         "",
         article.body
-        or "<!-- 正文抓取失败或为空，content_complete=false，需要人工核对原文链接 -->",
+        or f"<!-- 正文抓取失败或为空，content_complete=false；block_reason={article.block_reason or 'unknown'}。"
+           f"\nWeChat 反爬/验证码或文章状态导致：请用浏览器打开原文，复制 /s/ 可读链接后重试，或人工粘贴正文。 -->",
         "",
         "## 我的看法",
         "",
@@ -584,6 +650,7 @@ def receipt(status: str, path: Optional[Path], vault: Path, article: Article) ->
         "body_chars": article.body_chars,
         "image_count": article.image_count,
         "warnings": article.warnings,
+        "block_reason": article.block_reason,
     }
 
 
@@ -601,6 +668,9 @@ def archive(
     if not article.content_complete and not allow_incomplete:
         raise RuntimeError(
             "Content quality gate failed; no file written. "
+            f"block_reason={article.block_reason or 'unknown'}. "
+            "WeChat anti-bot/blocked page: provide a readable /s/ link "
+            "(open in browser → 复制链接) or paste the body; refusing to write a blocked page. "
             f"Warnings: {', '.join(article.warnings) or 'unknown'}"
         )
     output = choose_output_path(article_root, article)
