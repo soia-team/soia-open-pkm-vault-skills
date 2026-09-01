@@ -3,6 +3,17 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.12.0 — 2026-09-01
+
+公众号归档去重归一化与显式拦截识别、知识库地图 --full 逐条列出、clip-web 工具链与译文规范
+
+## 修复
+- fix(pkm): 公众号归档去重归一化 + 显式拦截识别；feat: 地图 --full 逐条显示 (#75)
+- fix(pkm): cover writing structure and assets (#74)
+
+## 维护
+- chore(release): open next train after v1.11.1 (#73)
+
 ## v1.11.1 — 2026-08-21
 
 为 Obsidian Bases 补齐可验证的目录边界，并同步初始化、书库与馆藏技能规范。
