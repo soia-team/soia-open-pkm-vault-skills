@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-alipan-drive-ops
 description: 执行阿里云盘登录、浏览与文件操作，并为资源整理提供底层能力。触发：「登录阿里云盘」「下载阿里云盘文件」「全盘扫描阿里云盘」
-version: 2.2.6
+version: 2.2.7
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-08-05 14:40:00
+updated_at: 2026-09-14 14:07:07
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: openai/gpt-6-astra
 ---
 
 # soia-pkm-alipan-drive-ops — 阿里云盘原子操作层
@@ -169,8 +169,8 @@ aliyunpan ls "$DIR" </dev/null 2>/dev/null | \
 4. **凭据**：登录态属于 aliyunpan provider，默认在 `~/.config/aliyunpan/`，不要搬进 skill，也不要 cat 打印 token。若需要改登录态目录，只把 `ALIYUNPAN_CONFIG_DIR` 这个 override 放进本技能私有配置：
    `~/.config/soia-skills/soia-pkm-alipan-drive-ops/config.yml`（见 `assets/config.example.yml`）。
    运行命令优先使用 `python3 scripts/run_with_env.py -- aliyunpan <command>` 加载该 override；任何日志、诊断输出和最终回执都不得打印 token 或 env 值。
-5. **删除/移动/重命名前先确认**：命中路径、显式技能调用、任何默认配置都只是推荐输入，不构成跳过确认的理由；唯一跳过条件是客户当前这句话明确说"直接删/不用确认"，跳过后要在回执里说明本次沿用的范围假设。
-6. **批量前先小样本探测**：批量 `mv`/`rm`/`rename` 前，先用最小样本（如 1 条）跑一遍并汇报预计总量，客户确认规模无误后再放开全量执行，不要对着未知规模的目录直接下手。
+5. **删除/移动/重命名前核对授权**：只执行用户明确批准的目标、动作和范围；已批准且清单未变时沿用授权，不索要特定口令。路径命中、技能调用或“无需确认”不能替代缺失的目标与范围；范围变化或内容不明时暂停，不凭假设删除。
+6. **批量前先预检**：核对批准清单与当前规模；需要写入小样本时也必须在授权范围内。样本验证及全量若已包含在同一批准计划中，验证通过后继续；规模或影响改变时才重新确认。
 7. **限流先服从再恢复**：批量写操作按每次 200–300 ms 节流，批量 listing 不低于每次 300 ms；收到 429 时读取 `x-retry-after` 并等待，绝不连续重试。详见 ops-playbook 的「API 限流与 429 纪律」。
 
 ## 深入实战手册

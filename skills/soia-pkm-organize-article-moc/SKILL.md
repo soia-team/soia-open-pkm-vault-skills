@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-organize-article-moc
 description: 将 Obsidian 文章库按元数据、主题双链、月份和两级 MOC 规范化整理。触发：「整理文章库」「重建 MOC」「收藏归类」
-version: 2.1.0
+version: 2.1.1
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-08-21 11:41:42
+updated_at: 2026-09-14 14:07:07
 created_by: claude opus 4.6
-updated_by: codex-gpt-5
+updated_by: openai/gpt-6-astra
 ---
 
 # soia-pkm-organize-article-moc
@@ -85,7 +85,7 @@ SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
 
 ## ⚠️ 整理前置规程（必读，外部配置）
 
-任何「整理 / 重组知识库某一块」的任务（不限文章库），**开工前先加载并严格遵循** [`references/知识库整理规程.yml`](references/知识库整理规程.yml)：**先探明现状（只读，摸清用户已有的结构/约定/模板，发现同类先并入不另起）→ 再提最小方案给用户拍板 → 确认后才批量执行**。
+本技能只负责文章及其 MOC。涉及文章库批量移动、改名或重组时，读取 [`references/知识库整理规程.yml`](references/知识库整理规程.yml)，先只读盘点、给出最小方案，获得范围确认后执行；已批准且未变的计划不重复确认。单篇归档后的整理沿下方自动整理合同，不额外开启批量审批。其他知识库模块交由其适用流程处理。
 
 规程是**外部配置、与本 skill 解耦**——改规程改那个 yml，不写死在本文里。核心红线：不先探明就动手必返工；已有成熟结构还另起一套是重复造轮子；空模板/瞎猜分类/一次性批量生成再让用户挑错都是浪费。
 

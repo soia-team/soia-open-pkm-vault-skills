@@ -3,11 +3,11 @@ name: soia-pkm-maintain-vault-health
 description: 只读检查整个 Markdown/Obsidian 知识库或指定模块的健康状态，审计死链、歧义文件名、标签策略与过期内容，并按授权重建地图或健康简报。触发：「检查知识库健康」「检查知识库某个模块」「维护知识库」「重建知识库地图」「vault 周维护」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.2.0
+version: 1.2.1
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-09-01 12:00:00
+updated_at: 2026-09-14 14:07:07
 created_by: gpt-5
-updated_by: codex-gpt-5
+updated_by: openai/gpt-6-astra
 ---
 
 # soia-pkm-maintain-vault-health
@@ -91,7 +91,7 @@ python3 scripts/lint_vault.py --vault <vault-path> --json \
 
 ### 20/50 区结构检查
 
-健康回执必须额外报告：20 区精选一级目录是否只有 `10_主题知识`、`20_规范与手册`、`30_学习指南`；这些目录下所有语义二级/三级模块的未编号数、重复编号数；是否仍存在 legacy `10_融合分类`；历史导入一级分类是否使用 `10_保险`、`20_读书`、`30_工作`、`40_技术`、`50_日记`、`60_生活`、`70_写作`、`80_学习`、`90_资源`。50 区一级目录必须限定为 `10_草稿`、`15_待审核`、`20_发布`、`90_归档`，其下普通语义专题目录同样检查未编号与重复编号。年份/月份/日期、`assets` 等明确资源目录和隐藏插件状态目录应单独列为例外，不计入未编号。发现重复或无编号时只生成整改清单，不在健康检查中自动改名，转 `soia-pkm-manage-vault-lifecycle`。
+仅当目标范围适用时检查 20/50 区结构，以目标 vault 的 AGENTS、目录约定或用户选定模板为准；无此约定时不把其他用户的目录名称作为合格线。报告约定层级的未编号、重复编号及遗留目录；年份、日期、assets 和隐藏状态目录按当地规则排除。只列整改清单，不自动改名、创建分类或迁移；获准的整理转生命周期技能。
 
 ## 工作流 B：重建地图
 
