@@ -3,11 +3,11 @@ name: soia-pkm-alipan-curator
 description: 规划并整理阿里云盘资源，产出可复核的馆藏索引与学习规划。触发：「整理阿里云盘资源」「更新阿里云盘索引」「用网盘资源做学习计划」
 dependencies:
   hard: [soia-pkm-alipan-drive-ops]
-version: 1.6.4
+version: 1.6.5
 created_at: 2026-07-02 23:02:39
-updated_at: 2026-08-21 12:54:10
+updated_at: 2026-09-14 14:07:07
 created_by: claude opus 4.6
-updated_by: codex-gpt-5
+updated_by: openai/gpt-6-astra
 ---
 
 # soia-pkm-alipan-curator — 云盘资源顾问
@@ -169,7 +169,7 @@ SOIA_PKM_ALIPAN_CURATOR_CONFIG_FILE=<custom-config-path>
 - **云端产物与资源地图必须可复核**：关键 Excel/说明上传后写入 `required_artifacts`，用终态扫描按完整路径、字节数、SHA1 和可选 file_id 精确对账；不能把上传回显当作成功。OB 资源地图写入 `resource_maps`，逐个声明必须出现的最终 file_id 和显式 `url_prefix`；只有真实 Markdown 云盘链接才算通过，正文声称“可直达”或粘贴裸 URL 都不算完成
 - **杂包必拆**：含糊命名的合集目录逐项盘点→可独立使用的高价值资源提升到合适业务类→剩余按同一主轴分类→删壳前对账总数吻合
 - **SHA1 级查重**：同名/疑似重复资源先做文件级哈希比对再决定删哪份，不凭文件名/大小相似猜
-- **广告清理特征清单**：几千T资源/扫码进群/十万度V信/XH1080 尾巴/超低价网盘会员/可疑 exe——文字类见即删，可疑 exe 先列清单等确认
+- **广告清理特征清单**：几千T资源/扫码进群/十万度V信/XH1080 尾巴/超低价网盘会员/可疑 exe——全部只列候选，按已批准的规则、范围和逐项清单执行；文字类也不例外，可疑 exe 不执行
 
 ### 产物输出路径（C 类用户交付物）
 
