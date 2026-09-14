@@ -3,6 +3,16 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.12.3 — 2026-09-14
+
+缩小知识库整理范围，沿用已批准计划，保留删除、覆盖与非侵入式健康检查边界。
+
+## 修复
+- fix(skills): narrow scope and reuse approved plans (#84)
+
+## 维护
+- chore(release): open next train after v1.12.2 (#83)
+
 ## v1.12.2 — 2026-09-07
 
 Clarify instruction autonomy and preserve explicit approval gates
