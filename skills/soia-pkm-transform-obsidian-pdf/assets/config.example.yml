@@ -1,4 +1,4 @@
-# soia-pkm-transform private config example.
+# soia-pkm-transform-obsidian-pdf private config example.
 # Copy to ~/.config/soia-skills/soia-pkm-transform-obsidian-pdf/config.yml.
 # NotebookLM home is provider-owned auth state; keep it private and out of git.
 

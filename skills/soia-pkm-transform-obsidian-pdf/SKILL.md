@@ -12,7 +12,7 @@ updated_by: claude-opus-5
 
 把已归档或指定的 Markdown/vault 文章导出为 PDF，输出到与源文件同目录（或用户指定目录）。
 
-它是 `soia-pkm-transform` PDF 分支的独立 skill，与 `clip-*` 衔接。
+它是 `soia-pkm-transform-*` 家族里的 PDF 导出技能，与 `soia-pkm-clip-*` 归档技能衔接。
 
 ## 客户可读说明
 

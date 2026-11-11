@@ -207,7 +207,7 @@ interpreted_at: <YYYY-MM-DD>
 - **不代替 `soia-pkm-distill-article-opinion`**：本技能绝不写入原文件的 `## 我的看法` 段，也不以第一人称冒充客户表态。
 - **不编造**：原文未提供的信息一律标"原文未明确/需核对"，不杜撰数据、实验、引用或结论。
 - **不做外部检索核实**：解读基于原文本身；如果批判视角依赖外部事实核查，只提示客户"这一点需要客户自行核实"，不擅自杜撰核实结果。
-- **不做翻译/转换**：外文文章先经 `soia-pkm-translate-article-zh` 或客户自行理解后再解读；本技能不覆盖 `soia-pkm-transform` 的产物转换（PPT/脑图等）职责。
+- **不做翻译/转换**：外文文章先经 `soia-pkm-translate-article-zh` 或客户自行理解后再解读；本技能不覆盖 `soia-pkm-transform-*` 各技能的产物转换（PPT/脑图等）职责。
 - 本技能是纯文档 / 纯 prompt 技能，不带任何脚本，不读取账号、cookie、session 等凭据。
 
 ## 闭环位置

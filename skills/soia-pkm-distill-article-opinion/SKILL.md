@@ -124,7 +124,7 @@ SOIA_PKM_DISTILL_ARTICLE_OPINION_CONFIG_FILE=<custom-config-path>
 3. **多数为空** → 提示："这主题 N 篇里只有 M 篇提炼过观点，建议先对几篇跑模式 A。"让他选先炼哪几篇。
 4. 有素材后，综合成**一篇整体判断**（你的核心看法 + 各文章作论据）。
 5. 落 `<vault-drafts-dir>/YYYY-MM-DD-<主题>-观点综述.md`，`tags:[草稿]`。
-6. 这份草稿是 `soia-pkm-compose-article-draft` 的输入。
+6. 这份草稿是 `soia-media-compose-article-draft` 的输入。
 
 ## 写入边界
 
@@ -149,7 +149,7 @@ clip-*(收) → organize(整理) → ★distill(点：收藏→观点) → compo
 ```
 
 - 上游：`soia-pkm-clip-*` 把文章归档进来。
-- 下游：`soia-pkm-compose-article-draft` 把 distill 产出的观点写成成文。
+- 下游：`soia-media-compose-article-draft` 把 distill 产出的观点写成成文。
 - 方法论**参考** `huashu-weread-advisor` 的 alchemy（读书线的划线→笔记提炼）——distill 是它在**文章线**的对应物。仅借鉴方法，不改其文件（第三方 skill）。
 
 ## 第三方 skill 关系

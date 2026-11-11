@@ -26,9 +26,7 @@ GRANDFATHER_MISSING_PRIVATE_DATA_SECTION = frozenset(
     {
         "soia-cwork-feishu-cli",
         "soia-dev-agent-cli-dispatch",
-        "soia-dev-agent-md-advisor",
         "soia-dev-ai-cli-upgrade",
-        "soia-dev-archify-diagrams",
         "soia-dev-coding-protocol",
         "soia-dev-design-explorer",
         "soia-dev-doc-sync",
