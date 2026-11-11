@@ -3,6 +3,14 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.12.5-SNAPSHOT — 未发布
+
+安装说明改为项目最小安装，修正失效的技能名引用；技能功能、名字与脚本不变
+
+## 维护
+- 安装说明默认项目、明确宿主、单技能；不再教 `-g -a '*' -y`
+- 旧名 `soia-pkm-compose-article-draft`、`soia-pkm-publish-wechat-draft` 改指现名 `soia-media-*`；已不存在的 `soia-pkm-transform` 改指 `soia-pkm-transform-*` 家族
+
 ## v1.12.4 — 2026-09-14
 
 交付渐进加载仓库规则：缩小常驻指令与强制读取范围，保留安全、权限、测试及正式发布门禁；技能正文与行为不变。
