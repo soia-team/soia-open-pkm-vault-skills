@@ -1,4 +1,0 @@
-interface:
-  display_name: "文章转 PPT 媒体包"
-  short_description: "生成可编辑 PPTX，支持固定模板保真与机密本地隔离"
-  default_prompt: "Use $soia-pkm-transform-article-ppt to turn this source into an editable PPTX with source tracing, fixed-template fidelity when requested, confidential local isolation, dual-lens review, and host-render validation."

@@ -1,7 +1,7 @@
 {
   "name": "soia-pkm-vault",
   "version": "1.12.6-SNAPSHOT",
-  "description": "Personal knowledge vault curator: archive web, WeChat, X and cloud-drive material into a local Markdown vault, organize it, and turn it into interpretations, decks, long images and reading plans.",
+  "description": "Personal knowledge vault curator: archive web, WeChat, X and cloud-drive material into a local Markdown vault, organize it, and turn it into interpretations, long images and study material.",
   "author": {
     "name": "soia-team"
   },
@@ -13,7 +13,6 @@
     "./skills/soia-pkm-alipan-drive-ops",
     "./skills/soia-pkm-baidu-netdisk-ops",
     "./skills/soia-pkm-bootstrap-vault-base",
-    "./skills/soia-pkm-bootstrap-vault-ima",
     "./skills/soia-pkm-bootstrap-vault-obsidian",
     "./skills/soia-pkm-clip-douyin",
     "./skills/soia-pkm-clip-drive",
@@ -34,11 +33,8 @@
     "./skills/soia-pkm-manage-vault-lifecycle",
     "./skills/soia-pkm-organize-article-moc",
     "./skills/soia-pkm-query-vault",
-    "./skills/soia-pkm-reading-plan",
     "./skills/soia-pkm-transform-article-notebooklm",
-    "./skills/soia-pkm-transform-article-ppt",
     "./skills/soia-pkm-transform-article-visual",
-    "./skills/soia-pkm-transform-obsidian-pdf",
     "./skills/soia-pkm-translate-article-zh"
   ],
   "expertType": "agent",
@@ -52,8 +48,8 @@
     "zh": "Soia · 知识库管家"
   },
   "displayDescription": {
-    "en": "Archives web, WeChat and cloud-drive material into a local Markdown vault, organizes it with metadata and topic backlinks, then turns it into interpretations, decks, long images and reading plans.",
-    "zh": "把网页、公众号与云盘资料收进本地知识库，按元数据与主题双链整理，再转成解读、演示稿与长图。"
+    "en": "Archives web, WeChat and cloud-drive material into a local Markdown vault, organizes it with metadata and topic backlinks, then turns it into interpretations, long images and study material.",
+    "zh": "把网页、公众号与云盘资料收进本地知识库，按元数据与主题双链整理，再转成解读、长图与学习材料。"
   },
   "avatar": "assets/icon.png",
   "categoryId": "06-ContentCreative",
@@ -85,8 +81,8 @@
       "zh": "把这篇文章存进我的知识库，然后告诉我它值不值得细读。"
     },
     {
-      "en": "Turn this article into a deck and a long image.",
-      "zh": "把这篇文章转成演示稿和长图。"
+      "en": "Turn this article into a long image and an infographic.",
+      "zh": "把这篇文章转成长图和信息图。"
     }
   ]
 }

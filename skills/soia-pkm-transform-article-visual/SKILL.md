@@ -6,8 +6,6 @@ created_at: 2026-07-16 10:58:46
 updated_at: 2026-08-05 13:30:00
 created_by: claude opus 4.6
 updated_by: claude-opus-5
-dependencies:
-  optional: [soia-dev-open-design-ops]
 ---
 
 # soia-pkm-transform-article-visual
@@ -55,16 +53,16 @@ npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-trans
 ```
 
 - 本地截图方案：优先使用当前 agent 的浏览器截图能力；命令行 smoke 可注入 Playwright，也可在缺少 Playwright 时使用系统浏览器/PDF-图片工具 fallback。
-- Open Design（可选强化依赖）：安装 `soia-dev-open-design-ops` 后才可使用 `provider=open-design`；见 [references/provider-open-design.md](references/provider-open-design.md)
+- Open Design（可选强化）：本机已有可用的 Open Design 环境时才可使用 `provider=open-design`；见 [references/provider-open-design.md](references/provider-open-design.md)
 - Codex image / imagegen（可选）：见 [references/prompt-codex-image.md](references/prompt-codex-image.md)
 
 | 路径 | 依赖 | 缺失时行为 |
 |---|---|---|
 | `local` | 无 | 零依赖可用 |
 | `codex-image` | 当前环境的 image generation 能力 | 仅该 provider 停在工具可用性闸门 |
-| `open-design` | `soia-dev-open-design-ops`（该路径硬依赖）及其 Open Design 环境 | 停止该 provider，给出安装与环境检查命令；不把它冒充为 Open Design 结果 |
+| `open-design` | 用户自备的 Open Design 环境（该路径硬依赖） | 停止该 provider，给出环境检查命令并请用户按 Open Design 官方文档安装；不把它冒充为 Open Design 结果 |
 
-`soia-dev-open-design-ops` 在本技能 frontmatter 中标为 `optional`，因为 `local` 和 `codex-image` 路径不依赖它；一旦用户选择 `provider=open-design`，它就是该次执行的硬依赖。
+`local` 和 `codex-image` 路径不依赖 Open Design；一旦用户选择 `provider=open-design`，可用的 Open Design 环境就是该次执行的硬依赖。
 
 私有配置放在 `~/.config/soia-skills/soia-pkm-transform-article-visual/config.yml`，可用 `SOIA_PKM_TRANSFORM_ARTICLE_VISUAL_CONFIG_FILE` 覆盖。
 

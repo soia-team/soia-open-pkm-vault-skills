@@ -6,13 +6,13 @@
 
 **Stop hoarding links you never reopen — turn scattered material into usable knowledge**
 
-Local Markdown, no platform lock-in; 31 skills covering the full knowledge lifecycle
+Local Markdown, no platform lock-in; 27 skills covering the full knowledge lifecycle
 
 [中文](README.md) · English · [Ecosystem portal](https://github.com/soia-team/soia-open-skills)
 
 <p align="center">
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
-  <img alt="skills" src="https://img.shields.io/badge/skills-31-brightgreen">
+  <img alt="skills" src="https://img.shields.io/badge/skills-27-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/hosts-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
   <img alt="always-on cost" src="https://img.shields.io/badge/always--on-~2.8k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
@@ -31,11 +31,11 @@ flowchart LR
     A["Web · WeChat · X<br/>Rednote · Douyin · GitHub<br/>Cloud drive · WeRead"] --> B["Capture<br/>archived into the vault"]
     B --> C["Organize<br/>metadata · backlinks · MOC"]
     C --> D["Distill<br/>interpretation · opinion · translation"]
-    D --> E["Transform<br/>PPTX · long image · PDF · podcast"]
+    D --> E["Transform<br/>long image · infographic · podcast"]
     C -.periodic.-> F["Health audit<br/>links · tags · vault map"]
 ```
 
-## 31 skills
+## 27 skills
 
 ### 01 Build and maintain　`Requirements and conventions → local vault structure`
 
@@ -43,7 +43,6 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | Initializes a neutral Markdown vault skeleton and the PKM loop | ✅ |
 | [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | Configures an existing vault as an Obsidian consumer | ✅ |
-| [`soia-pkm-bootstrap-vault-ima`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-ima.md) | Connects an existing vault to Tencent ima | 🟡 |
 | [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | Read-only health checks, vault maps and weekly reports | ✅ |
 | [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | Workbench, Inbox, evidence and archive lifecycle | ✅ |
 | [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | Minimal AI session change snapshots | ✅ |
@@ -73,7 +72,6 @@ flowchart LR
 | [`soia-pkm-organize-article-moc`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-organize-article-moc.md) | Metadata normalization, topic backlinks and two-level MOCs | ✅ |
 | [`soia-pkm-library-book-catalog`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-book-catalog.md) | Maintains the book catalog and reading records, purely locally | ✅ |
 | [`soia-pkm-library-weread-sync`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-weread-sync.md) | Syncs WeRead finished books and highlights | 🟡 |
-| [`soia-pkm-reading-plan`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-reading-plan.md) | Turns a book list or topic into a word-count-paced reading plan | ✅ |
 
 ### 04 Understanding and distillation　`Long reads · papers · foreign text → summaries, opinions, translations`
 
@@ -84,20 +82,18 @@ flowchart LR
 | [`soia-pkm-extract-vault-knowledge`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-extract-vault-knowledge.md) | Preserves sources while extracting stable knowledge from reports, logs and legacy material | ✅ |
 | [`soia-pkm-translate-article-zh`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-translate-article-zh.md) | Three-tier translation of foreign articles; never overwrites the original | ✅ |
 
-### 05 Transformation　`Organized knowledge → PPTX · long image · PDF · study material`
+### 05 Transformation　`Organized knowledge → long image · infographic · study material`
 
 | Skill | Responsibility | Ready |
 |---|---|:-:|
-| [`soia-pkm-transform-article-ppt`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-ppt.md) | Turns an article into a media package with an editable PPTX as the master | ✅ |
 | [`soia-pkm-transform-article-visual`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-visual.md) | Turns an article into long images, infographics, posters and covers | ✅ |
-| [`soia-pkm-transform-obsidian-pdf`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-obsidian-pdf.md) | Exports vault notes to PDF via Obsidian's native export | ✅ |
 | [`soia-pkm-transform-article-notebooklm`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-notebooklm.md) | Turns an article into quizzes, flashcards and podcasts via NotebookLM | 🟡 |
 
 ✅ Works right after install　🟡 Needs a platform login or API key first; the skill tells you what is missing before it runs
 
 ## Install
 
-Any of three hosts. Installing the domain plugin brings all 31 skills at once.
+Any of three hosts. Installing the domain plugin brings all 27 skills at once.
 
 Publishing and local installation are separate: the default is one skill for one project and one explicit host. Global, whole-domain or all-host scope requires an explicit choice and a dry-run first; publishing never syncs to local hosts automatically.
 
@@ -125,7 +121,7 @@ Restart the client, then summon **Soia · 知识库管家** under Experts → My
 - **Does not host your vault.** Everything stays in your own local directory; this repo only provides the skills that operate on it.
 - **Does not write your opinions.** Interpretation produces material for you to judge; opinion distillation asks questions until you say it yourself.
 - **Does not store credentials.** WeRead, X and Alipan sessions stay in their official flows — never in the repo, the vault body, or the logs.
-- **Does not install environments.** Obsidian, Playwright and similar prerequisites belong to [soia-open-env-skills](https://github.com/soia-team/soia-open-env-skills).
+- **Does not install environments.** For Obsidian, Playwright and similar prerequisites, follow each tool's official documentation.
 
 ## Contributing
 

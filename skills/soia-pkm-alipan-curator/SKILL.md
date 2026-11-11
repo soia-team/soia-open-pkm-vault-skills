@@ -96,14 +96,13 @@ SOIA_PKM_ALIPAN_CURATOR_CONFIG_FILE=<custom-config-path>
 ## 定位与依赖
 
 本 skill 的分层设计可类比 `huashu-weread-advisor` / `weread-skills` 的“顾问层 / 原子层”关系，但**不依赖也不调用**这两个第三方 skill。实际底层命令全部走 [[soia-pkm-alipan-drive-ops]]，本 skill 只管**方法论和产出**。
-学习计划的排期方法论继承 soia-pkm-reading-plan：**书按字数排期 → 视频按 集数×单集时长 排期**，不拍脑袋。
+学习计划的排期方法论按真实体量排期：**书按字数排期 → 视频按 集数×单集时长 排期**，不拍脑袋。
 
 依赖关系必须按下面口径说明：
 
 | 依赖/参考 | 对 `soia-pkm-alipan-curator` 的关系 |
 |---|---|
 | `soia-pkm-alipan-drive-ops` | **强依赖**：所有云盘读写、登录、扫描、移动、重命名都走这个原子层 |
-| `soia-pkm-reading-plan` | 方法复用：学习计划排期方法沿用其“按真实体量排期”原则；不要求运行它 |
 | `huashu-weread-advisor` | 非依赖：只作为“顾问层/原子层”分工类比，不读取或调用该第三方 skill |
 | `weread-skills` | 非依赖：本 skill 处理阿里云盘资源，不调用微信读书 API |
 | `book-to-skill` / `find-skills` | 非依赖 |
