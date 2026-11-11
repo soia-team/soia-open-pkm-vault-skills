@@ -34,7 +34,7 @@ PKM 书库的本地 catalog 层：只读取和写入 vault 内的 Markdown 与 Y
 
 ### 依赖与安装
 
-安装本技能：
+整域需明确选择：
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills
@@ -44,10 +44,10 @@ claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只要这一个技能时，可用 npx 路线。注意技能会落进共享真源 `~/.agents/skills`；若同时装了插件，同一技能会出现两份索引且各自漂移，建议二选一：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-library-book-catalog -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-library-book-catalog
 ```
 
 运行依赖只有 Python 3 和本地 vault 中的 Markdown 文件；不依赖微信读书、`weread-skills`、`WEREAD_API_KEY`、网络或额外 pip 包。
@@ -69,7 +69,7 @@ env:
 
 为兼容旧调用方式，脚本也接受 `SOIA_PKM_LIBRARY_CONFIG_FILE` 和 `SOIA_PKM_LIBRARY_ENV_FILE`；新配置优先使用上面的 catalog 专用名称。配置只保存本机路径，不提交私密数据。
 
-**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
 
 ### 日志与完成回执
 

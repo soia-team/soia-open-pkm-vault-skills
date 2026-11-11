@@ -31,7 +31,7 @@ updated_by: claude-opus-5
 
 ### 依赖与安装
 
-安装（推荐：装整个领域插件，一次装好本仓全部技能）：
+整域需明确选择（装整个领域插件，包含本仓全部技能）：
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills
@@ -41,10 +41,10 @@ claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只要这一个技能时，可用 npx 路线。注意技能会落进共享真源 `~/.agents/skills`；若同时装了插件，同一技能会出现两份索引且各自漂移，建议二选一：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-clip-wechat-account -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-clip-wechat-account
 ```
 
 配置约定：
@@ -59,7 +59,7 @@ SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE=<custom-config-path>
 - 如果需要 API key、cookie、session、provider home 或本机路径，只能放进私有 `config.yml`、进程环境或 provider 自己的登录态里，不能写进仓库、vault 正文或日志。
 - 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
 
-**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
 
 ### 日志与完成回执
 
@@ -134,12 +134,12 @@ SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE=<custom-config-path>
 
 - `freepublish/batchget` **只返回通过草稿箱「发布」动作发出的文章**。只走过"群发"但没点过"发布"的内容、以及草稿箱功能上线前的旧版图文消息，官方目前**没有任何 API** 能拿到——这不是本 skill 的实现缺陷，是微信开放社区多个帖子交叉确认过的平台限制。
 - `material/batchget_material`（type=news）返回的是永久图文素材；据社区反馈，一篇文章一旦经草稿箱正式「发布」，可能就从这个素材列表里消失。两个接口是**互补关系**，取并集也不等于"全部已发布历史"。
-- 「发布能力」相关接口文档注明：**自 2025-07 起，个人主体账号、企业主体未认证账号、以及不支持认证的账号，这些接口的调用权限会被回收**。多数个人订阅号大概率整条路线都跑不通，需要已认证服务号/订阅号（同 `soia-pkm-publish-wechat-draft` 的 `draft/add` 一样的账号门槛）。
+- 「发布能力」相关接口文档注明：**自 2025-07 起，个人主体账号、企业主体未认证账号、以及不支持认证的账号，这些接口的调用权限会被回收**。多数个人订阅号大概率整条路线都跑不通，需要已认证服务号/订阅号（同 `soia-media-publish-wechat-draft` 的 `draft/add` 一样的账号门槛）。
 - 结论：路 A 更适合"抽查/核对/增量同步已发布内容"，不要指望它是"全量备份"。要读全部历史（含手动群发的老文）优先用路 C，路 B 作为备选。
 
 ### 凭据与限制
 
-- `WECHAT_APP_ID` / `WECHAT_APP_SECRET`：获取路径、IP 白名单配置同 `soia-pkm-publish-wechat-draft` SKILL.md「如何获取并配置微信公众号 AppID / AppSecret」一节，不重复贴——两个 skill 用同一套公众号开发凭据。
+- `WECHAT_APP_ID` / `WECHAT_APP_SECRET`：获取路径、IP 白名单配置同 `soia-media-publish-wechat-draft` SKILL.md「如何获取并配置微信公众号 AppID / AppSecret」一节，不重复贴——两个 skill 用同一套公众号开发凭据。
 - 私有配置自动探测：`$SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE`（兼容别名 `$SOIA_PKM_CLIP_GZH_CONFIG_FILE`，以及原有 `$SOIA_PKM_CLIP_GZH_ENV_FILE`）> `~/.config/soia-skills/soia-pkm-clip-wechat-account/config.yml`。配置文件使用 YAML `env:` 映射，示例见 `assets/config.example.yml`；秘钥不进 vault、不进这个开源 skill 仓库。
 
 ### 用法

@@ -2,7 +2,7 @@
 
 适用：高质量 PPT/HTML deck、高密度信息图、长图、课程模块、技术分享、视觉探索。
 
-定位：Open Design 是**增强 provider**，不是 `soia-pkm-transform` 的硬依赖。公共默认实现必须在没有 Open Design 的机器上可用。
+定位：Open Design 是**增强 provider**，不是 `soia-pkm-transform-*` 各技能的硬依赖。公共默认实现必须在没有 Open Design 的机器上可用。
 
 ## 使用模式
 

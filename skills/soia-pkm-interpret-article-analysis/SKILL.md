@@ -35,7 +35,7 @@ updated_by: claude-opus-5
 
 ### 依赖与安装
 
-安装（推荐：装整个领域插件，一次装好本仓全部技能）：
+整域需明确选择（装整个领域插件，包含本仓全部技能）：
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills
@@ -45,10 +45,10 @@ claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只要这一个技能时，可用 npx 路线。注意技能会落进共享真源 `~/.agents/skills`；若同时装了插件，同一技能会出现两份索引且各自漂移，建议二选一：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-interpret-article-analysis -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-interpret-article-analysis
 ```
 
 | 依赖 | 类型 | 安装 / 配置 | 缺失时怎么处理 |
@@ -67,7 +67,7 @@ SOIA_PKM_INTERPRET_ARTICLE_ANALYSIS_CONFIG_FILE=<custom-config-path>
 - 本技能是纯文档 / 纯 prompt 技能，不带脚本，通常不需要 `config.yml`；如果客户想固定"默认深度"或"批量确认阈值"等偏好，可以建这个文件，字段与本文一致。
 - 不需要、也不应该读取任何 API key、cookie、session、账号凭据——本技能只读取客户提供的文本文件。
 
-**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
 
 ### 日志与完成回执
 
@@ -207,7 +207,7 @@ interpreted_at: <YYYY-MM-DD>
 - **不代替 `soia-pkm-distill-article-opinion`**：本技能绝不写入原文件的 `## 我的看法` 段，也不以第一人称冒充客户表态。
 - **不编造**：原文未提供的信息一律标"原文未明确/需核对"，不杜撰数据、实验、引用或结论。
 - **不做外部检索核实**：解读基于原文本身；如果批判视角依赖外部事实核查，只提示客户"这一点需要客户自行核实"，不擅自杜撰核实结果。
-- **不做翻译/转换**：外文文章先经 `soia-pkm-translate-article-zh` 或客户自行理解后再解读；本技能不覆盖 `soia-pkm-transform` 的产物转换（PPT/脑图等）职责。
+- **不做翻译/转换**：外文文章先经 `soia-pkm-translate-article-zh` 或客户自行理解后再解读；本技能不覆盖 `soia-pkm-transform-*` 各技能的产物转换（PPT/脑图等）职责。
 - 本技能是纯文档 / 纯 prompt 技能，不带任何脚本，不读取账号、cookie、session 等凭据。
 
 ## 闭环位置
