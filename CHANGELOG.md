@@ -3,6 +3,13 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.13.1-SNAPSHOT — 未发布
+
+一处跨仓引用改指新位置；技能功能不变
+
+## 维护
+- `soia-pkm-clip-x-profile` 0.3.2：X 导入契约的引用路径改为 `soia-open-cwork-office-skills`（`soia-media-generate-article-image` 已于 2026-11-11 原名并入该仓）
+
 ## v1.13.0 — 2026-11-11
 
 下线 4 个没有使用痕迹的技能（31 → 27），清掉失效链接与对已下线技能的引用
