@@ -99,6 +99,8 @@ flowchart LR
 
 Any of three hosts. Installing the domain plugin brings all 31 skills at once.
 
+Publishing and local installation are separate: the default is one skill for one project and one explicit host. Global, whole-domain or all-host scope requires an explicit choice and a dry-run first; publishing never syncs to local hosts automatically.
+
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia
 ```
@@ -116,7 +118,7 @@ python3 <soia-open-skills>/skills/soia-meta-skill-release/scripts/install_workbu
 Restart the client, then summon **Soia · 知识库管家** under Experts → My Experts.
 
 > **Always-on cost ~2.8k tok**. `claude plugin disable soia-pkm-vault@soia` drops it to zero; enable it again on a writing day.
-> For a single skill use npx: `npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s <skill-name> -y` — pick one route or the other; running both puts the same skill in the index twice and the copies drift apart.
+> Single skill, project scope: `npx skills add soia-team/soia-open-pkm-vault-skills -a <explicit-host> -s <skill-name>`; add `-g` only when you explicitly choose a global install. Pick this or the domain plugin, not both, so the index is not duplicated.
 
 ## What it does not do
 

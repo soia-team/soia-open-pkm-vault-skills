@@ -42,7 +42,7 @@ updated_by: claude-opus-5
 
 ## 依赖与安装
 
-先安装本技能：
+整域需明确选择：
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills
@@ -52,10 +52,10 @@ claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只要这一个技能时，可用 npx 路线。注意技能会落进共享真源 `~/.agents/skills`；若同时装了插件，同一技能会出现两份索引且各自漂移，建议二选一：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-baidu-netdisk-ops -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-baidu-netdisk-ops
 ```
 
 优先安装百度官方上游 Skill：
@@ -94,20 +94,20 @@ npx skills add https://github.com/baidu-netdisk/bdpan-storage/skills --skill bai
 
 ### 依赖与安装
 
-装整个域（Claude Code 与 Codex 共用同一份域插件）：
+整域需明确选择（Claude Code 与 Codex 共用同一份域插件）：
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只装这一个技能：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-baidu-netdisk-ops -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-baidu-netdisk-ops
 ```
 
-**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
 
 ### 1. 安装与登录
 

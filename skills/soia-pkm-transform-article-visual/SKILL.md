@@ -48,10 +48,10 @@ claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只要这一个技能时，可用 npx 路线。注意技能会落进共享真源 `~/.agents/skills`；若同时装了插件，同一技能会出现两份索引且各自漂移，建议二选一：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transform-article-visual -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-transform-article-visual
 ```
 
 - 本地截图方案：优先使用当前 agent 的浏览器截图能力；命令行 smoke 可注入 Playwright，也可在缺少 Playwright 时使用系统浏览器/PDF-图片工具 fallback。
@@ -68,7 +68,7 @@ npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-transf
 
 私有配置放在 `~/.config/soia-skills/soia-pkm-transform-article-visual/config.yml`，可用 `SOIA_PKM_TRANSFORM_ARTICLE_VISUAL_CONFIG_FILE` 覆盖。
 
-**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
 
 ### 日志与完成回执
 

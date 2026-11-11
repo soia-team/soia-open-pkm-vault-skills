@@ -42,20 +42,20 @@ updated_by: openai/gpt-6-astra
 SOIA_PKM_VAULT_HEALTH_CONFIG_FILE=<custom-config-path>
 ```
 
-装整个域（Claude Code 与 Codex 共用同一份域插件）：
+整域需明确选择（Claude Code 与 Codex 共用同一份域插件）：
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只装这一个技能：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-maintain-vault-health -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-maintain-vault-health
 ```
 
-**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
 
 ### 私密信息与中间数据
 

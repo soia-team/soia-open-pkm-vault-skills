@@ -34,7 +34,7 @@ updated_by: claude-opus-5
 
 ### 依赖与安装
 
-安装（推荐：装整个领域插件，一次装好本仓全部技能）：
+整域需明确选择（装整个领域插件，包含本仓全部技能）：
 
 ```bash
 claude plugin marketplace add soia-team/soia-open-skills
@@ -44,10 +44,10 @@ claude plugin marketplace add soia-team/soia-open-skills
 claude plugin install soia-pkm-vault@soia
 ```
 
-只要这一个技能时，可用 npx 路线。注意技能会落进共享真源 `~/.agents/skills`；若同时装了插件，同一技能会出现两份索引且各自漂移，建议二选一：
+默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
 
 ```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -g -a '*' -s soia-pkm-clip-rednote -y
+npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-clip-rednote
 ```
 
 | 依赖 | 类型 | 安装 / 配置 | 缺失时怎么处理 |
@@ -67,7 +67,7 @@ SOIA_PKM_CLIP_REDNOTE_CONFIG_FILE=<custom-config-path>
 - `XHS_COOKIE` 只能放进私有 `config.yml`、进程环境，不能写进仓库、vault 正文或日志；脚本从不打印其值。为防止配了 `XHS_COOKIE` 后被恶意/伪造链接骗去发给第三方主机，脚本只接受 `xiaohongshu.com`/`xhslink.com` 域名下的链接，其余一律拒绝。
 - 参考 [config.example.yml](assets/config.example.yml)。
 
-**WorkBuddy** 的装载单位是角色化专家而不是插件，`npx skills add -a '*'` 覆盖不到它，需要单独安装，见 [docs/install/workbuddy.md](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)。
+**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
 
 ### 日志与完成回执
 
