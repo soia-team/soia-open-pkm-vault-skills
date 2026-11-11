@@ -1,6 +1,6 @@
 {
   "name": "soia-pkm-vault",
-  "version": "1.13.0",
+  "version": "1.13.1-SNAPSHOT",
   "description": "Personal knowledge vault curator: archive web, WeChat, X and cloud-drive material into a local Markdown vault, organize it, and turn it into interpretations, long images and study material.",
   "author": {
     "name": "soia-team"
