@@ -6,13 +6,13 @@
 
 **别再收藏吃灰——把散落资料变成能用的知识资产**
 
-本地 Markdown，不锁平台；31 个技能串起完整知识生命周期
+本地 Markdown，不锁平台；27 个技能串起完整知识生命周期
 
 [English](README.en.md) · 中文 · [全生态门户](https://github.com/soia-team/soia-open-skills)
 
 <p align="center">
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
-  <img alt="skills" src="https://img.shields.io/badge/技能-31-brightgreen">
+  <img alt="skills" src="https://img.shields.io/badge/技能-27-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/宿主-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
   <img alt="always-on cost" src="https://img.shields.io/badge/常驻-~2.8k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
@@ -31,11 +31,11 @@ flowchart LR
     A["网页 · 公众号 · X<br/>小红书 · 抖音 · GitHub<br/>云盘 · 微信读书"] --> B["采集<br/>统一归档进 vault"]
     B --> C["整理<br/>元数据 · 双链 · MOC"]
     C --> D["提炼<br/>解读 · 观点 · 翻译"]
-    D --> E["转换<br/>PPTX · 长图 · PDF · 播客"]
+    D --> E["转换<br/>长图 · 信息图 · 播客"]
     C -.定期.-> F["健康巡检<br/>死链 · 标签 · 全库地图"]
 ```
 
-## 31 个技能
+## 27 个技能
 
 ### 01 建库与维护　`需求与规范 → 本地知识库结构与标准体系`
 
@@ -43,7 +43,6 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | 初始化中立 Markdown vault 骨架与 PKM 闭环 | ✅ |
 | [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | 把已有 vault 配成 Obsidian 消费端 | ✅ |
-| [`soia-pkm-bootstrap-vault-ima`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-ima.md) | 把已有 vault 接入腾讯 ima | 🟡 |
 | [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | 只读健康检查、全库地图与周简报 | ✅ |
 | [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | 工作台、Inbox、证据与归档生命周期 | ✅ |
 | [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | 最小化 AI 会话改动快照 | ✅ |
@@ -73,7 +72,6 @@ flowchart LR
 | [`soia-pkm-organize-article-moc`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-organize-article-moc.md) | 元数据规范化、主题双链与两级 MOC | ✅ |
 | [`soia-pkm-library-book-catalog`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-book-catalog.md) | 纯本地维护书库编目与阅读记录 | ✅ |
 | [`soia-pkm-library-weread-sync`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-library-weread-sync.md) | 同步微信读书已读书目与划线 | 🟡 |
-| [`soia-pkm-reading-plan`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-reading-plan.md) | 把书单或主题排成按字数的阅读计划 | ✅ |
 
 ### 04 理解提炼　`长文 · 论文 · 外文资料 → 要点总结 · 观点卡片 · 译文`
 
@@ -84,20 +82,18 @@ flowchart LR
 | [`soia-pkm-extract-vault-knowledge`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-extract-vault-knowledge.md) | 保留来源，从报告、日志与历史语料提炼长期知识 | ✅ |
 | [`soia-pkm-translate-article-zh`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-translate-article-zh.md) | 外文文章三档翻译，不覆盖原文 | ✅ |
 
-### 05 内容转换　`整理后的知识 → 可编辑 PPTX · 长图 · PDF · 学习材料`
+### 05 内容转换　`整理后的知识 → 长图 · 信息图 · 学习材料`
 
 | 技能 | 职责 | 开箱 |
 |---|---|:-:|
-| [`soia-pkm-transform-article-ppt`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-ppt.md) | 转为以可编辑 PPTX 为母版的演示媒体包 | ✅ |
 | [`soia-pkm-transform-article-visual`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-visual.md) | 转为长图、信息图、海报、封面 | ✅ |
-| [`soia-pkm-transform-obsidian-pdf`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-obsidian-pdf.md) | 用 Obsidian 原生导出转 PDF | ✅ |
 | [`soia-pkm-transform-article-notebooklm`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-transform-article-notebooklm.md) | 用 NotebookLM 转试卷、闪卡、播客 | 🟡 |
 
 ✅ 装完即用　🟡 需先完成平台登录或申请 API key，技能会在执行前告诉你缺什么
 
 ## 安装
 
-三个宿主任选，装整个领域插件即 31 个技能一次到位。
+三个宿主任选，装整个领域插件即 27 个技能一次到位。
 
 发布与本机安装分开：默认按项目、明确宿主、单个技能定向安装；全局、整域或全宿主范围只有客户明确选择并先看 dry-run 后执行，发布不会自动同步到本机。
 
@@ -125,7 +121,7 @@ python3 <soia-open-skills>/skills/soia-meta-skill-release/scripts/install_workbu
 - **不托管你的知识库**。内容全在你自己的本地目录，本仓只提供操作技能。
 - **不替你写观点**。解读输出的是「供你判断的材料」；观点提炼是逐问引导你说出来，不代笔。
 - **不保存任何凭据**。微信读书、X、阿里云盘的登录态由各自官方流程持有，不进仓库、不进 vault 正文、不进日志。
-- **不做环境安装**。Obsidian、Playwright 等依赖交给 [soia-open-env-skills](https://github.com/soia-team/soia-open-env-skills)。
+- **不做环境安装**。Obsidian、Playwright 等依赖的环境安装请按各工具官方文档。
 
 ## 贡献
 

@@ -2,7 +2,7 @@
 
 > Generated from `skills/*/SKILL.md` and optional `agents/openai.yaml`.
 > Do not edit by hand. Run `python3 scripts/generate_skill_catalog.py`.
-> Discoverable by `npx skills add soia-team/soia-open-pkm-vault-skills -l`: 31 skills.
+> Discoverable by `npx skills add soia-team/soia-open-pkm-vault-skills -l`: 27 skills.
 
 ## Source Fields
 
@@ -19,7 +19,6 @@
 | [`soia-pkm-alipan-drive-ops`](./soia-pkm-alipan-drive-ops/) | 阿里云盘原子操作层：安装/登录 aliyunpan、显式 driveId 双盘操作、目录浏览、移动/重命名/删除、下载上传、容量查询、全盘 JSONL 扫描。作为 curator 的底层依赖 | Use soia-pkm-alipan-drive-ops: 阿里云盘原子操作层：安装/登录 aliyunpan、显式 driveId 双盘操作、目录浏览、移动/重命名/删除、下载上传、容量查询、全盘 JSONL 扫描。作为 curator 的底层依赖 |
 | [`soia-pkm-baidu-netdisk-ops`](./soia-pkm-baidu-netdisk-ops/) | 百度官方 bdpan Skill 适配：浏览、搜索、传输、管理与只读 JSONL 扫描 | Use soia-pkm-baidu-netdisk-ops: 通过百度官方 bdpan Skill 登录、浏览或安全操作百度网盘，并在需要时生成只读 JSONL 扫描。 |
 | [`soia-pkm-bootstrap-vault-base`](./soia-pkm-bootstrap-vault-base/) | 先预览、再 create-only 初始化 AI-native Markdown vault | Use $soia-pkm-bootstrap-vault-base to preview a create-only AI-native vault scaffold; do not apply it until I approve. |
-| [`soia-pkm-bootstrap-vault-ima`](./soia-pkm-bootstrap-vault-ima/) | 将本地 Markdown vault 单向接入腾讯 ima 知识库 | Use soia-pkm-bootstrap-vault-ima: 将这个 Markdown vault 的指定目录同步到腾讯 ima 知识库并验证检索 |
 | [`soia-pkm-bootstrap-vault-obsidian`](./soia-pkm-bootstrap-vault-obsidian/) | 先预览再安全合并 Bases、CSS 和可选 link format | Use $soia-pkm-bootstrap-vault-obsidian to preview a safe Obsidian configuration merge; preserve all existing settings and wait for my approval before applying. |
 | [`soia-pkm-clip-douyin`](./soia-pkm-clip-douyin/) | 归档单条抖音视频到 Obsidian vault：Playwright 拦截签名 API 拿元数据，MP4 存本地 Downloads，vault 只留轻量笔记。 | Use soia-pkm-clip-douyin: 归档我刚发的这条抖音视频链接到 vault |
 | [`soia-pkm-clip-drive`](./soia-pkm-clip-drive/) | 把云盘/本地或受控 URL 的 PDF、Word、表格和演示文稿提取为可搜索资料；图片正文需显式 OCR | Use soia-pkm-clip-drive to archive local files or controlled HTTP(S) PDF URLs into source-preserving searchable text; verify PDF magic bytes, hashes, and extraction status, and use explicit OCR for image content. |
@@ -40,11 +39,8 @@
 | [`soia-pkm-manage-vault-lifecycle`](./soia-pkm-manage-vault-lifecycle/) | 整理整个知识库或指定模块，先出清单再安全执行 | Use $soia-pkm-manage-vault-lifecycle to plan this knowledge-base or selected-module reorganization; do not delete, rename, or move anything until I confirm the manifest. |
 | [`soia-pkm-organize-article-moc`](./soia-pkm-organize-article-moc/) | 整理 Obsidian 文章库并安全同步两级 MOC；单篇默认增量，全量重建先预检未知主题。 | Use soia-pkm-organize-article-moc: 整理文章元数据与主题；单篇归档使用 rebuild_moc.py --article 增量同步，只有明确全量任务才在 dry-run 后执行 --full-rebuild。 |
 | [`soia-pkm-query-vault`](./soia-pkm-query-vault/) | 只读搜索整个知识库或指定模块，并区分当前、稳定、证据与历史来源 | Use $soia-pkm-query-vault to search the whole knowledge base or selected module for this question. Distinguish filename hits from extracted/OCR content hits, cite the source path, and never change files. |
-| [`soia-pkm-reading-plan`](./soia-pkm-reading-plan/) | 场景化阅读计划生成器。把一批书（来自文章书单、观点映射或主题）组织成带表格、按真实字数排期的可执行阅读计划。可选用 weread-skills 增强字数/评分/书架核实，缺少时降级估算；可选参考 huashu-weread-advisor 方法论但不依赖它。 | Use soia-pkm-reading-plan: 场景化阅读计划生成器。把一批书组织成带表格、按真实字数排期的可执行阅读计划。可选用 weread-skills 增强字数/评分/书架核实，缺少时降级估算；可选参考 huashu-weread-advisor 方法论但不依赖它。 |
 | [`soia-pkm-transform-article-notebooklm`](./soia-pkm-transform-article-notebooklm/) | 用 NotebookLM 将文章转换为学习材料 |  |
-| [`soia-pkm-transform-article-ppt`](./soia-pkm-transform-article-ppt/) | 生成可编辑 PPTX，支持固定模板保真与机密本地隔离 | Use $soia-pkm-transform-article-ppt to turn this source into an editable PPTX with source tracing, fixed-template fidelity when requested, confidential local isolation, dual-lens review, and host-render validation. |
 | [`soia-pkm-transform-article-visual`](./soia-pkm-transform-article-visual/) | 把文章转换为长图、信息图、海报、封面、插画等视觉产物。HTML/CSS 截图为本地默认方案，可选 Open Design 或 Codex 图生成 |  |
-| [`soia-pkm-transform-obsidian-pdf`](./soia-pkm-transform-obsidian-pdf/) | 用 Obsidian 原生导出把 vault 内 Markdown 笔记导出为 PDF。vault 外文章降级 pandoc/weasyprint |  |
 | [`soia-pkm-translate-article-zh`](./soia-pkm-translate-article-zh/) | 三模式翻译技能（quick 直译 / normal 先分析术语受众再译 / refined 审校润色出版级），把长文机械分块保证术语一致，产出独立译文文件，不覆盖原文。 |  |
 
 ## Registry Export

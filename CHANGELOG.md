@@ -3,6 +3,19 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.12.6-SNAPSHOT — 未发布
+
+下线 4 个没有使用痕迹的技能（31 → 27），清掉失效链接与对已下线技能的引用
+
+## 移除
+- 删除 `soia-pkm-bootstrap-vault-ima`、`soia-pkm-transform-obsidian-pdf`、`soia-pkm-transform-article-ppt`、`soia-pkm-reading-plan`；旧入口不留别名
+
+## 维护
+- 其余 27 个技能的功能、名字与 description 不变
+- `soia-pkm-transform-article-visual` 的 `provider=open-design` 改为依赖用户自备的 Open Design 环境，不再把已下线的工程域技能列为可选依赖
+- `soia-pkm-alipan-curator` 的排期方法说明不再指向已下线技能
+- README 中英与专家人设里「环境安装」一句去掉已失效的仓库链接，改为按各工具官方文档；数量与能力描述同步到 27 个技能
+
 ## v1.12.5 — 2026-11-11
 
 安装说明改为项目最小安装，修正失效的技能名引用；技能功能、名字与脚本不变

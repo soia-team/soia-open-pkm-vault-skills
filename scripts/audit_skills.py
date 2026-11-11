@@ -41,7 +41,6 @@ GRANDFATHER_MISSING_PRIVATE_DATA_SECTION = frozenset(
         "soia-dev-terminal-ops",
         "soia-pkm-alipan-drive-ops",
         "soia-pkm-baidu-netdisk-ops",
-        "soia-pkm-bootstrap-vault-ima",
         "soia-pkm-clip-drive",
         "soia-pkm-clip-github-repo",
         "soia-pkm-clip-rednote",
@@ -60,11 +59,8 @@ GRANDFATHER_MISSING_PRIVATE_DATA_SECTION = frozenset(
         "soia-pkm-publish-wechat-draft",
         "soia-pkm-publish-x-article",
         "soia-pkm-publish-x-thread",
-        "soia-pkm-reading-plan",
         "soia-pkm-transform-article-notebooklm",
-        "soia-pkm-transform-article-ppt",
         "soia-pkm-transform-article-visual",
-        "soia-pkm-transform-obsidian-pdf",
         "soia-pkm-translate-article-zh",
     }
 )
