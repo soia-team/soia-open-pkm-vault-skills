@@ -3,6 +3,17 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.14.0 — 2026-11-16
+
+微信公众号抓取支持多账号配置，健康检查支持可扩展 50 区根目录与安装说明补全
+
+## 新增
+- feat(pkm): add multi-account support for clip-wechat-account and extensible 50-roots for lint_vault (#99)
+
+## 维护
+- chore(release): bump dev train to 1.14.0-SNAPSHOT (#100)
+- chore(release): open next train after v1.13.1 (#98)
+
 ## v1.13.1 — 2026-11-11
 
 一处跨仓引用改指新位置；技能功能不变
