@@ -231,6 +231,24 @@ class LintConfigurationTests(unittest.TestCase):
             )
             self.assertEqual(len(payload["duplicate_prefixes"]), 1)
 
+    def test_50_structure_roots_are_extensible_without_hardcoding(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = Path(temporary)
+            (vault / "50_写作与发布/00_自定义模块/未编号子目录").mkdir(parents=True)
+            (vault / "50_写作与发布/00_自定义模块/10_已编号").mkdir(parents=True)
+            payload_default = self.run_lint(vault)
+            self.assertEqual(payload_default["50_structure"]["unexpected_roots"], ["50_写作与发布/00_自定义模块"])
+
+            payload_env = self.run_lint(vault, "env:\n  SOIA_LINT_50_ROOTS_ADD: '00_自定义模块'\n")
+            self.assertEqual(payload_env["50_structure"]["unexpected_roots"], [])
+            self.assertEqual(
+                payload_env["50_structure"]["unnumbered"],
+                ["50_写作与发布/00_自定义模块/未编号子目录"],
+            )
+
+            payload_override = self.run_lint(vault, "", "--50-roots", "00_自定义模块")
+            self.assertEqual(payload_override["50_structure"]["unexpected_roots"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

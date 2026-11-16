@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-wechat-account
 description: 批量归档用户自己管理的微信公众号已发文章到 Obsidian vault。支持官方 API、公众号后台接口、登录态 Cookie 三条路线，并按 url 去重。Triggers：「同步我的公众号」「批量拉取我公众号历史文章」「批量归档我的公众号」「导入公众号已发文章」「clip 我的公众号」
-version: 2.0.4
+version: 2.1.0
 created_at: 2026-07-08 14:30:37
-updated_at: 2026-08-05 14:40:00
+updated_at: 2026-11-16 12:40:00
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-clip-wechat-account
@@ -47,19 +47,26 @@ claude plugin install soia-pkm-vault@soia
 npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-clip-wechat-account
 ```
 
-配置约定：
+配置约定（支持单文件多账号 `accounts:` 与多文件 `config.<alias>.yml` / `accounts/<alias>.yml` 两种方式，示例见 `assets/config.example.yml`）：
 
 ```text
 ~/.config/soia-skills/soia-pkm-clip-wechat-account/config.yml
+~/.config/soia-skills/soia-pkm-clip-wechat-account/config.<alias>.yml
+~/.config/soia-skills/soia-pkm-clip-wechat-account/accounts/<alias>.yml
 SOIA_PKM_CLIP_WECHAT_ACCOUNT_CONFIG_FILE=<custom-config-path>
 # 兼容别名：$SOIA_PKM_CLIP_GZH_CONFIG_FILE（以及原有 $SOIA_PKM_CLIP_GZH_ENV_FILE）
 ```
 
+- 维护多个公众号时，三条路脚本均支持 `--list-accounts`（脱敏列账号及就绪路线）、`--account <alias>` 与 `--config <path|name>`；多账号无 `default_account` 且未指定 `--account`/`--config` 时会直接报错阻断，防止串号写入。
 - 如果本技能不需要私有配置，可以不创建 `config.yml`。
 - 如果需要 API key、cookie、session、provider home 或本机路径，只能放进私有 `config.yml`、进程环境或 provider 自己的登录态里，不能写进仓库、vault 正文或日志。
 - 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
 
 **WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+
+### 私密信息与中间数据
+
+- 开发者凭据、后台 `token`/`Cookie` 与 `consent.json` 仅存 `${XDG_CONFIG_HOME:-~/.config}/soia-skills/soia-pkm-clip-wechat-account/`（权限 `0600`），不写入 vault 正文或日志；HTTP/接口异常信息中对 `secret` 与 `access_token` 自动脱敏。
 
 ### 日志与完成回执
 
@@ -285,3 +292,11 @@ python3 scripts/fetch_cookie.py --biz <__biz> [--out <目录>] [--limit N] [--dr
 ```
 
 和 `soia-pkm-clip-wechat-article`（单篇归档）互补：clip-wechat 处理"看到一篇转发链接，随手存一篇"；clip-gzh 处理"批量迁入我自己公众号的历史存量"。两者落地规范不完全一致（clip-gzh 多了 `route`/`content_complete` 字段），暂不合并，等作品库重构时一并评估是否收敛成一套。
+
+## 验证
+
+运行随仓单元测试（含 `config.yml#accounts` 与多 `.yml` 分账号配置解析、fail-closed 冲突/缺参检查、`--list-accounts` 脱敏输出与三条路线 CLI 入口验证）：
+
+```bash
+python3 -m unittest tests.test_clip_wechat_account
+```
