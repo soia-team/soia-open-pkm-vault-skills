@@ -141,6 +141,18 @@ def parse_args():
         help="主标签白名单，逗号分隔，追加到选中的白名单（命令行 > "
              "SOIA_LINT_TAGS_ADD > 无追加）",
     )
+    ap.add_argument(
+        "--50-roots",
+        dest="roots_50",
+        help="50_写作与发布 允许的一级目录，逗号分隔（整体覆盖；命令行 > "
+             "SOIA_LINT_50_ROOTS > 内置四段流水线目录）",
+    )
+    ap.add_argument(
+        "--50-roots-add",
+        dest="roots_50_add",
+        help="50_写作与发布 追加允许的一级目录，逗号分隔（如 00_账号与定位；命令行 > "
+             "SOIA_LINT_50_ROOTS_ADD > 无追加）",
+    )
     return ap.parse_args()
 
 
@@ -268,13 +280,15 @@ def check_20_structure(vault):
     return findings
 
 
-def check_50_structure(vault):
+def check_50_structure(vault, allowed_root_dirs=None, governed_roots=None):
     """Return read-only numbering findings for the governed writing zone."""
+    roots_allowed = set(ALLOWED_50_ROOT_DIRS if allowed_root_dirs is None else allowed_root_dirs)
+    roots_governed = WRITING_ROOTS if governed_roots is None else governed_roots
     return _check_numbered_structure(
         vault,
         WRITING_ZONE_ROOT,
-        ALLOWED_50_ROOT_DIRS,
-        WRITING_ROOTS,
+        roots_allowed,
+        roots_governed,
     )
 
 
@@ -639,6 +653,11 @@ def main():
         args.tags, args.tags_add,
         "SOIA_LINT_TAGS", "SOIA_LINT_TAGS_ADD", DEFAULT_TAGS,
     )
+    allowed_50_list = configured_list(
+        args.roots_50, args.roots_50_add,
+        "SOIA_LINT_50_ROOTS", "SOIA_LINT_50_ROOTS_ADD", WRITING_LIFECYCLE_DIRS,
+    )
+    governed_50_roots = tuple(f"{WRITING_ZONE_ROOT}/{name}" for name in allowed_50_list)
 
     UNREADABLE_FILES.clear()
 
@@ -651,7 +670,7 @@ def main():
     tag_drift, untagged = check_tag_drift(vault, scan_files, whitelist)
     stale = check_stale_articles(vault, scan_files)
     structure20 = check_20_structure(vault)
-    structure50 = check_50_structure(vault)
+    structure50 = check_50_structure(vault, allowed_50_list, governed_50_roots)
     unreadable = sorted(set(UNREADABLE_FILES))
 
     if args.json:

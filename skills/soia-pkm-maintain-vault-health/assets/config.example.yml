@@ -4,4 +4,6 @@ env:
   SOIA_LINT_TAGS_ADD: "<additional-primary-tag>"
   SOIA_LINT_EXCLUDE: "<comma-separated-vault-relative-paths>"
   SOIA_LINT_EXCLUDE_ADD: "<vault-relative-path-to-skip>"
+  SOIA_LINT_50_ROOTS: "<comma-separated-50-root-dirs>"
+  SOIA_LINT_50_ROOTS_ADD: "<additional-50-root-dir>"
   SOIA_VAULT_MAP_OUTPUT: "<vault-path>/20_资料库/OB知识库地图.md"

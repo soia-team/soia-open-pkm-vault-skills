@@ -126,7 +126,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone, timedelta
 
-from clip_gzh_env import env_source_hint, load_private_env
+from clip_gzh_env import env_source_hint, load_account_env, print_accounts
 from save_articles import (
     extract_js_content_markdown,
     resolve_out_dir,
@@ -414,11 +414,12 @@ def _stub_to_article(stub: dict, account_name: str) -> dict:
 
 
 def main():
-    load_private_env()
-
     ap = argparse.ArgumentParser(
         description="Route C: pull WeChat 公众号 full article history via mp 后台接口 into an Obsidian vault."
     )
+    ap.add_argument("--account", help="目标公众号账号 alias / 微信号 / 名称（多账号时必填或设 default_account）")
+    ap.add_argument("--config", help="指定私有配置文件路径或同目录文件名（如 config.zbt.yml）")
+    ap.add_argument("--list-accounts", action="store_true", help="列出已配置的公众号账号（脱敏）")
     ap.add_argument(
         "--name",
         help="读指定/别人的号：公众号名称，用于 searchbiz 搜 fakeid。不传 --name/--fakeid 时默认改走"
@@ -426,7 +427,7 @@ def main():
     )
     ap.add_argument(
         "--fakeid",
-        default=os.environ.get("WECHAT_MP_FAKEID"),
+        default=None,
         help="读指定/别人的号：已知 fakeid 时直接指定，跳过 searchbiz。同上，默认路径不需要这个参数。",
     )
     ap.add_argument("--out", help="Vault-relative output dir (overrides OBSIDIAN_GZH_OUT env)")
@@ -441,9 +442,22 @@ def main():
     )
     ap.add_argument("--dry-run", action="store_true", help="只拉列表打印标题+链接，不抓正文、不写文件")
     ap.add_argument("--force", action="store_true", help="Re-write files that already exist for a given url")
-    ap.add_argument("--account-name", default=os.environ.get("WECHAT_ACCOUNT_NAME", ""), help="公众号显示名，用于文件名/落地 author 兜底")
+    ap.add_argument("--account-name", default=None, help="公众号显示名，用于文件名/落地 author 兜底（默认读取配置）")
     ap.add_argument("--sleep", type=float, default=3.0, help="每页/每篇请求之间的秒数（默认 3，别调太快，容易触发 freq control）")
     args = ap.parse_args()
+
+    if args.list_accounts:
+        try:
+            sys.exit(print_accounts(config_file=args.config))
+        except ValueError as exc:
+            print(f"❌ {exc}", file=sys.stderr)
+            sys.exit(1)
+
+    try:
+        load_account_env(account=args.account, config_file=args.config)
+    except ValueError as exc:
+        print(f"❌ {exc}", file=sys.stderr)
+        sys.exit(1)
 
     token = os.environ.get("WECHAT_MP_TOKEN")
     cookie = os.environ.get("WECHAT_MP_COOKIE")
@@ -459,8 +473,9 @@ def main():
         )
         sys.exit(1)
 
-    account_name = args.account_name
-    use_own_account = not args.name and not args.fakeid
+    account_name = args.account_name if args.account_name is not None else os.environ.get("WECHAT_ACCOUNT_NAME", "")
+    fakeid_arg = args.fakeid if args.fakeid is not None else os.environ.get("WECHAT_MP_FAKEID")
+    use_own_account = not args.name and not fakeid_arg
 
     if use_own_account:
         page_size = args.page_size or OWN_PAGE_SIZE
@@ -468,7 +483,7 @@ def main():
         stubs = list_own_account(token, cookie, args.limit, page_size, args.sleep)
     else:
         page_size = args.page_size or PAGE_SIZE
-        fakeid = args.fakeid
+        fakeid = fakeid_arg
         if not fakeid:
             print(f"🔍 searchbiz 搜「{args.name}」…", file=sys.stderr)
             match = search_biz(args.name, token, cookie)

@@ -64,7 +64,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone, timedelta
 
-from clip_gzh_env import env_source_hint, load_private_env
+from clip_gzh_env import env_source_hint, load_account_env, print_accounts
 from save_articles import (
     extract_js_content_markdown,
     resolve_out_dir,
@@ -162,22 +162,38 @@ def fetch_article_body(url: str) -> tuple[str, bool]:
 
 
 def main():
-    load_private_env()
-
     ap = argparse.ArgumentParser(
         description="Route B: pull WeChat 公众号 full article history via login cookie into an Obsidian vault."
     )
-    ap.add_argument("--biz", default=os.environ.get("WECHAT_BIZ"), help="__biz（也可从 env WECHAT_BIZ 读）")
+    ap.add_argument("--account", help="目标公众号账号 alias / 微信号 / 名称（多账号时必填或设 default_account）")
+    ap.add_argument("--config", help="指定私有配置文件路径或同目录文件名（如 config.zbt.yml）")
+    ap.add_argument("--list-accounts", action="store_true", help="列出已配置的公众号账号（脱敏）")
+    ap.add_argument("--biz", default=None, help="__biz（也可从 env WECHAT_BIZ 读）")
     ap.add_argument("--out", help="Vault-relative output dir (overrides OBSIDIAN_GZH_OUT env)")
     ap.add_argument("--vault", help="Path to Obsidian vault (overrides OBSIDIAN_VAULT env)")
     ap.add_argument("--limit", type=int, help="Max number of articles to fetch")
     ap.add_argument("--dry-run", action="store_true", help="Fetch and print the list, write nothing")
     ap.add_argument("--force", action="store_true", help="Re-write files that already exist for a given url")
-    ap.add_argument("--account-name", default=os.environ.get("WECHAT_ACCOUNT_NAME", ""))
+    ap.add_argument("--account-name", default=None, help="公众号显示名（默认读取 WECHAT_ACCOUNT_NAME）")
     ap.add_argument("--sleep", type=float, default=1.5, help="每次请求之间的秒数（默认 1.5，别调太快，容易触发风控）")
     args = ap.parse_args()
 
-    if not args.biz:
+    if args.list_accounts:
+        try:
+            sys.exit(print_accounts(config_file=args.config))
+        except ValueError as exc:
+            print(f"❌ {exc}", file=sys.stderr)
+            sys.exit(1)
+
+    try:
+        load_account_env(account=args.account, config_file=args.config)
+    except ValueError as exc:
+        print(f"❌ {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    biz = args.biz if args.biz is not None else os.environ.get("WECHAT_BIZ")
+    account_name = args.account_name if args.account_name is not None else os.environ.get("WECHAT_ACCOUNT_NAME", "")
+    if not biz:
         print("❌ 缺 __biz：传 --biz 或设置 env WECHAT_BIZ", file=sys.stderr)
         sys.exit(1)
 
@@ -208,7 +224,7 @@ def main():
     while True:
         if args.limit is not None and len(stubs) >= args.limit:
             break
-        resp = list_page(args.biz, key, pass_ticket, cookie, appmsg_token, uin, offset)
+        resp = list_page(biz, key, pass_ticket, cookie, appmsg_token, uin, offset)
         page_items = parse_general_msg_list(resp)
         stubs.extend(page_items)
         print(f"   offset={offset} 拿到 {len(page_items)} 条，累计 {len(stubs)}", file=sys.stderr)
@@ -260,7 +276,7 @@ def main():
 
     written = 0
     for a in articles:
-        path = save_article(vault, out_dir, a, route="cookie", account_name=args.account_name, force=args.force)
+        path = save_article(vault, out_dir, a, route="cookie", account_name=account_name, force=args.force)
         if path:
             written += 1
             print(f"✓ {path.relative_to(vault)}")

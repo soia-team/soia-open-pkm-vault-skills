@@ -53,13 +53,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone, timedelta
 
-from clip_gzh_env import env_source_hint, load_private_env
+from clip_gzh_env import env_source_hint, load_account_env, print_accounts
 from save_articles import (
     html_to_markdown,
     resolve_out_dir,
@@ -91,6 +92,11 @@ ERROR_HINTS = {
 }
 
 
+def _redact_url(url: str) -> str:
+    cleaned = re.sub(r"(secret=)[^&\s\"']+", r"\1<REDACTED>", url)
+    return re.sub(r"(access_token=)[^&\s\"']+", r"\1<REDACTED>", cleaned)
+
+
 def _http_json(url: str, data: bytes | None = None, timeout: int = 20) -> dict:
     req = urllib.request.Request(
         url,
@@ -103,11 +109,11 @@ def _http_json(url: str, data: bytes | None = None, timeout: int = 20) -> dict:
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", "replace")
-        raise SystemExit(f"❌ HTTP {e.code} calling {url}: {body}")
+        raise SystemExit(f"❌ HTTP {e.code} calling {_redact_url(url)}: {body}")
     except urllib.error.URLError as e:
-        raise SystemExit(f"❌ Network error calling {url}: {e}")
+        raise SystemExit(f"❌ Network error calling {_redact_url(url)}: {e}")
     except json.JSONDecodeError as e:
-        raise SystemExit(f"❌ Response from {url} was not JSON: {e}")
+        raise SystemExit(f"❌ Response from {_redact_url(url)} was not JSON: {e}")
 
 
 def _check_wx_error(resp: dict, context: str) -> None:
@@ -216,11 +222,12 @@ def dedupe(articles: list[dict]) -> list[dict]:
 
 
 def main():
-    load_private_env()
-
     ap = argparse.ArgumentParser(
         description="Route A: pull WeChat 公众号 articles via official API into an Obsidian vault."
     )
+    ap.add_argument("--account", help="目标公众号账号 alias / 微信号 / 名称（多账号时必填或设 default_account）")
+    ap.add_argument("--config", help="指定私有配置文件路径或同目录文件名（如 config.zbt.yml）")
+    ap.add_argument("--list-accounts", action="store_true", help="列出已配置的公众号账号（脱敏）")
     ap.add_argument("--out", help="Vault-relative output dir (overrides OBSIDIAN_GZH_OUT env)")
     ap.add_argument("--vault", help="Path to Obsidian vault (overrides OBSIDIAN_VAULT env)")
     ap.add_argument("--limit", type=int, help="Max number of articles to fetch (default: no limit)")
@@ -229,11 +236,25 @@ def main():
     ap.add_argument("--force", action="store_true", help="Re-write files that already exist for a given url")
     ap.add_argument(
         "--account-name",
-        default=os.environ.get("WECHAT_ACCOUNT_NAME", ""),
-        help="公众号显示名，用于文件名/来源信息（两个 API 都不返回昵称）",
+        default=None,
+        help="公众号显示名，用于文件名/来源信息（默认读取 WECHAT_ACCOUNT_NAME 或账号 name）",
     )
     args = ap.parse_args()
 
+    if args.list_accounts:
+        try:
+            sys.exit(print_accounts(config_file=args.config))
+        except ValueError as exc:
+            print(f"❌ {exc}", file=sys.stderr)
+            sys.exit(1)
+
+    try:
+        load_account_env(account=args.account, config_file=args.config)
+    except ValueError as exc:
+        print(f"❌ {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    account_name = args.account_name if args.account_name is not None else os.environ.get("WECHAT_ACCOUNT_NAME", "")
     app_id = os.environ.get("WECHAT_APP_ID")
     secret = os.environ.get("WECHAT_APP_SECRET")
     if not (app_id and secret):
@@ -272,7 +293,7 @@ def main():
 
     written = 0
     for a in articles:
-        path = save_article(vault, out_dir, a, route="api", account_name=args.account_name, force=args.force)
+        path = save_article(vault, out_dir, a, route="api", account_name=account_name, force=args.force)
         if path:
             written += 1
             print(f"✓ {path.relative_to(vault)}")

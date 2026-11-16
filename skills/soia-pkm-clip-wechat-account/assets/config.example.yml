@@ -1,7 +1,34 @@
 # soia-pkm-clip-wechat-account private config example.
-# Copy to ~/.config/soia-skills/soia-pkm-clip-wechat-account/config.yml.
+# Copy to ~/.config/soia-skills/soia-pkm-clip-wechat-account/config.yml (chmod 600).
 # Keep real values outside git.
+#
+# 也支持“多文件分账号配置”（同目录下新建不同 yml 即可，与下方 accounts: 二选一或混合使用）：
+#   ~/.config/soia-skills/soia-pkm-clip-wechat-account/config.<alias>.yml
+#   ~/.config/soia-skills/soia-pkm-clip-wechat-account/accounts/<alias>.yml
+# 每个分账号文件直接写 `env:`，调用 fetch_api.py / fetch_mp.py / fetch_cookie.py 时传
+# `--account <alias>` 或 `--config config.<alias>.yml` 即可区分，共享字段（如 OBSIDIAN_VAULT）放主 config.yml。
 
+# 方式一：单文件 config.yml 内多账号配置
+default_account: account_main
+accounts:
+  account_main:
+    name: "<account display name 1>"
+    wechat_id: "<example_wechat_id_1>"
+    out: "Inbox/gzh-articles/account_main"
+    app_id: "<YOUR_APP_ID_1>"
+    app_secret: "<YOUR_APP_SECRET_1>"
+    mp_token: "<mp backend token 1>"
+    mp_cookie: "<complete mp backend Cookie header 1>"
+  account_alt:
+    name: "<account display name 2>"
+    wechat_id: "<example_wechat_id_2>"
+    out: "Inbox/gzh-articles/account_alt"
+    app_id: "<YOUR_APP_ID_2>"
+    app_secret: "<YOUR_APP_SECRET_2>"
+    mp_token: "<mp backend token 2>"
+    mp_cookie: "<complete mp backend Cookie header 2>"
+
+# 方式二：单账号兼容配置 / 多账号共享配置
 env:
   # Route A: official WeChat API.
   WECHAT_APP_ID: "<YOUR_APP_ID>"
