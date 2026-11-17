@@ -391,6 +391,14 @@ def collect_media(tweets: list[dict], article: dict | None = None) -> list[dict]
                     "url": fmts.get("jpeg") or fmts.get("webp") or "",
                 })
 
+    cover_info = (((article or {}).get("cover_media") or {}).get("media_info") or {})
+    if isinstance(cover_info, dict):
+        cover_img = cover_info.get("original_img_url")
+        cover_vid = cover_info.get("original_video_url")
+        cover_url = cover_img or cover_vid
+        if cover_url:
+            append({"type": "video" if cover_vid and not cover_img else "image", "url": cover_url})
+
     for entity in (article or {}).get("media_entities") or []:
         if not isinstance(entity, dict):
             continue

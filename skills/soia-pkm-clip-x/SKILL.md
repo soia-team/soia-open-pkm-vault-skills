@@ -1,11 +1,11 @@
 ---
 name: soia-pkm-clip-x
 description: 将单条 X/Twitter 推文、thread 或 Article 归档到 Obsidian vault。触发：「归档这条 X」「clip 这条推文」「整理这条 thread」
-version: 1.1.6
+version: 1.1.7
 created_at: 2026-07-02 03:51:43
-updated_at: 2026-09-01 14:08:33
+updated_at: 2026-11-17 12:20:00
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-clip-x
@@ -16,7 +16,7 @@ updated_by: claude-opus-5
 
 ### 这个技能可以做什么
 
-归档 X/Twitter 推文、thread、Article 到 Obsidian vault。基于 fxtwitter API，单条零配置；可选同步 Telegram 收藏。需要 PDF 时优先用 Obsidian 导出
+归档 X/Twitter 推文、thread、Article 到 Obsidian vault：基于 FxTwitter API 单条零配置抓取，自动展开 `t.co` 短链、提取 X Article 全量块（含 `entityMap` 原子代码块/图片及 `cover_media` 首图）；可选同步 Telegram 收藏，需要 PDF 时优先用 Obsidian 导出。
 
 | 客户想要 | 技能会做 | 客户能看到 |
 |---|---|---|
@@ -59,6 +59,10 @@ SOIA_PKM_CLIP_X_CONFIG_FILE=<custom-config-path>
 - 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
 
 **WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+
+### 私密信息与中间数据
+
+- 单条 X 归档无需登录态；可选 Telegram 同步凭据仅存于 `${XDG_CONFIG_HOME:-~/.config}/soia-skills/soia-pkm-clip-x/config.yml`，不写入 vault 正文、公开仓库或日志。
 
 ### 日志与完成回执
 

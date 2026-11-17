@@ -14,7 +14,7 @@ Local Markdown, no platform lock-in; 27 skills covering the full knowledge lifec
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
   <img alt="skills" src="https://img.shields.io/badge/skills-27-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/hosts-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
-  <img alt="always-on cost" src="https://img.shields.io/badge/always--on-~2.8k%20tok-lightgrey">
+  <img alt="always-on cost" src="https://img.shields.io/badge/always--on-~2.4k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
 </p>
 
@@ -43,7 +43,7 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | Initializes a neutral Markdown vault skeleton and the PKM loop | ✅ |
 | [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | Configures an existing vault as an Obsidian consumer | ✅ |
-| [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | Read-only health checks, vault maps and weekly reports | ✅ |
+| [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | Read-only health checks, 20/50-zone directory numbering audits (with extensible 50-zone roots), vault maps and weekly reports | ✅ |
 | [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | Workbench, Inbox, evidence and archive lifecycle | ✅ |
 | [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | Minimal AI session change snapshots | ✅ |
 | [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | Read-only search across Markdown, requirements, code and attachments; distinguishes filename, extracted-text and OCR hits with source ranking | ✅ |
@@ -54,8 +54,8 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-clip-web`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-web.md) | Archives a web page or blog article | ✅ |
 | [`soia-pkm-clip-wechat-article`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-article.md) | Archives a single WeChat Official Account article | ✅ |
-| [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | Bulk-archives published articles from your own account | 🟡 |
-| [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | Archives an X post, thread or Article | 🟡 |
+| [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | Bulk-archives published articles from accounts you manage (official API / backend / Cookie routes, multi-account config, and URL deduplication) | 🟡 |
+| [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | Archives an X post, thread or Article (with `t.co` expansion and Article cover media extraction) | 🟡 |
 | [`soia-pkm-clip-x-profile`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x-profile.md) | Researches a public X profile with time/topic/media filters, producing summaries or an explicitly requested image Prompt Deck | 🟡 |
 | [`soia-pkm-clip-rednote`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-rednote.md) | Archives a Rednote text or video note | ✅ |
 | [`soia-pkm-clip-douyin`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-douyin.md) | Archives a Douyin video and keeps a local media index | ✅ |
@@ -113,7 +113,7 @@ python3 <soia-open-skills>/skills/soia-meta-skill-release/scripts/install_workbu
 
 Restart the client, then summon **Soia · 知识库管家** under Experts → My Experts.
 
-> **Always-on cost ~2.8k tok**. `claude plugin disable soia-pkm-vault@soia` drops it to zero; enable it again on a writing day.
+> **Always-on cost ~2.4k tok**. `claude plugin disable soia-pkm-vault@soia` drops it to zero; enable it again on a writing day.
 > Single skill, project scope: `npx skills add soia-team/soia-open-pkm-vault-skills -a <explicit-host> -s <skill-name>`; add `-g` only when you explicitly choose a global install. Pick this or the domain plugin, not both, so the index is not duplicated.
 
 ## What it does not do

@@ -1,9 +1,9 @@
 ---
 name: soia-pkm-clip-wechat-account
 description: 批量归档用户自己管理的微信公众号已发文章到 Obsidian vault。支持官方 API、公众号后台接口、登录态 Cookie 三条路线，并按 url 去重。Triggers：「同步我的公众号」「批量拉取我公众号历史文章」「批量归档我的公众号」「导入公众号已发文章」「clip 我的公众号」
-version: 2.1.0
+version: 2.1.1
 created_at: 2026-07-08 14:30:37
-updated_at: 2026-11-16 12:40:00
+updated_at: 2026-11-17 12:20:00
 created_by: claude opus 4.6
 updated_by: gemini-4-hydrogen
 ---
@@ -16,7 +16,7 @@ updated_by: gemini-4-hydrogen
 
 ### 这个技能可以做什么
 
-批量归档用户自己管理的微信公众号已发文章到 Obsidian vault。支持官方 API、公众号后台接口、登录态 Cookie 三条路线，并按 url 去重
+批量归档用户自己管理的微信公众号已发文章到 Obsidian vault：支持官方 API、公众号后台接口、登录态 Cookie 三条路线，支持单文件（`accounts:`）与多文件（`config.<alias>.yml` / `accounts/<alias>.yml`）多账号配置、`--list-accounts` 账号盘点及按 `url` 自动去重。
 
 | 客户想要 | 技能会做 | 客户能看到 |
 |---|---|---|
