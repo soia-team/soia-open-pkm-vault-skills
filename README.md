@@ -14,7 +14,7 @@
   <img alt="plugin version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsoia-team%2Fsoia-open-pkm-vault-skills%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&color=F5A623&prefix=v">
   <img alt="skills" src="https://img.shields.io/badge/技能-27-brightgreen">
   <img alt="hosts" src="https://img.shields.io/badge/宿主-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-8A2BE2">
-  <img alt="always-on cost" src="https://img.shields.io/badge/常驻-~2.8k%20tok-lightgrey">
+  <img alt="always-on cost" src="https://img.shields.io/badge/常驻-~2.4k%20tok-lightgrey">
   <img alt="license" src="https://img.shields.io/github/license/soia-team/soia-open-pkm-vault-skills?color=blue">
 </p>
 
@@ -43,7 +43,7 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-bootstrap-vault-base`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-base.md) | 初始化中立 Markdown vault 骨架与 PKM 闭环 | ✅ |
 | [`soia-pkm-bootstrap-vault-obsidian`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-bootstrap-vault-obsidian.md) | 把已有 vault 配成 Obsidian 消费端 | ✅ |
-| [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | 只读健康检查、全库地图与周简报 | ✅ |
+| [`soia-pkm-maintain-vault-health`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-maintain-vault-health.md) | 只读健康检查、20/50 区目录编号审计（支持可扩展 50 区根目录）、全库地图与周简报 | ✅ |
 | [`soia-pkm-manage-vault-lifecycle`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-manage-vault-lifecycle.md) | 工作台、Inbox、证据与归档生命周期 | ✅ |
 | [`soia-pkm-log-agent-sessions`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-log-agent-sessions.md) | 最小化 AI 会话改动快照 | ✅ |
 | [`soia-pkm-query-vault`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-query-vault.md) | 只读检索 Markdown、需求、代码与附件；区分当前状态、稳定知识、历史证据及文件名/提取正文命中 | ✅ |
@@ -54,8 +54,8 @@ flowchart LR
 |---|---|:-:|
 | [`soia-pkm-clip-web`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-web.md) | 归档网页或博客文章 | ✅ |
 | [`soia-pkm-clip-wechat-article`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-article.md) | 归档单篇公众号文章 | ✅ |
-| [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | 批量归档自己公众号的已发文章 | 🟡 |
-| [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | 归档 X 推文、thread 或 Article | 🟡 |
+| [`soia-pkm-clip-wechat-account`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-wechat-account.md) | 批量归档自己管理的公众号已发文章（支持官方 API / 后台接口 / Cookie 三路线、多账号配置与 URL 去重） | 🟡 |
+| [`soia-pkm-clip-x`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x.md) | 归档 X 推文、thread 或 Article（支持 `t.co` 展开与 Article 封面图提取） | 🟡 |
 | [`soia-pkm-clip-x-profile`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-x-profile.md) | 研究公开 X 账号，按时间/关键词/主题/媒体条件筛选，输出摘要或按需转换为 image Prompt Deck | 🟡 |
 | [`soia-pkm-clip-rednote`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-rednote.md) | 归档小红书图文或视频笔记 | ✅ |
 | [`soia-pkm-clip-douyin`](https://github.com/soia-team/soia-open-skills/blob/main/docs/skills/soia-pkm-clip-douyin.md) | 归档抖音视频并保留媒体索引 | ✅ |
@@ -113,7 +113,7 @@ python3 <soia-open-skills>/skills/soia-meta-skill-release/scripts/install_workbu
 
 装完重启客户端，在【专家中心 → 我的专家】召唤 **Soia · 知识库管家**。
 
-> **常驻成本 ~2.8k tok**。不用时 `claude plugin disable soia-pkm-vault@soia` 降到零，随时开回来。
+> **常驻成本 ~2.4k tok**。不用时 `claude plugin disable soia-pkm-vault@soia` 降到零，随时开回来。
 > 项目单技能：`npx skills add soia-team/soia-open-pkm-vault-skills -a <明确宿主> -s <技能名>`；仅明确选择全局时加 `-g`。与域插件二选一，避免双份索引各自漂移。
 
 ## 不负责什么
