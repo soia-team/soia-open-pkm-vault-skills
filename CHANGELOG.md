@@ -3,6 +3,16 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.14.1 — 2026-11-17
+
+为 clip-x 新增 X Article cover_media 提取，同步公众号多账号与健康检查 50 区说明及 README 常驻 Token
+
+## 新增
+- feat(pkm): extract X Article cover_media in clip-x and refresh README/skill docs (#103)
+
+## 维护
+- chore(release): open next train after v1.14.0 (#102)
+
 ## v1.14.0 — 2026-11-16
 
 微信公众号抓取支持多账号配置，健康检查支持可扩展 50 区根目录与安装说明补全
