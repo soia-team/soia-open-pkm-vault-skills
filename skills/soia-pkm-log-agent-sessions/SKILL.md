@@ -1,98 +1,43 @@
 ---
 name: soia-pkm-log-agent-sessions
 description: 为 Claude Code、Codex 等本地 AI 接入最小化 vault 会话改动快照，支持去重、dry-run、既有 notify 合并和安全卸载。触发：「接入 AI 会话日志」「记录 Codex 改动」「配置 SessionEnd 日志」
-version: 1.1.1
+version: 1.1.2
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-11-18 10:50:00
 created_by: gpt-5
-updated_by: claude-opus-5
+updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-log-agent-sessions
 
-只负责 AI 会话结束时的**最小改动快照**。不保存完整 prompt、对话或推理，不判断内容该归档到哪里。
+为 AI 会话结束接入**最小改动快照**（不存完整 prompt、对话/diff/事件 JSON，不做工作台分流或健康检查，不执行 git add/commit/push）。
 
 ## 客户可读说明
 
 ### 这个技能可以做什么
 
-- 为 Claude Code `SessionEnd` 或 Codex `notify` 生成轻量日志。
-- 用 git 状态、tracked diff 和 untracked 内容哈希去重，连续编辑同一文件仍会产生新快照。
-- 保留客户已有 Codex notify 命令，并提供 dry-run、安装检查和卸载步骤。
-- 报告旧日志数量/体量；默认不自动删除或轮转。
+| 客户想要 | 技能会做 | 客户能看到 |
+|---|---|---|
+| 为 Claude Code `SessionEnd` / Codex `notify` 接改动快照 | 展示配置合并片段获同意后备份并无损合并（保留已有 notify），用 diff+未追踪哈希去重 | 轻量快照目录、`deduplicated` 去重结果与安全卸载方式 |
 
 ### 客户如何使用
 
-提供 vault 路径、AI 名称和期望日志目录。Agent 先展示将修改的用户配置片段；只有客户明确同意后才合并写入。首次先手动 dry-run，再触发一次真实小改动验证。
+给出 vault 路径、AI 名称与目标日志相对目录，确认待修改的配置片段后接入，再跑一次 dry-run 与真实小改动验证快照与内容去重。
 
 ### 依赖与安装
 
-- Python 3 和 Git 是核心依赖；shell wrapper 需要 POSIX bash。
-- 推荐安装整个 `soia-pkm-vault@soia` 插件。
-
-私有配置：
-
-```text
-~/.config/soia-skills/soia-pkm-log-agent-sessions/config.yml
-SOIA_PKM_AGENT_SESSION_CONFIG_FILE=<custom-config-path>
-```
-
-整域需明确选择（Claude Code 与 Codex 共用同一份域插件）：
-
-```bash
-claude plugin marketplace add soia-team/soia-open-skills
-claude plugin install soia-pkm-vault@soia
-```
-
-默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）：
-
-```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-log-agent-sessions
-```
-
-**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+默认项目单技能：`npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-log-agent-sessions`（`<agent>` 换成明确宿主；仅明确选择全局时加 `-g`）。整域需明确选择：`claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia`（Codex 用 `codex plugin add soia-pkm-vault@soia`）。**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。依赖 Python 3、Git 与 POSIX bash；配置 `$SOIA_PKM_AGENT_SESSION_CONFIG_FILE` 或 `~/.config/soia-skills/soia-pkm-log-agent-sessions/config.yml`。
 
 ### 私密信息与中间数据
 
-- 默认日志只写时间、agent、变更数量、按顶层分区统计和验证结果；不写 diff、正文、prompt、事件 JSON 或环境变量。
-- 去重状态在 `$XDG_STATE_HOME/soia-pkm-log-agent-sessions/`（无则 `~/.local/state/...`），不写 `.git`，兼容 git worktree。
-- 默认不列单个文件路径；只有客户明确选择 `--include-paths` 才写 git status 路径。
+日志仅写时间、agent、变更计数与分区统计（默认不列具体文件路径，仅显式 `--include-paths` 才记）；去重状态存 `$XDG_STATE_HOME/soia-pkm-log-agent-sessions/`（兼容 git worktree，不写 `.git`）。
 
 ### 日志与完成回执
 
-回执包含配置是否变更、快照是否写入/去重跳过、日志相对目录、变更数量、状态目录类别、验证和卸载方法。
+汇报配置修改情况、快照写入/`deduplicated` 状态、日志相对目录与变更计数、状态目录类别、验收结果与卸载方式。
 
-## 手动验证
+## 接入流程与硬边界
 
-```bash
-python3 scripts/session_log.py --vault <vault-path> --agent Codex --dry-run
-python3 scripts/session_log.py --vault <vault-path> --agent Codex
-```
-
-默认日志目录：`30_日志与思考/20_Agent工作日志/10_自动快照/<年>/<agent>/`。可用 `--log-dir` 或 `SOIA_SESSION_LOG_DIR` 覆盖；路径必须在 vault 内。agent 仅允许安全 slug。`--vault` 必须是 Git worktree 根；嵌在更大仓库中的子目录会拒绝运行，避免记录 vault 外改动。
-
-## 接入流程
-
-完整配置片段、合并与卸载规则见 [references/session-log-setup.md](references/session-log-setup.md)。硬门：
-
-1. 修改 `.claude/settings.json` 或 Codex `config.toml` 前必须得到客户明确同意。
-2. 先备份原配置，结构化合并；已有 hook/notify 不覆盖。
-3. 路径使用安装后真实脚本绝对路径，不把维护者路径写进 skill。
-4. 触发两次：第一次应写快照；无实质变化的第二次应 `deduplicated`。
-5. 再编辑同一 tracked 文件，必须产生新快照，证明去重含内容而不只是文件名。
-
-## 边界与保留
-
-- 不做工作台/Inbox 分流；转 `soia-pkm-manage-vault-lifecycle`。
-- 不做 vault 健康检查或知识检索。
-- 不执行 add/commit/push，不读取 git 对象正文到日志。
-- 不自动删除旧日志。需要清理时先输出按月份的数量/体量预览，再让客户单独确认。
-- 配置缺失、vault 非 git 仓库、路径越界或 agent 非安全 slug 时明确失败；hook 调用可选择吞掉失败以免阻断主工具，但安装验收不能忽略失败。
-
-## 验收
-
-- 日志 frontmatter 使用 `tags: [Agent日志, 自动快照]`。
-- 状态不在 `.git`，worktree fixture 可运行。
-- 连续编辑同一路径的内容能产生不同 digest；无变化会去重。
-- 日志无完整 prompt/diff/正文/事件 JSON/秘密值。
-- 配置卸载后原有 hook/notify 仍完整。
+1. **手动校验与默认路径**：`python3 scripts/session_log.py --vault <vault> --agent <slug> [--dry-run]`。默认写入 `30_日志与思考/20_Agent工作日志/10_自动快照/<年>/<agent>/`（可用 `--log-dir`/`SOIA_SESSION_LOG_DIR` 覆盖，限 vault 内）；`--vault` 必须是独立 Git worktree 根（嵌套子目录拒绝运行）。
+2. **接入与卸载（细则见 [references/session-log-setup.md](references/session-log-setup.md)）**：改 `.claude/settings.json` 或 Codex `config.toml` 前先备份并获明确同意；保留既有 hook/notify；写入真实安装脚本路径；旧日志清理只预览数量/体量，不自动删除。
+3. **验收标准**：frontmatter 含 `tags: [Agent日志, 自动快照]`；连续编辑同文件生成新快照、无改动报 `deduplicated`；配置卸载后原 hook/notify 完好；日志零秘密值/diff/完整正文。

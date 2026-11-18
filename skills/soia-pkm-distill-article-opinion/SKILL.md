@@ -1,162 +1,45 @@
 ---
 name: soia-pkm-distill-article-opinion
 description: 通过苏格拉底式逐问，把用户对 vault 文章的回答整理成其本人观点，并写入「我的看法」或主题综述。触发：「补我的看法」「炼成观点」「主题观点综述」
-version: 2.0.2
+version: 2.0.3
 created_at: 2026-07-02 16:41:13
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-11-18 10:25:00
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-distill-article-opinion
 
-把「收藏」变成「观点」。这是 PKM 闭环 `收→整理→点→写→发` 里从输入到输出的**命脉环节（点）**——专治"收藏一大堆、脑子里没沉淀、`我的看法`段永远空着"。
+PKM 闭环 `收 → 整理 → ★点 → 写 → 发` 的**提炼观点环节**（方法借鉴阅读线炼金术，不依赖/调用第三方包）：通过逐问引导把文章沉淀为用户自己的立场，绝不代写或虚构。
 
 ## 客户可读说明
 
 ### 这个技能可以做什么
 
-把 Obsidian vault 里收藏的文章「炼」成你自己的观点。读原文 → 苏格拉底式一次抛一个问题 → 你口述回答 → AI 把你的回答整理成「我的看法」段（内容是你的，AI 只帮落文字，绝不替你想、替你写），写完给你回执。也支持主题聚合：把一个 MOC 下多篇文章的观点提炼成一篇综述
-
 | 客户想要 | 技能会做 | 客户能看到 |
 |---|---|---|
-| 完成本技能覆盖的工作 | 读取用户请求、必要上下文和本技能正文流程，执行最小可靠步骤 | 客户会看到 Obsidian/vault 文件变更、终端日志、生成产物路径和最终回执。 |
-| 缺少依赖、权限、配置或 key | 停止需要外部状态的动作，明确指出缺什么 | 安装命令、申请地址、配置路径或需要客户确认的问题 |
-| 执行完成 | 汇总成功、跳过、失败、文件变更和验证结果 | 一段可复制进工单/日志的完成回执 |
+| 给单篇文章补「我的看法」 | 读原文后按三角度**一次只抛一个问题**（带回答示例），根据用户回答整理成第一人称视图 | 仅填入原文 `## 我的看法` 段，其余段落保持不变 |
+| 跨同主题多篇文章聚合观点 | 读取 `_MOC/<分类>/<主题>.md` 下各篇「我的看法」，不足先提示逐篇提炼，素材够后综合综述 | `<vault-drafts-dir>/YYYY-MM-DD-<主题>-观点综述.md`，供 `compose` 成文 |
 
 ### 客户如何使用
 
-1. 用自然语言说明目标，并提供必要输入：文件、URL、repo、workspace、proposal、vault 或平台账号状态。
-2. 能 dry-run 或预览的动作先给预览；涉及删除、覆盖、发送、发布、写远端状态时先征求客户确认。
+- 「帮我给《xxx》补『我的看法』，一次问一个问题引导我。」
+- 「把 MOC 里『某主题』下这几篇我的观点汇成一份主题综述。」
 
 ### 依赖与安装
 
-整域需明确选择（装整个领域插件，包含本仓全部技能）：
+默认项目单技能：`npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-distill-article-opinion`（`<agent>` 换成明确宿主；仅明确选择全局时加 `-g`）。整域需明确选择：`claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia`（Codex 用 `codex plugin add soia-pkm-vault@soia`）。**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。纯 LLM 工作流，可选配置 `~/.config/soia-skills/soia-pkm-distill-article-opinion/config.yml` 或 `$SOIA_PKM_DISTILL_ARTICLE_OPINION_CONFIG_FILE`。
 
-```bash
-claude plugin marketplace add soia-team/soia-open-skills
-```
+### 私密信息与中间数据
 
-```bash
-claude plugin install soia-pkm-vault@soia
-```
-
-默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
-
-```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-distill-article-opinion
-```
-
-配置约定：
-
-```text
-~/.config/soia-skills/soia-pkm-distill-article-opinion/config.yml
-SOIA_PKM_DISTILL_ARTICLE_OPINION_CONFIG_FILE=<custom-config-path>
-```
-
-- 如果本技能不需要私有配置，可以不创建 `config.yml`。
-- 如果需要 API key、cookie、session、provider home 或本机路径，只能放进私有 `config.yml`、进程环境或 provider 自己的登录态里，不能写进仓库、vault 正文或日志。
-- 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
-
-**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+仅读写用户指定的 vault 笔记，不联网、不读凭据；用户未回答前绝不写入「我的看法」。
 
 ### 日志与完成回执
 
-每次执行都要让客户看见过程和结果。最低回执格式：
+写完立即汇报：写入文件/段落路径、提炼出的 1–2 句观点核心摘要，并邀请用户微调（主题综述汇报草稿路径与核心论点）。
 
-```markdown
-完成：<一句话说明本次完成了什么>。
+## 提问与写入规则
 
-日志摘要：
-- started: <检查到的输入/配置/依赖，不打印秘密值>
-- processed: <数量或范围>
-- created/updated: <数量或路径>
-- skipped/failed: <数量和原因>
-
-文件变化：
-- <绝对路径或“未改动文件”>
-
-验证：
-- <运行过的检查、命令或人工核对点>
-
-问题与下一步：
-- <缺 key / 缺依赖 / 需要客户确认 / 建议下一条命令；没有则写“无”>
-```
-
-## 核心原则（不可违背）
-
-**内容是用户的，AI 只帮他问出来、落成文字——绝不替他想、替他写。**
-
-- AI 的职责：读懂原文、抛出好问题、把用户的口头回答整理成通顺的第一人称文字。
-- AI 不做：虚构观点、替用户表态、加入用户没说过的判断。
-- 用户没回答 → 不写。宁可留空，绝不编。
-
-## 模式 A：单篇提炼（默认）
-
-触发：「给这篇补我的看法」「这篇我怎么看」「distill 这篇」
-
-**流程：**
-
-1. **定位文章**。用户说「这篇」= 当前对话涉及的文章；否则用文件名 / 标题在 `<vault-articles-dir>/` 下 Glob/Grep 找到。
-2. **读原文**（读 `## 原文` / 正文段）。
-3. **对齐骨架**：用 1–2 句复述文章核心论断，让用户确认你读懂了（也给他思考起点）。
-4. **一次只抛一个问题**（按下面「三角度」逐个来，拿到答案再抛下一个）：针对这篇的具体论点、用**大白话**、并给**一句回答示例**降低门槛。
-   - ⚠️ **实战教训（必须遵守）**：**切忌一次抛 3 个问题 + 表格**——会直接淹没用户，他不知从哪答起。一次一个、配示例，用户才答得动。
-5. **停下，等用户回答**。用户口语化、只答一两句、说"没想法"跳过，都行。
-6. 三个角度问完（或用户表示够了），**整理成文**：把用户的回答组织成通顺的第一人称「我的看法」。保留他的观点、判断、语气，只做润色和结构化，**不加料**。
-7. **写入**：Edit 文章的 `## 我的看法` 段。空段 / 占位注释 → 直接填；已有内容 → 不覆盖，问"追加还是替换"。
-8. **给回执**（见 §执行后必须给用户回执）。
-
-### 三角度提问法（一次问一个）
-
-| 角度 | 问什么 | 目的 |
-|------|--------|------|
-| ① 立场 | 作者的核心论断你**买不买账**？说到本质，还是为流量说过头？ | 逼出明确态度 |
-| ② 经验检验 | 哪一条**和你的经历/观察对得上**？哪条被夸大/不符？ | 用亲身经验检验 |
-| ③ 对你的意义 | 这篇**改变了你什么判断、或让你想做什么**？ | 从"读到"落到"我要怎么用" |
-
-## 模式 B：主题聚合
-
-触发：「把 X 主题炼成观点」「Agent开发这块我整体怎么看」
-
-1. 读 `_MOC/<分类>/<主题>.md` 拿文章列表。
-2. 读各篇 `## 我的看法`（已提炼的单篇观点）。
-3. **多数为空** → 提示："这主题 N 篇里只有 M 篇提炼过观点，建议先对几篇跑模式 A。"让他选先炼哪几篇。
-4. 有素材后，综合成**一篇整体判断**（你的核心看法 + 各文章作论据）。
-5. 落 `<vault-drafts-dir>/YYYY-MM-DD-<主题>-观点综述.md`，`tags:[草稿]`。
-6. 这份草稿是 `soia-media-compose-article-draft` 的输入。
-
-## 写入边界
-
-- **只碰** `## 我的看法`（模式 A）或**新建**草稿（模式 B）。绝不动 `## 原文` / `## 摘要` / frontmatter。
-- 内容**必须来自用户回答**，AI 不虚构。
-- `## 我的看法` 平时留空给用户；distill 是**用户主动请求**帮忙落字，落的仍是用户自己的话。
-
-## 执行后必须给用户回执
-
-**写入不是终点。写完一定输出成果给用户，不要默默完成：**
-
-1. **写进了哪里**：哪篇文章的 `## 我的看法`（给文件名 / 路径）。
-2. **观点摘要**：把刚成文的看法用 1–2 句话回述，让用户一眼确认。
-3. **邀请微调**：提示"这是你的观点，要改哪句告诉我"。
-
-主题聚合模式同理：告知草稿落在哪、核心论点是什么。
-
-## 在闭环里的位置
-
-```
-clip-*(收) → organize(整理) → ★distill(点：收藏→观点) → compose(写) → publish(发)
-```
-
-- 上游：`soia-pkm-clip-*` 把文章归档进来。
-- 下游：`soia-media-compose-article-draft` 把 distill 产出的观点写成成文。
-- 方法论**参考** `huashu-weread-advisor` 的 alchemy（读书线的划线→笔记提炼）——distill 是它在**文章线**的对应物。仅借鉴方法，不改其文件（第三方 skill）。
-
-## 第三方 skill 关系
-
-| 第三方 skill | 对 `soia-pkm-distill-article-opinion` 的关系 |
-|---|---|
-| `huashu-weread-advisor` (`alchaincyf/huashu-weread`) | 方法参考：借鉴 alchemy 的提问与提炼思路，但本 skill 不调用它、不要求安装它 |
-| `weread-skills` (`Tencent/WeChatReading`) | 非依赖：本 skill 处理 vault 文章，不直接读取微信读书 API |
-| `book-to-skill` | 非依赖 |
-| `find-skills` | 非依赖 |
+1. **铁律：绝不代笔**：AI 只负责提问与口语整理，不加入用户未表达过的判断；用户没想法时可跳过，绝不编造。
+2. **模式 A（单篇提炼）**：定位文章 → 读 `## 原文` → 1–2 句对齐骨架 → 按**立场（买账与否）/ 经验检验 / 对你的意义**三角度用大白话提问，**每次只抛一个问题 + 给一句回答示例**（严禁一次抛多题/表格淹没用户），等用户回答后再下一题 → 整理为第一人称写入 `## 我的看法`（若已有非占位内容先问追加/替换，严禁动 frontmatter/`摘要`/`原文`）。
+3. **模式 B（主题聚合）**：读 `_MOC/<分类>/<主题>.md` 汇总各篇 `## 我的看法`；多数为空则先劝补跑模式 A；足够后落 `<vault-drafts-dir>/YYYY-MM-DD-<主题>-观点综述.md`（`tags:[草稿]`），对接上游 `clip-*` 与下游 `soia-media-compose-article-draft`。

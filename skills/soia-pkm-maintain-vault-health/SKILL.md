@@ -3,128 +3,49 @@ name: soia-pkm-maintain-vault-health
 description: 只读检查整个 Markdown/Obsidian 知识库或指定模块的健康状态，审计死链、歧义文件名、标签策略与过期内容，并按授权重建地图或健康简报。触发：「检查知识库健康」「检查知识库某个模块」「维护知识库」「重建知识库地图」「vault 周维护」
 dependencies:
   optional: [soia-pkm-organize-article-moc]
-version: 1.2.3
+version: 1.2.4
 created_at: 2026-08-01 12:00:00
-updated_at: 2026-11-17 12:20:00
+updated_at: 2026-11-18 10:40:00
 created_by: gpt-5
 updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-maintain-vault-health
 
-负责 vault 的**健康诊断与地图**。它不移动、删除或归档笔记，不配置 AI hook，也不替代面向内容问题的检索技能。
+负责 vault 的**只读健康诊断与全库地图重建**：审计死链、重名歧义、主标签与 20/50 区编号漂移；绝不直接移动、删改笔记，不设 AI hook，不替查询技能回答内容问题。
 
 ## 客户可读说明
 
 ### 这个技能可以做什么
 
-| 客户目标 | 技能行为 | 默认是否写文件 |
+| 客户想要 | 技能会做 | 默认是否写文件 |
 |---|---|---|
-| 检查 vault 健康 | 扫描死链、重复文件名、主标签漂移、未打标、过期文章、读取失败，并报告 20/50 区目录编号漂移（支持 `SOIA_LINT_50_ROOTS_ADD` 扩展 50 区根目录） | 否 |
-| 重建知识库地图 | 先生成临时预览；用户明确要求后覆盖配置的地图文件 | 预览否，确认后是 |
-| vault 周维护 | 运行健康检查，汇总近 7 天变化；按授权写周简报 | 默认否 |
+| 检查全库或指定模块健康度 | 运行 `lint_vault.py` 查死链（含附件/`.base`）、重名歧义、标签漂移、过期与 20/50 编号 | 否 |
+| 重建 `OB知识库地图.md` | 先用 `gen_vault_map.py --output` 预览，获确认后再写入默认地图（或 `$SOIA_VAULT_MAP_OUTPUT`）并复核 `.base` | 预览否，确认后是 |
+| 执行「vault 周维护」简报 | 运行只读检查并统计近 7 天变化，仅用户要求保存时落周简报 | 默认否 |
 
 ### 客户如何使用
 
-提供 vault 路径；若要检查主标签，再提供白名单或在私有配置中设置。只说“检查”时输出 stdout/JSON，不落盘。只有用户明确要求“保存周报”或“重建地图”才写对应产物。
+提供 vault 路径及可选标签白名单/模块路径；默认只输出结果不落盘，仅在明确要求「保存周报」或「重建地图」时写入相应文件。
 
 ### 依赖与安装
 
-- Python 3（纯 stdlib）是脚本强依赖。
-- `soia-pkm-organize-article-moc` 是可选后续：发现需要归类/MOC 合并时转交，不由本技能执行。
-- 健康检查发现 MOC 漂移时，只允许调用 organize 的 `rebuild_moc.py --full-rebuild --dry-run` 做只读预检；unknown topic 非零或预估大规模删改时必须报告并停止，不能在健康检查中直接清空 `_MOC/`。
-- 推荐安装整个 `soia-pkm-vault@soia` 插件；单技能可从本仓安装。
-
-私有配置：
-
-```text
-~/.config/soia-skills/soia-pkm-maintain-vault-health/config.yml
-SOIA_PKM_VAULT_HEALTH_CONFIG_FILE=<custom-config-path>
-```
-
-整域需明确选择（Claude Code 与 Codex 共用同一份域插件）：
-
-```bash
-claude plugin marketplace add soia-team/soia-open-skills
-claude plugin install soia-pkm-vault@soia
-```
-
-默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）：
-
-```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-maintain-vault-health
-```
-
-**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+默认项目单技能：`npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-maintain-vault-health`（`<agent>` 换成明确宿主；仅明确选择全局时加 `-g`）。整域需明确选择：`claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia`（Codex 用 `codex plugin add soia-pkm-vault@soia`）。**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。纯 Python 3 stdlib；可选私有配置 `~/.config/soia-skills/soia-pkm-maintain-vault-health/config.yml` 或 `$SOIA_PKM_VAULT_HEALTH_CONFIG_FILE`（支持 `SOIA_LINT_50_ROOTS_ADD`/`SOIA_LINT_50_ROOTS`）。
 
 ### 私密信息与中间数据
 
-扫描只读取目标 vault；默认跳过 `.git`、`.obsidian`、`.trash`、隐藏目录与所有 symlink。报告不得打印文件正文、凭据或环境变量值。临时预览放系统临时目录，完成后可删除；默认地图输出若经 symlink 逃出 vault 会拒绝写入。
+默认跳过 `.git`/`.obsidian`/`.trash`/隐藏目录与 symlink，拒绝经 symlink 逃出 vault 的地图写入，报告严禁印出正文或环境变量；临时预览放系统临时目录后清理。
 
 ### 日志与完成回执
 
-回执必须包含扫描文件数、排除/不可读数量、各类发现数量、是否写了地图/周报、实际验证与仍需人工判断的问题。
+汇报扫描/排除/不可读计数、六类发现、结构漂移、是否写入地图或周报、真实命令验证；重建涉及 20 区时必须同时列出 `OB知识库地图` 统计与相关 `.base` `file.inFolder` 根路径验证（未配 `.base` 写明“未配置”）。
 
-## 工作流 A：健康检查（默认只读）
+## 三类工作流与边界
 
-```bash
-python3 scripts/lint_vault.py --vault <vault-path> --json
-```
+1. **A · 健康检查**：`python3 scripts/lint_vault.py --vault <vault> [--tags "<t1>,<t2>"] [--50-roots-add ...] --json`。未配 `--tags` 时置 `tag_policy_configured=false` 不误报漂移；带小数点笔记（如 `[[持续交付2.0]]`）按完整名匹配；`topics`/`people` 为词表不判死链，不造空占位页；MOC 审计只允许 `rebuild_moc.py --full-rebuild --dry-run` 预检。20/50 区按目标 vault `AGENTS` 报编号问题不强改名（迁移转 `soia-pkm-manage-vault-lifecycle`）。
+2. **B · 重建地图（门禁见 [index-sync-contract.md](references/index-sync-contract.md)）**：先 `python3 scripts/gen_vault_map.py --vault <vault> --output <tmp.md> [--full]`，确认后省略 `--output` 落盘，随后重跑 `lint` 与生命周期 `vault_index_verify.py` 核对 `20_资料库/资料库.base`。
+3. **C · 周维护**：结合 git/mtime 统计 7 日变更，区分可确定结构问题与需人工裁决项；查 `90_系统归档/60_整理与迁移记录` 时单列直属混放、无编号子目录、canonical/被取代链、失效机器清单与敏感字段候选（只报不删）。
 
-标签策略默认**未配置**，此时 `tag_policy_configured=false` 且不把任意首标签判为漂移。需要标签检查时传：
+## 验证与前向测试
 
-```bash
-python3 scripts/lint_vault.py --vault <vault-path> --json \
-  --tags "<primary-tag-a>,<primary-tag-b>"
-```
-
-检查结果只说明结构风险：重复文件名不自动等于错误；只有短 wikilink 实际产生歧义时才优先修复。链接索引覆盖 Markdown、附件、`.base` 和其他真实文件，不能按扩展名跳过附件死链。
-
-链接判定有两个固定例外：
-
-- 文件名先按完整名称解析，再判断扩展名；`[[持续交付2.0]]`、`[[Fastjson-1.2.83]]` 这类带小数点的笔记不能被当成缺失附件。
-- frontmatter 的 `topics` / `people` 是分类与署名词表，不要求每个词都有同名笔记；这些字段中的双链不计为死链。`book`、`source`、正文和显式附件链接仍须指向真实文件。
-
-发现不存在的分类/署名时，整理技能应保留纯文本并说明“尚无对应笔记”，不要为了让 lint 通过而批量创建空笔记。
-
-能唯一对应的拼写错误可在用户要求修复时单独列 plan；有多个候选、语义归类或删除需求时只报告。
-
-### 20/50 区结构检查
-
-仅当目标范围适用时检查 20/50 区结构，以目标 vault 的 AGENTS、目录约定或用户选定模板为准；无此约定时不把其他用户的目录名称作为合格线。50 区默认检查四段写作流水线目录，若个人 vault 额外开设了账号定位等一级模块，可通过 `--50-roots-add` / `--50-roots` 或私有配置 `SOIA_LINT_50_ROOTS_ADD` / `SOIA_LINT_50_ROOTS` 扩展，不把个人目录名写死进公开默认。报告约定层级的未编号、重复编号及遗留目录；年份、日期、assets 和隐藏状态目录按当地规则排除。只列整改清单，不自动改名、创建分类或迁移；获准的整理转生命周期技能。
-
-## 工作流 B：重建地图
-
-先预览：
-
-```bash
-python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-preview.md>
-python3 scripts/gen_vault_map.py --vault <vault-path> --output <temporary-preview.md> --full   # 对 >40 文件目录逐条列出，供归档/迁移后人工核对
-```
-
-用户确认后才省略 `--output`，写入 `SOIA_VAULT_MAP_OUTPUT` 或默认 `<vault>/20_资料库/OB知识库地图.md`。写后重新运行 lint，并确认地图中的文件/目录统计与实际扫描一致；若 vault 有 `20_资料库/资料库.base`，再运行生命周期技能的 `vault_index_verify.py` 核对 `file.inFolder` 根路径。完整门禁见 [index-sync-contract.md](references/index-sync-contract.md)。
-
-## 工作流 C：周维护
-
-1. 只读运行 lint，并用 git history 或文件时间统计近 7 天变化。
-2. 明确区分：可确定的结构问题、设计性重复、需要用户判断的内容问题。
-3. 仅在用户要求保存时写周简报；路径由客户 vault 规则或配置决定。
-4. 简报固定包含：范围与时间、近 7 天变化、健康发现、已执行修复、人工处理项、验证。
-5. 若检查范围包含 `90_系统归档/60_整理与迁移记录`，额外报告：直属混放文件数、无编号语义子目录、版本链（canonical/被取代）、引用到不存在路径的机器清单，以及敏感字段候选；只报告，不自动移动、脱敏或删除。
-6. 本技能不移动 Inbox/工作台内容；生命周期分流转 `soia-pkm-manage-vault-lifecycle`。
-
-## 边界
-
-- 不删除、移动、改名或归档笔记。
-- 不把 PDF/Word/图片附件当作可直接读取的 Markdown；附件正文完整性转 `soia-pkm-clip-drive` 或显式 OCR 流程核验。
-- 不接入 Claude/Codex 会话日志；转 `soia-pkm-log-agent-sessions`。
-- 不回答“知识库里关于 X 有什么”；转 `soia-pkm-query-vault`。
-- 不使用个人 vault 的标签表作为公开默认；标签策略由客户配置。
-
-## 验收
-
-- 只读运行前后除用户授权产物外的树哈希不变。
-- JSON 可解析，包含 `tag_policy_configured`、六类发现、`20_structure`、`50_structure` 与 unreadable 汇总。
-- 地图预览不触碰 vault；正式地图仅在明确授权后写入。
-- 最终回执列出真实运行的命令和结果，不把“脚本 exit 0”当作唯一证据。
-- 若重建地图涉及 20 区，回执必须同时列出 Base 是否存在、每个根路径是否存在以及地图统计；未配置 Base 时明确写“未配置”，不冒充验证通过。
+只读运行前后除明确授权产物外文件树哈希不变；核验 JSON 含 `tag_policy_configured`、`20_structure`/`50_structure`、地图预览不写库，并在回执只报告真实命令结果。

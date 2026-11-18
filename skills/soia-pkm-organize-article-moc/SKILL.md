@@ -1,151 +1,52 @@
 ---
 name: soia-pkm-organize-article-moc
 description: 将 Obsidian 文章库按元数据、主题双链、月份和两级 MOC 规范化整理。触发：「整理文章库」「重建 MOC」「收藏归类」
-version: 2.1.1
+version: 2.1.2
 created_at: 2026-07-02 17:57:11
-updated_at: 2026-09-14 14:07:07
+updated_at: 2026-11-18 10:30:00
 created_by: claude opus 4.6
-updated_by: openai/gpt-6-astra
+updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-organize-article-moc
 
-PKM 闭环的**整理环节**：把杂乱的收藏规整成结构化、可检索、能聚合的知识。专治"一大堆归档躺在黑洞里没被激活"。
+PKM 闭环 `clip → ★organize → distill → compose → publish` 的**整理与 MOC 同步环节**：补齐元数据、按主题双链与月份归位并增量维护两级 `_MOC/`。
 
 ## 客户可读说明
 
 ### 这个技能可以做什么
 
-整理 Obsidian 文章库——补 frontmatter（topics/captured_at/author）、按主题双链归类、建/更新两级 MOC、按月份归位、补双链。底层调 rebuild_moc.py / backfill 等脚本，上层用 LLM 判断分类。用于激活存量收藏、规整新归档
-
 | 客户想要 | 技能会做 | 客户能看到 |
 |---|---|---|
-| 完成本技能覆盖的工作 | 读取用户请求、必要上下文和本技能正文流程，执行最小可靠步骤 | 客户会看到 Obsidian/vault 文件变更、终端日志、生成产物路径和最终回执。 |
-| 缺少依赖、权限、配置或 key | 停止需要外部状态的动作，明确指出缺什么 | 安装命令、申请地址、配置路径或需要客户确认的问题 |
-| 执行完成 | 汇总成功、跳过、失败、文件变更和验证结果 | 一段可复制进工单/日志的完成回执 |
+| 整理单篇新归档文章（默认闭环） | 补摘要/`topics`/`captured_at`/`author`，按月归位并调 `rebuild_moc.py --article` 增量同步两级 MOC 与地图 | 文章终路径、受影响 MOC 与地图/Base 校验回执 |
+| 盘点或全量重建文章库 `_MOC/` | 先 `rebuild_moc.py --full-rebuild --dry-run` 审查未知 topic，确认后同盘原子替换 `_MOC/` | 总篇数、主题分布与未知 topic 报告 |
 
 ### 客户如何使用
 
-1. 用自然语言说明目标，并提供必要输入：文件、URL、repo、workspace、proposal、vault 或平台账号状态。
-2. 能 dry-run 或预览的动作先给预览；涉及删除、覆盖、发送、发布、写远端状态时先征求客户确认。
+- 「把刚归档的这篇 X 文章整理归位，并增量同步 MOC。」
+- 「先 dry-run 检查一下文章库的 MOC 有没有未知主题或未按月归位的文件。」
 
 ### 依赖与安装
 
-整域需明确选择（装整个领域插件，包含本仓全部技能）：
+默认项目单技能：`npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-organize-article-moc`（`<agent>` 换成明确宿主；仅明确选择全局时加 `-g`）。整域需明确选择：`claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia`（Codex 用 `codex plugin add soia-pkm-vault@soia`）。**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。配置 `~/.config/soia-skills/soia-pkm-organize-article-moc/config.yml` 或 `$SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE`（纯本地操作无需联网）。
 
-```bash
-claude plugin marketplace add soia-team/soia-open-skills
-```
+### 私密信息与中间数据
 
-```bash
-claude plugin install soia-pkm-vault@soia
-```
-
-默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
-
-```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-organize-article-moc
-```
-
-配置约定：
-
-```text
-~/.config/soia-skills/soia-pkm-organize-article-moc/config.yml
-SOIA_PKM_ORGANIZE_ARTICLE_MOC_CONFIG_FILE=<custom-config-path>
-```
-
-- 如果本技能不需要私有配置，可以不创建 `config.yml`。
-- 如果需要 API key、cookie、session、provider home 或本机路径，只能放进私有 `config.yml`、进程环境或 provider 自己的登录态里，不能写进仓库、vault 正文或日志。
-- 第三方 skill 只能声明依赖和安装方式，不直接修改第三方 skill 文件。
-
-**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+仅读写目标 vault 文章目录、`_MOC/` 与 `.categories.json`；全量重建先在同盘暂存目录成功后再原子替换，无凭据外泄风险。
 
 ### 日志与完成回执
 
-每次执行都要让客户看见过程和结果。最低回执格式：
+汇报篇数、补全的 `topics`、归位与 MOC 增量/重建详情、`OB知识库地图` 更新与 `.base` 验证及未完成项；整理失败时严禁把「已归档」包装成「已整理」。
 
-```markdown
-完成：<一句话说明本次完成了什么>。
+## 整理规程与脚本边界
 
-日志摘要：
-- started: <检查到的输入/配置/依赖，不打印秘密值>
-- processed: <数量或范围>
-- created/updated: <数量或路径>
-- skipped/failed: <数量和原因>
+1. **批量 vs 单篇审批边界**：批量移动/改名先读 [references/知识库整理规程.yml](references/知识库整理规程.yml) 只读盘点并确认计划；单篇随 `clip-web`/`clip-wechat-article` 默认自动收口不重复审批，但**单篇严禁调用 `--full-rebuild` 清空重建**（用户说“仅归档”时停在 clip）。
+2. **元数据与移动安全**：优先复用 `_MOC/` 已有分类（无人物笔记的 `people` 保留纯文本，不造空占位页，带小数点文件名按完整路径解析）；未知附件只记“附件缺失”不造假链接。按文件名日期从 `<年>/` 移入 `<年>/<月>/` 前须生成逐文件 SHA-256 清单，不用裸 `mv`。
+3. **底层脚本**：
+   - `python3 scripts/rebuild_moc.py --article <path>`：单篇增量同步受影响的一/二级 MOC（未知 topic 先阻断，优先更新 `_MOC/.categories.json` 后重试）。
+   - `python3 scripts/rebuild_moc.py --full-rebuild [--dry-run] [--allow-unknown-topics]`：先 dry-run 报告再原子全量替换（无 `--article`/`--full-rebuild` 直接拒绝运行）。书库侧另配 `soia-pkm-library-book-catalog/scripts/backfill_reading_records.py`。
+4. **索引门禁**：凡路径变化或增删文件，按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 立即重建全库地图，涉及 `20_资料库/` 再验 `.base`。
 
-文件变化：
-- <绝对路径或“未改动文件”>
+## 验证与前向测试
 
-验证：
-- <运行过的检查、命令或人工核对点>
-
-问题与下一步：
-- <缺 key / 缺依赖 / 需要客户确认 / 建议下一条命令；没有则写“无”>
-```
-
-## ⚠️ 整理前置规程（必读，外部配置）
-
-本技能只负责文章及其 MOC。涉及文章库批量移动、改名或重组时，读取 [`references/知识库整理规程.yml`](references/知识库整理规程.yml)，先只读盘点、给出最小方案，获得范围确认后执行；已批准且未变的计划不重复确认。单篇归档后的整理沿下方自动整理合同，不额外开启批量审批。其他知识库模块交由其适用流程处理。
-
-规程是**外部配置、与本 skill 解耦**——改规程改那个 yml，不写死在本文里。核心红线：不先探明就动手必返工；已有成熟结构还另起一套是重复造轮子；空模板/瞎猜分类/一次性批量生成再让用户挑错都是浪费。
-
-## 做什么
-
-1. **补 frontmatter**：缺 `topics` / `captured_at` / `author` 的补上。
-2. **主题归类**：读文章内容，判断该挂哪些 `topics`（双链）；**优先复用已有主题**（查 `_MOC/`），避免造重复主题。
-3. **建 / 更新 MOC**：单篇默认用 `rebuild_moc.py --article <path>` 只增量更新受影响的一级/二级 MOC；全量重建必须显式走 `--full-rebuild` 门禁。
-4. **按月归位**：`clip` 原生落 `<年>/`，把文章按文件名日期归到 `<年>/<月>/`；执行前先生成逐文件 source/target/SHA-256 清单，禁止用裸 `mv` 猜目标。
-5. **补双链**：文章间、文章 ↔ 书 ↔ 日志的关联。
-6. **索引同步**：只要新建、移动、改名或删除文件/目录，按 `soia-pkm-maintain-vault-health/references/index-sync-contract.md` 重建叶级地图；写入 `20_资料库/` 时再验证相关 `.base`。文章内容-only 修改不刷新统计地图，但 MOC 本身仍需验证链接。
-
-## 单篇归档后的自动整理合同
-
-`clip-web`、`clip-wechat-article` 归档单篇文章后，默认继续调用本技能完成该文件的最小整理闭环：
-
-1. 仅把刚归档的文件作为 scope，补齐摘要、`topics`、`captured_at`、`author`（无法核实时保留空值并报告）。
-2. 按文件名日期确认 `<年>/<月>/` 位置，生成 source/target/SHA-256 清单后再移动。
-3. 用 `rebuild_moc.py --article <path>` 增量同步文章 MOC；若路径变化，立即重建 `OB知识库地图`，并在写入 20 区时验证相关 Base。
-4. 回执同时给出归档路径、整理路径、MOC/地图/Base 验证和未完成项。
-
-用户明确说“仅归档”“不要整理”时只执行 clip；批量账号/云盘导入默认先收集清单，必须获得整理确认后再批量调用本技能。整理失败不能把“已归档”包装成“已整理”。
-
-## 底层脚本（机械层，organize 调用）
-
-- `scripts/rebuild_moc.py --article <path>`：单篇增量同步，只改该文章 topics 对应的一级/二级 MOC；未知 topic 会在写入前阻断。
-- `scripts/rebuild_moc.py --full-rebuild --dry-run`：全库预检，报告文章数、topic 对和未知 topic，不修改 `_MOC/`。
-- `scripts/rebuild_moc.py --full-rebuild`：显式全量重建。脚本先完成全库扫描，未知 topic 默认阻断；随后在同盘暂存目录完整生成并成功后原子替换，生成失败保留旧 `_MOC/`。只有核对报告后才能用 `--allow-unknown-topics` 接受遗漏。无 `--article`/`--full-rebuild` 时直接拒绝运行。
-- `soia-pkm-library-book-catalog/scripts/backfill_reading_records.py`：书库 → 阅读记录补齐（读书线的本地 catalog）。
-- 按月归位：`mv <年>/*.md <年>/<月>/`（按文件名日期）。
-
-> organize = **LLM 判断分类 / 综述 + 机械层脚本批量执行**。脚本负责确定性批量操作；LLM 负责"这篇属于什么主题""这个 MOC 的核心判断是什么"。
-
-## 分类原则
-
-- topic 优先复用已有（查 `_MOC/`），不轻易造新主题；没有对应 MOC 笔记时使用纯文本分类或列入 unknown-topic 报告，不创建空占位笔记。
-- `people` 是来源署名词表，只有人物笔记确实存在时才使用 wikilink；否则保留纯文本并注明未建人物页。
-- 附件缺失不能伪造文件或补假链接：保留原文件名与“附件缺失”证据，区分正文缺失、文件名命中和 OCR/提取命中。
-- 带小数点的文件名先按完整文件名解析；需要消除重名或路径歧义时才改成带 `.md` 的完整路径 wikilink，并保留 alias。
-- 映射来自 `rebuild_moc.py` 的默认分类表或 vault 内 `_MOC/.categories.json`；单篇新增主题应优先补分类表后增量同步，不以全量重建试错。
-
-## 回执
-
-整理后告知：处理了多少篇、补了哪些 topics、MOC 更新情况、归位了多少文件，以及地图 `updated`、统计和 Base 验证结果。
-
-## 闭环位置
-
-```
-clip(收) → ★organize(整理) → distill(点) → compose(写) → publish(发)
-```
-
-上游 `clip` 收进来（可能杂乱、落在年份根目录）；`organize` 规整；下游 `distill` 在规整的库上提炼。
-
-
----
-
-## 完成后回执
-
-回执包含：
-
-1. **做了什么** — 一句话总结完成的工作。
-2. **文件变更** — 列出新建 / 修改 / 移动的文件（完整路径）；未改动文件则说明"未改动文件"。
-3. **下一步** — 可选的后续建议（如衔接的下一个 skill）。
+改后运行仓库 `unittest`（`tests/` 覆盖参数、去重、落盘与未知 topic 阻断）与 `audit_skills.py --strict`。

@@ -9,128 +9,53 @@ dependencies:
     - name: huashu-weread-advisor
       required: false
       install: "npx skills add alchaincyf/huashu-weread -g -y"
-version: 2.2.2
+version: 2.2.3
 created_at: 2026-07-02 16:45:19
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-11-18 10:40:00
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-bootstrap-vault-base
 
-创建平台中立的 Markdown 内容骨架与 AI 协作规则。`.obsidian/`、ima 或其他消费端配置由各自特化技能负责。
+初始化平台中立的 AI-native Markdown vault 骨架与 `AGENTS.md` 多 AI 适配层；默认 plan-first、create-only 幂等，**不创建 `.obsidian/`**、不覆盖已有文件（消费端配置交给 `soia-pkm-bootstrap-vault-obsidian` 等特化技能）。
 
 ## 客户可读说明
 
 ### 这个技能可以做什么
 
-- 创建 00/10/20/30/40/50/60/90 分区、下钻 `AGENTS.md`、工作台 Schema v2、长期知识 Schema 与对应模板；20 区精选目录固定为 `10_主题知识`、`20_规范与手册`、`30_学习指南`，历史导入使用 `90_历史导入`。
-- 默认元信息目录与当前 SOIA vault 约定一致，使用 `00_Obsidian系统/`；工作台收件箱使用 `10_工作台/00_Inbox/`。旧名 `00_知识库系统/`、`00_收件箱/` 不再由默认配置创建；已有不同命名的 vault 应通过自定义 config 显式保留。
-- 建立 `AGENTS.md` 唯一规则源及 Claude/Gemini/opencode/workbuddy 适配层。
-- 支持 JSON/YAML 自定义、默认 plan、显式 `--apply`、create-only 幂等和 `--check`。
-- 不创建 `.obsidian`、不安装插件、不配置 hook、不删除或覆盖现有文件。
+| 客户想要 | 技能会做 | 客户能看到 |
+|---|---|---|
+| 初始化中立 PKM 骨架与规则层 | 创建 00–90 分区（20 精选固定 `10_主题知识`/`20_规范与手册`/`30_学习指南`、历史导入 `90_历史导入`，默认 `00_Obsidian系统/` 与 `10_工作台/00_Inbox/`）及模板 | json `plan`、逐文件 create/skip/conflict/drift 与 `--check` 结果 |
 
 ### 客户如何使用
 
-1. 提供目标目录、语言/命名偏好和是否继承默认结构。
-2. 先运行 plan，逐项审查 create/skip/conflict/drift。
-3. 客户确认后加 `--apply`；已有文件默认跳过。
-4. 再运行 `--check`，确认必需目录和种子文件存在。
+提供目标目录及可选自定义 `config.json`（Schema v2 支持 `extends_default`、`directories`、`files`），先跑默认 plan 审查 create/skip/drift，再 `--apply` 与 `--check`。
 
 ### 依赖与安装
 
-Python 3 是强依赖，JSON 配置零第三方依赖；YAML 配置额外需要 PyYAML。推荐安装整个 `soia-pkm-vault@soia` 插件。
-
-整域需明确选择（Claude Code 与 Codex 共用同一份域插件）：
-
-```bash
-claude plugin marketplace add soia-team/soia-open-skills
-claude plugin install soia-pkm-vault@soia
-```
-
-默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）：
-
-```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-bootstrap-vault-base
-```
-
-**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+默认项目单技能：`npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-bootstrap-vault-base`（`<agent>` 换成明确宿主；仅明确选择全局时加 `-g`）。整域需明确选择：`claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia`（Codex 用 `codex plugin add soia-pkm-vault@soia`）。**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。依赖 Python 3 stdlib；YAML 配置额外需 `PyYAML`。
 
 ### 私密信息与中间数据
 
-默认资产不含个人资料、账号、凭据、绝对路径或私有项目事实。自定义配置由客户自行保管；含私人内容时不要提交到公开技能仓。
+默认资产不含个人路径、账号或凭据；自定义含私人配置时由客户自行保管，不回交公开仓库。
 
 ### 日志与完成回执
 
-回执必须列出 plan/apply/check 模式、create/skip/conflict/drift 数量、目标类别、未覆盖文件和下一步平台特化技能。
+汇报 plan/apply/check 模式、create/skip/conflict/drift 计数、目标类别、未覆盖文件及后续消费端特化技能建议。
 
-## 命令
+## CLI、Schema v2 与生命周期约束
 
 ```bash
-# 默认只输出 JSON plan，不创建目标目录
-python3 scripts/init_vault.py <vault-path>
-
-# 确认后执行 create-only 初始化
-python3 scripts/init_vault.py <vault-path> --apply
-
-# 验证必需骨架；缺失或 managed drift 时非 0
-python3 scripts/init_vault.py <vault-path> --check
-
-# 自定义
-python3 scripts/init_vault.py <vault-path> --config <config.json>
-python3 scripts/init_vault.py --print-default-config
+python3 scripts/init_vault.py <vault-path>                         # 1. 只输出 JSON plan
+python3 scripts/init_vault.py <vault-path> --apply                 # 2. create-only 初始化
+python3 scripts/init_vault.py <vault-path> --check                 # 3. 校验骨架与 drift
+python3 scripts/init_vault.py <vault-path> --config <config.json>  # 或 --print-default-config
 ```
 
-`--force --apply` 会覆盖种子文件，属于高风险兼容选项：必须先显示逐文件 overwrite plan 并获得明确授权。正常增量升级应使用生命周期/文档同步方案，不用 force 重灌整个 vault。
+- **绝对红线**：所有自定义路径须为 vault 相对路径，禁止 `..` / 绝对路径 / symlink 逃逸（CLI > custom config > 默认）；`20_资料库/` 新增语义目录须带唯一数字前缀，已有 `10_融合分类/` 等迁移转 `soia-pkm-manage-vault-lifecycle` manifest；`--force --apply` 须先展示逐文件 overwrite plan 并获明确授权。
+- **分区职责**：`10_工作台` 仅存当前状态；`30` 存冻结证据；去状态知识提炼至 `20` 精选（转 `soia-pkm-extract-vault-knowledge`）；历史入 `90`；Agent 日志分 `10_自动快照`/`20_精选复盘`/`90_历史导入`；接入会记 hook 转 `soia-pkm-log-agent-sessions`。Schema v2 保留一个周期对 v1 的兼容读取。
 
-## 默认结构与生命周期
+## 验证与前向测试
 
-- `10_工作台` 只保留当前状态/下一步：Inbox、唯一总控、按项目控制面。
-- 一次性调研/审计/决策/执行/验收冻结到 30。
-- 去状态后仍可复用的知识以“来源保留、create-only 提炼”进入 20 的主题知识、规范手册或学习指南；历史导入语料不自动视为精选知识。
-- 已结束或被取代的工作台材料移到 `90_系统归档/10_工作台历史`。
-- 20 区历史导入目标为 `90_历史导入/`；其一级分类采用 `10_保险`、`20_读书`、`30_工作`、`40_技术`、`50_日记`、`60_生活`、`70_写作`、`80_学习`、`90_资源`。已有旧 `10_融合分类/` 只能通过生命周期 manifest 迁移，不得初始化时裸改名。
-- Agent 日志分为 `10_自动快照 / 20_精选复盘 / 90_历史导入`，默认不存完整聊天。
-
-默认配置和种子资产是一个可修改的起点，不声称数字分区适合所有客户。若客户已有 `AGENTS.md` 或不同分区，先读取并用自定义 config 扩展；create-only 会保留现有规则。
-
-## 配置 Schema v2
-
-```json
-{
-  "schema_version": 2,
-  "extends_default": true,
-  "directories": {"add": ["20_资料库/10_主题知识/40_扩展主题"], "remove": []},
-  "files": {
-    "add": [
-      {"path": "20_资料库/10_主题知识/40_扩展主题/AGENTS.md", "mode": "create_only", "content": "# 规则\n"}
-    ]
-  }
-}
-```
-
-- 所有目标必须是 vault 相对路径；绝对路径、`..` 和 symlink 逃逸立即失败。
-- `mode: create_only`：存在即跳过；`managed`：check 时报告内容漂移，但仍不自动覆盖。
-- 自定义配置新增 `20_资料库/` 语义目录时必须使用唯一数字前缀；不要用 `20_资料库/主题` 这类无编号路径。已有目录改名应转生命周期 manifest，并在完成后刷新地图、验证 Base。
-- CLI > custom config > bundled defaults。配置扩展不要求改公开脚本。
-- schema v1 仍可读取一个兼容周期，并在合并后按 v2 行为执行。
-
-## 与其他技能的边界
-
-- Obsidian 设置、`.base` 视图、Bases 核心插件和 CSS → `soia-pkm-bootstrap-vault-obsidian`。
-- 健康检查/地图 → `soia-pkm-maintain-vault-health`。
-- 工作台/Inbox/归档迁移 → `soia-pkm-manage-vault-lifecycle`。
-- 会话日志 hook → `soia-pkm-log-agent-sessions`（改用户配置前必须确认）。
-- 只读搜索/回答 → `soia-pkm-query-vault`。
-- PDF、Word、表格等附件提取后再检索 → `soia-pkm-clip-drive` → `soia-pkm-query-vault`；图片正文需要显式 OCR，不能把文件名命中当正文。
-- 从日志、报告或历史语料提炼长期知识 → `soia-pkm-extract-vault-knowledge`。
-
-## 验收
-
-在两个临时目录做 forward test：
-
-1. 默认调用只输出 plan 且目录不存在。
-2. `--apply` 创建骨架，但不存在 `.obsidian/`。
-3. 修改一个 create-only 文件后再次 `--apply`，内容保持不变。
-4. `--check` 能报告缺失与 managed drift。
-5. `../escape`、绝对路径和目标类型冲突均失败。
+在两个临时目录实测：默认调用仅出 plan 不建目录、`--apply` 不产 `.obsidian/`、修改 `create_only` 文件重跑保持不变、`--check` 能报 drift、`../escape` 必失败。

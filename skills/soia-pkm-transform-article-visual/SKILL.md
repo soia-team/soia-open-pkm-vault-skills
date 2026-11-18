@@ -1,113 +1,43 @@
 ---
 name: soia-pkm-transform-article-visual
 description: 把文章转换为长图、信息图、海报、封面、插画等视觉产物。HTML/CSS 截图为本地默认方案，可选 Open Design 或 Codex 图生成。Triggers：「生成长图」「做成信息图」「转成海报」「生成封面」「做成图片」「export visual」「make infographic」
-version: 1.2.3
+version: 1.2.4
 created_at: 2026-07-16 10:58:46
-updated_at: 2026-08-05 13:30:00
+updated_at: 2026-11-18 10:45:00
 created_by: claude opus 4.6
-updated_by: claude-opus-5
+updated_by: gemini-4-hydrogen
 ---
 
 # soia-pkm-transform-article-visual
 
-把已归档或指定文章转换为视觉产物：长图、信息图、海报、封面或插画。
+将 Markdown / vault 文章（或 URL 先经 clip 归档）转换为长图、信息图、概念图、海报、封面或插画，默认本地 HTML/CSS 无头浏览器截图。
 
 ## 客户可读说明
 
 ### 这个技能可以做什么
 
-把 Markdown / vault 文章或 URL 渲染为图片产物：
-
-- **长图**：完整文章内容纵向展开为单张 PNG/JPEG
-- **信息图**：核心概念可视化，节点 + 连接 + 标注
-- **术语地图 / 路线图**：左侧认知路径 + 右侧视觉隐喻 + 底部结论
-- **海报 / 封面**：单张设计稿，强排版重视觉
-- **插画 / 封面图**：可选 Codex imagegen 生成配图
-
 | 客户想要 | 技能会做 | 客户能看到 |
 |---|---|---|
-| 生成长图 | HTML/CSS 渲染截图，prompt 落盘可重跑 | 图片路径、像素尺寸、预览 |
-| 指定 provider | 走对应 provider 流程 | provider 日志 |
-| 执行完成 | 验收文件存在、尺寸合理、中文可读 | 完成回执 |
+| 文章转长图/信息图/概念图/海报/封面 | 按 `visual_dense` 重组核心概念，写 prompt 落盘并用选定 provider 生成高清图 | PNG/JPEG 路径、分辨率与 `view_image` 验收结果 |
+| 切换生成引擎（`local` / `open-design` / `codex-image`） | 优先客户指定，按硬依赖就绪情况执行并在报告中写明真实 provider | prompt 路径与真实渲染通道记录 |
 
 ### 客户如何使用
 
-1. 说明来源（URL / vault 路径 / 本地 Markdown）和目标视觉类型（长图/信息图/海报/封面，可选）。
-2. 可选：指定 provider（`local` / `open-design` / `codex-image`）、风格、尺寸。
-3. URL 来源先 clip 归档再转换。
+说明来源（vault 路径/URL 先 clip）和目标类型（`long_image` 默认 / `infographic` / `concept_map` / `poster` / `cover` / `illustration`），可选指定 provider 与参考图（仅提取版式语法，不抄内容）。
 
 ### 依赖与安装
 
-```bash
-claude plugin marketplace add soia-team/soia-open-skills
-```
+默认项目单技能：`npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-transform-article-visual`（`<agent>` 换成明确宿主；仅明确选择全局时加 `-g`）。整域需明确选择：`claude plugin marketplace add soia-team/soia-open-skills && claude plugin install soia-pkm-vault@soia`（Codex 用 `codex plugin add soia-pkm-vault@soia`）。**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。`local` 路径走浏览器截图（zero extra deps）；可选 [open-design](references/provider-open-design.md)（原子操作真源见 `soia-dev-open-design-ops`）或 [codex-image](references/prompt-codex-image.md) 显式选择缺依赖即停止不谎报；配置 `~/.config/soia-skills/soia-pkm-transform-article-visual/config.yml` 或 `$SOIA_PKM_TRANSFORM_ARTICLE_VISUAL_CONFIG_FILE`。
 
-```bash
-claude plugin install soia-pkm-vault@soia
-```
+### 私密信息与中间数据
 
-默认项目单技能（`<agent>` 换成明确宿主，执行前核实当前参数；仅明确选择全局时加 `-g`）。与域插件二选一，避免双份索引各自漂移：
-
-```bash
-npx skills add soia-team/soia-open-pkm-vault-skills -a <agent> -s soia-pkm-transform-article-visual
-```
-
-- 本地截图方案：优先使用当前 agent 的浏览器截图能力；命令行 smoke 可注入 Playwright，也可在缺少 Playwright 时使用系统浏览器/PDF-图片工具 fallback。
-- Open Design（可选强化）：本机已有可用的 Open Design 环境时才可使用 `provider=open-design`；见 [references/provider-open-design.md](references/provider-open-design.md)
-- Codex image / imagegen（可选）：见 [references/prompt-codex-image.md](references/prompt-codex-image.md)
-
-| 路径 | 依赖 | 缺失时行为 |
-|---|---|---|
-| `local` | 无 | 零依赖可用 |
-| `codex-image` | 当前环境的 image generation 能力 | 仅该 provider 停在工具可用性闸门 |
-| `open-design` | 用户自备的 Open Design 环境（该路径硬依赖） | 停止该 provider，给出环境检查命令并请用户按 Open Design 官方文档安装；不把它冒充为 Open Design 结果 |
-
-`local` 和 `codex-image` 路径不依赖 Open Design；一旦用户选择 `provider=open-design`，可用的 Open Design 环境就是该次执行的硬依赖。
-
-私有配置放在 `~/.config/soia-skills/soia-pkm-transform-article-visual/config.yml`，可用 `SOIA_PKM_TRANSFORM_ARTICLE_VISUAL_CONFIG_FILE` 覆盖。
-
-**WorkBuddy** 使用[专家安装说明](https://github.com/soia-team/soia-open-skills/blob/main/docs/install/workbuddy.md)，不由 npx 代装。上述命令不构成安装或发布授权。
+中间 HTML 放系统临时目录并于截图后清理，不读取或记录凭据；Prompt 必须落 `outputs/transform/<YYYY>/<stem>/prompts/`，终稿落同级目录。
 
 ### 日志与完成回执
 
-```markdown
-完成：<一句话>。
+汇报 `source`、`visual_type`、真实 `provider`（如发生降级须明写）、Prompt 与图片路径、像素尺寸及 `view_image` 验收结果。
 
-日志摘要：
-- source: <路径或 URL>
-- visual_type: long_image | infographic | poster | cover | illustration
-- provider: local | open-design | codex-image
-- content_mode: visual_dense
-- prompt: <落盘路径>
-- output: <图片路径>
-- dimensions: <宽x高 px>
+## 工作流与质量边界
 
-验证：
-- 文件存在，大小 > 50KB
-- 尺寸合理（宽 ≥ 750px，高视类型而定）
-- 目视中文可读、无截断、无方块乱码
-
-问题与下一步：
-- <无 / provider 降级原因 / 建议>
-```
-
-## 边界
-
-- 默认 `visual_dense` 模式：核心概念保留，排版压缩，不逐段重复原文。
-- 位图上文字错误（乱码、溢出、重叠）**唯一合法修复是改 prompt 重新生成**，禁止 PIL/Canvas/ImageMagick 描字覆盖。
-- prompt 必须落盘到 `outputs/transform/<YYYY>/<stem>/prompts/` 保证可重跑。
-- Open Design / Codex-image 是可选 provider。未指定 provider 时可选择本地路径；用户显式选择 `open-design` 而缺少其原子层或环境时，停止该 provider 并说明缺口，不静默降级或声称已使用 Open Design。
-- 不做内容总结；但允许信息架构重组（如将段落提炼为节点关系图）。
-
-## 工作流
-
-1. 确认来源 → URL 先 clip。
-2. 确定 `visual_type`：`long_image`（默认）/ `infographic` / `concept_map` / `poster` / `cover` / `illustration`。
-3. 选 provider：用户指定 > 配置 > 本地 HTML/CSS 截图。
-4. 读 [references/prompt-infographic.md](references/prompt-infographic.md) 或 [references/prompt-codex-image.md](references/prompt-codex-image.md)（封面/插画时）生成 prompt，落盘。用户提供参考图时，先提取其版式语法，不直接复制内容。
-5. 生成产物到 `outputs/transform/<YYYY>/<stem>/`。
-6. 先跑机械质量门，再实际渲染 PNG；最后用 `view_image` 或等价视觉检查确认中文可读、无重叠、无截断。
-7. 任何 fallback 必须在 manifest 和回执中写明真实 provider，不得把浏览器工具 fallback 写成 Open Design 或 imagegen。
-8. 回执。
-
-详见 [references/prompt-infographic.md](references/prompt-infographic.md)、[references/design-prompts.md](references/design-prompts.md)、[references/quality-gates.md](references/quality-gates.md)、[references/provider-open-design.md](references/provider-open-design.md)。Open Design 的环境、daemon、目录与导出原子操作以 `soia-dev-open-design-ops/SKILL.md` 为单一真源。
+1. 读 [prompt-infographic.md](references/prompt-infographic.md) / [design-prompts.md](references/design-prompts.md) / [prompt-codex-image.md](references/prompt-codex-image.md) 编译并落盘 Prompt，跑机械质量门（[quality-gates.md](references/quality-gates.md)）后生成 PNG，最后必须用 `view_image` 验证 **>50KB、宽 ≥750px、中文可读无截断无乱码**。
+2. **修字红线**：位图出现乱码、溢出或重叠时**必须改 Prompt 重新生成**，严禁用 PIL/Canvas/ImageMagick 描字覆盖。
