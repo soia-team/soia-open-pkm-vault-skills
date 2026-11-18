@@ -3,6 +3,14 @@
 本文件由 soia-meta-skill-release 在每次正式发版时自动更新，与 GitHub Release 同源；
 更早的版本演进见 git 提交历史与 GitHub Releases。
 
+## v1.14.2 — 2026-11-18
+
+瘦身 26 个 SKILL.md 并外提公众号批量路线参考
+
+## 维护
+- refactor(skills): slim 26 SKILL.md files for strong models and extract wechat routes (#106)
+- chore(release): open next train after v1.14.1 (#105)
+
 ## v1.14.1 — 2026-11-17
 
 为 clip-x 新增 X Article cover_media 提取，同步公众号多账号与健康检查 50 区说明及 README 常驻 Token
